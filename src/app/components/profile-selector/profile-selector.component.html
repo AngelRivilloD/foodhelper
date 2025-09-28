@@ -1,0 +1,12 @@
+<div class="profile-selector">
+  <select 
+    class="profile-select" 
+    [value]="selectedProfile" 
+    (change)="onProfileChange($event)">
+    <option 
+      *ngFor="let profile of profiles" 
+      [value]="profile.value">
+      {{ profile.label }}
+    </option>
+  </select>
+</div>

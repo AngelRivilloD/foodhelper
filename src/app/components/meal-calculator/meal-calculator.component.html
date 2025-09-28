@@ -1,0 +1,134 @@
+<div class="meal-calculator-container">
+  <header class="header">
+    <h2>Plan de comidas</h2>
+    <p>Tu plan personalizado de alimentación</p>
+    
+    <!-- Selector de tipo de comida -->
+    <div class="meal-type-selector">
+      <div class="meal-type-buttons">
+        <button 
+          *ngFor="let mealType of mealTypes" 
+          class="meal-type-btn"
+          [class.active]="selectedMealType === mealType.key"
+          (click)="selectMealType(mealType.key)">
+          {{ mealType.label }}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="meal-categories">
+    <div 
+      class="category-section" 
+      *ngFor="let category of getActiveCategories()">
+      
+      <div class="category-header">
+        <span class="category-icon" [style.color]="category.color">{{ category.icon }}</span>
+        <h3>{{ category.label }}</h3>
+        <span class="category-target">{{ getTargetValue(category.key) }} porciones</span>
+      </div>
+
+      <div class="foods-list" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
+        <div 
+          class="food-item" 
+          *ngFor="let item of mealPlan[category.key]">
+          
+          <div class="food-item-content">
+            <div class="food-info">
+              <h4>{{ item.food.alimento }}</h4>
+              <div class="food-details">
+                <span class="portion-info">
+                  {{ item.portions }} porción{{ item.portions !== 1 ? 'es' : '' }}
+                </span>
+                <span class="amount-info">
+                  {{ item.totalAmount }}
+                </span>
+              </div>
+              
+              <!-- Controles de porciones - OCULTOS -->
+              <!-- <div class="portion-controls">
+                <button 
+                  class="portion-btn decrement"
+                  (click)="decrementPortions(category.key, item.food)"
+                  [disabled]="item.portions <= 1">
+                  −
+                </button>
+                <span class="portion-display">{{ item.portions }}</span>
+                <button 
+                  class="portion-btn increment"
+                  (click)="incrementPortions(category.key, item.food)">
+                  +
+                </button>
+              </div> -->
+            </div>
+            
+            <div class="food-actions">
+              <!-- <div class="amount-display">{{ item.totalAmount }}</div> -->
+              
+              <!-- Botón de cambio -->
+              <button 
+                class="change-btn"
+                (click)="showAlternatives = showAlternatives === item.food.alimento ? null : item.food.alimento">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 3v5h-5"/>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M8 16H3v5"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Alternativas (se muestra cuando se hace clic en "Cambiar") -->
+          <div class="alternatives" *ngIf="showAlternatives === item.food.alimento">
+            <h5>Alternativas:</h5>
+            <div class="alternative-list">
+              <button 
+                class="alternative-btn"
+                *ngFor="let alternative of getAlternatives(category.key, item.food)"
+                (click)="replaceFood(category.key, item.food, alternative); showAlternatives = null">
+                {{ alternative.alimento }}
+                <small>{{ alternative.gramos }}</small>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-foods" *ngIf="!mealPlan[category.key] || mealPlan[category.key].length === 0">
+        <p>No hay alimentos configurados para esta categoría</p>
+        <small>Agrega alimentos en la configuración</small>
+      </div>
+
+      <!-- Botón para agregar más alimentos -->
+      <div class="add-food-section" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
+        <button class="add-food-btn" (click)="showAddFood = showAddFood === category.key ? null : category.key">
+          ➕ Agregar más alimentos
+        </button>
+        
+        <!-- Lista de alimentos disponibles para agregar -->
+        <div class="available-foods" *ngIf="showAddFood === category.key">
+          <h5>Alimentos disponibles:</h5>
+          <div class="available-foods-list">
+            <button 
+              class="available-food-btn"
+              *ngFor="let food of getAvailableFoods(category.key)"
+              (click)="addFoodToPlan(category.key, food)">
+              {{ food.alimento }}
+              <small>{{ food.gramos }}</small>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn primary" (click)="generateMealPlan()">
+      🔄 Recalcular Plan
+    </button>
+    <button class="action-btn secondary">
+      📤 Exportar Lista
+    </button>
+  </div>
+</div>

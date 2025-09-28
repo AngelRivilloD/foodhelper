@@ -1,0 +1,36 @@
+.app-container {
+  min-height: 100vh;
+  background: #fdfcf8a4;
+   /* //#f0ede4 */
+  padding: 20px 0;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+  padding: 20px;
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 15px;
+  }
+  
+  .app-content {
+    gap: 15px;
+    padding: 0 16px;
+  }
+}

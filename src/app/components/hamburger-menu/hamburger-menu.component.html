@@ -1,0 +1,20 @@
+<div class="hamburger-menu">
+  <button class="hamburger-button" (click)="toggleMenu()" [class.active]="isMenuOpen">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+  
+  <div class="section-display" *ngIf="selectedSection">
+    {{ displayText }}
+  </div>
+  
+  <div class="menu-dropdown" [class.open]="isMenuOpen">
+    <div class="menu-item" (click)="selectOption('plan')">
+      Plan de comidas
+    </div>
+    <div class="menu-item" (click)="selectOption('config')">
+      Configurar porciones
+    </div>
+  </div>
+</div>

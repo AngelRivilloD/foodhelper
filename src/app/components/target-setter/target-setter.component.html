@@ -1,0 +1,77 @@
+<div class="target-setter-container">
+  <header class="header">
+    <h2>Objetivos diarios</h2>
+    <p>Configura las porciones de {{ currentProfile }}</p>
+  </header>
+
+  <div class="targets-grid">
+    <div 
+      class="target-item" 
+      *ngFor="let category of macroCategories"
+      [style.border-color]="category.color">
+      
+      <div class="target-header">
+        <span class="target-icon" [style.color]="category.color">{{ category.icon }}</span>
+        <h3>{{ category.label }}</h3>
+      </div>
+
+      <div class="target-controls">
+        <button 
+          class="control-btn decrement"
+          (click)="decrementTarget(category.key)"
+          [disabled]="isTargetDisabled(category.key)">
+          −
+        </button>
+        
+        <div class="target-value">
+          <input 
+            type="number" 
+            [value]="getTargetValue(category.key)"
+            (input)="onInputChange(category.key, $event)"
+            min="0"
+            class="target-input">
+          <span class="target-unit">porciones</span>
+        </div>
+        
+        <button 
+          class="control-btn increment"
+          (click)="incrementTarget(category.key)">
+          +
+        </button>
+      </div>
+
+      <div class="target-preview">
+        <span class="preview-text">
+          {{ getTargetValue(category.key) }} porción{{ getTargetPlural(category.key) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <h3>Resumen Total</h3>
+    <div class="total-macros">
+      <span class="total-item">
+        🍞 {{ targets['Carbohidratos'] }} carbohidratos
+      </span>
+      <span class="total-item">
+        🫘 {{ targets['Legumbres'] }} legumbres
+      </span>
+      <span class="total-item">
+        🥩 {{ targets['Proteina Magra'] }} proteína magra
+      </span>
+      <span class="total-item">
+        🐟 {{ targets['Proteina Semi-Magra'] }} proteína semi-magra
+      </span>
+      <span class="total-item">
+        🥛 {{ targets['Lácteos'] }} lácteos
+      </span>
+      <span class="total-item">
+        🥑 {{ targets['Grasas'] }} grasas
+      </span>
+      <span class="total-item">
+        🍓 {{ targets['Frutas'] }} frutas
+      </span>
+    </div>
+  </div>
+</div>
