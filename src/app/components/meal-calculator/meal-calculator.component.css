@@ -294,7 +294,7 @@
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  z-index: 9999;
   max-height: 50vh;
   overflow-y: auto;
   margin-top: 4px;
@@ -332,6 +332,13 @@
   color: #666666;
   font-size: 0.8rem;
   margin-top: 2px;
+}
+
+/* Ocultar botón cuando el dropdown está abierto */
+.change-btn.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
 .alternatives {
