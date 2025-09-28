@@ -170,7 +170,7 @@ export class ProfileConfigService {
           "carbohidratos": 2,
           "proteína M": 6,
           "proteína SM": 0,
-          "grasas": 1
+          "grasas": 0
         }
       };
     }
