@@ -187,7 +187,7 @@ export class ProfileConfigService {
           "proteína SM": 2,
           "grasas": 1
         },
-        "ALMUERZO": {
+        "COMIDA": {
           "leche/yogurt": 0,
           "vegetales": 1,
           "fruta": 0,
