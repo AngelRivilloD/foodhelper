@@ -1,7 +1,6 @@
 <div class="meal-calculator-container">
   <header class="header">
     <h2>Plan de comidas</h2>
-    <p>Tu plan personalizado de alimentación</p>
     
     <!-- Selector de tipo de comida -->
     <div class="meal-type-selector">
@@ -37,11 +36,14 @@
             <div class="food-info">
               <h4>{{ item.food.alimento }}</h4>
               <div class="food-details">
-                <span class="portion-info">
+                <!-- <span class="portion-info">
                   {{ item.portions }} porción{{ item.portions !== 1 ? 'es' : '' }}
-                </span>
-                <span class="amount-info">
-                  {{ item.totalAmount }}
+                </span> -->
+                <span class="portion-info" 
+                      [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                      [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                      (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+                  {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
                 </span>
               </div>
               
@@ -100,13 +102,12 @@
         <small>Agrega alimentos en la configuración</small>
       </div>
 
-      <!-- Botón para agregar más alimentos -->
+      <!-- Botón para agregar más alimentos
       <div class="add-food-section" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
         <button class="add-food-btn" (click)="showAddFood = showAddFood === category.key ? null : category.key">
           ➕ Agregar más alimentos
         </button>
         
-        <!-- Lista de alimentos disponibles para agregar -->
         <div class="available-foods" *ngIf="showAddFood === category.key">
           <h5>Alimentos disponibles:</h5>
           <div class="available-foods-list">
@@ -119,7 +120,7 @@
             </button>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 

@@ -15,6 +15,7 @@ export class MealCalculatorComponent implements OnInit {
   showAlternatives: string | null = null;
   showAddFood: string | null = null;
   selectedMealType: string = 'DESAYUNO';
+  cookedItems: Set<string> = new Set(); // Rastrear qué items están en modo cocinado
   
   mealTypes = [
     { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
@@ -153,5 +154,68 @@ export class MealCalculatorComponent implements OnInit {
       const objectiveValue = mealObjectives[category.key];
       return objectiveValue && objectiveValue > 0;
     });
+  }
+
+  // Generar ID único para cada item
+  getItemId(category: string, food: FoodItem): string {
+    return `${category}-${food.alimento}`;
+  }
+
+  // Toggle entre peso original y cocinado
+  toggleCookedWeight(category: string, food: FoodItem): void {
+    const itemId = this.getItemId(category, food);
+    if (this.cookedItems.has(itemId)) {
+      this.cookedItems.delete(itemId);
+    } else {
+      this.cookedItems.add(itemId);
+    }
+  }
+
+  // Verificar si un item está en modo cocinado
+  isCookedMode(category: string, food: FoodItem): boolean {
+    const itemId = this.getItemId(category, food);
+    return this.cookedItems.has(itemId);
+  }
+
+  // Obtener el peso a mostrar (original o cocinado)
+  getDisplayWeight(category: string, food: FoodItem, totalAmount: string): string {
+    // Solo aplicar lógica de cocinado a alimentos medidos en gramos de categorías específicas
+    if (this.isCookedMode(category, food) && 
+        this.shouldShowCookedWeight(totalAmount) && 
+        this.shouldCategoryShowCookedWeight(category)) {
+      return this.getCookedWeight(totalAmount);
+    }
+    return totalAmount;
+  }
+
+  // Verificar si el alimento debe mostrar peso cocinado (solo gramos de ciertas categorías)
+  shouldShowCookedWeight(totalAmount: string): boolean {
+    return totalAmount.includes('g') && !totalAmount.includes('unidad');
+  }
+
+  // Verificar si la categoría permite peso cocinado
+  shouldCategoryShowCookedWeight(category: string): boolean {
+    const categoriesWithCookedWeight = ['Carbohidratos', 'Proteina Magra', 'Proteina Semi-Magra', 'Lácteos'];
+    return categoriesWithCookedWeight.includes(category);
+  }
+
+  // Calcular peso cocinado (restando 20%)
+  getCookedWeight(totalAmount: string): string {
+    // Extraer el número del totalAmount
+    const match = totalAmount.match(/(\d+)/);
+    if (match) {
+      const rawWeight = parseInt(match[1]);
+      const cookedWeight = Math.round(rawWeight * 0.8); // Restar 20%
+      
+      // Mantener la unidad original
+      if (totalAmount.includes('g')) {
+        return `${cookedWeight}g cocinado`;
+      } else if (totalAmount.includes('unidad')) {
+        return `${cookedWeight} unidades cocinadas`;
+      } else {
+        return `${cookedWeight} cocinado`;
+      }
+    }
+    return totalAmount;
   }
 }

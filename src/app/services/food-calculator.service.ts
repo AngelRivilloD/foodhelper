@@ -16,6 +16,8 @@ export class FoodCalculatorService {
     'Frutas': []
   };
 
+  private currentMealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } | null = null;
+
   private dailyTargetSubject = new BehaviorSubject<DailyTarget>({
     'Carbohidratos': 5,
     'Legumbres': 1,
@@ -42,137 +44,141 @@ export class FoodCalculatorService {
   // Cargar datos completos del JSON proporcionado
   loadCompleteFoodDatabase(): void {
     this.foodDatabase = {
-      'Carbohidratos': [
-        { alimento: 'Arroz', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Avena/harina de avena', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Azúcar blanco/moreno', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Boniato/batata', gramos: '75g', category: 'Carbohidratos' },
-        { alimento: 'Casabe', gramos: '30g', category: 'Carbohidratos' },
-        { alimento: 'Cornflakes', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Cous-cous', gramos: '25g', category: 'Carbohidratos' },
-        { alimento: 'Crema de arroz', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Galleta María', gramos: '-', category: 'Carbohidratos' },
-        { alimento: 'Granola baja en grasa', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Harina de maíz (pan)', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Maíz dulce', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Miel', gramos: '140g', category: 'Carbohidratos' },
-        { alimento: 'Obleas estilo kalan', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Palomitas de maíz', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Pan Árabe', gramos: '-', category: 'Carbohidratos' },
-        { alimento: 'Pan Wasa', gramos: '25g', category: 'Carbohidratos' },
-        { alimento: 'Pan blanco o integral de barra', gramos: '30g', category: 'Carbohidratos' },
-        { alimento: 'Pan de molde', gramos: '30g', category: 'Carbohidratos' },
-        { alimento: 'Pan thins', gramos: '30g', category: 'Carbohidratos' },
-        { alimento: 'Pan tostado', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Papa/patata', gramos: '90g', category: 'Carbohidratos' },
-        { alimento: 'Pasta', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Plátano macho', gramos: '50g', category: 'Carbohidratos' },
-        { alimento: 'Quinoa', gramos: '20g', category: 'Carbohidratos' },
-        { alimento: 'Tortilla para fajitas', gramos: '15g', category: 'Carbohidratos' },
-        { alimento: 'Tortitas de arroz/maíz', gramos: '-', category: 'Carbohidratos' },
-        { alimento: 'Yuca', gramos: '50g (cocido)', category: 'Carbohidratos' }
+      "Carbohidratos": [
+        {"alimento": "Papa/patata", "gramos": "90g", "category": "Carbohidratos"},
+        {"alimento": "Boniato/batata", "gramos": "75g", "category": "Carbohidratos"},
+        {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos"},
+        {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos"},
+        {"alimento": "Quinoa", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Pasta", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Arroz", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Avena/harina de avena", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Cornflakes", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Pan blanco o integral de barra", "gramos": "30g", "category": "Carbohidratos"},
+        {"alimento": "Pan tostado", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Pan de molde", "gramos": "30g", "category": "Carbohidratos"},
+        {"alimento": "Pan thins", "gramos": "1 unidad", "category": "Carbohidratos"},
+        {"alimento": "Obleas estilo kalan", "gramos": "30g", "category": "Carbohidratos"},
+        {"alimento": "Miel", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Maíz dulce", "gramos": "140g", "category": "Carbohidratos"},
+        {"alimento": "Cous-cous", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Tortitas de arroz/maíz", "gramos": "2 unidades", "category": "Carbohidratos"},
+        {"alimento": "Tortilla para fajitas", "gramos": "2 unidades", "category": "Carbohidratos"},
+        {"alimento": "Azúcar blanco/moreno", "gramos": "15g", "category": "Carbohidratos"},
+        {"alimento": "Crema de arroz", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Palomitas de maíz", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Granola baja en grasa", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos"},
+        {"alimento": "Pan Árabe", "gramos": "30gr", "category": "Carbohidratos"},
+        {"alimento": "Pan Wasa", "gramos": "2 unidades", "category": "Carbohidratos"},
+        {"alimento": "Galleta María", "gramos": "3 unidades", "category": "Carbohidratos"}
       ],
-      'Legumbres': [
-        { alimento: 'Frijoles/caraotas/alubias', gramos: '30g crudo', category: 'Legumbres' },
-        { alimento: 'Garbanzos', gramos: '30g crudo', category: 'Legumbres' },
-        { alimento: 'Lentejas', gramos: '30g crudo', category: 'Legumbres' }
+      "Legumbres": [
+        {"alimento": "Lentejas", "gramos": "30g crudo", "category": "Legumbres"},
+        {"alimento": "Garbanzos", "gramos": "30g crudo", "category": "Legumbres"},
+        {"alimento": "Frijoles/caraotas/alubias", "gramos": "30g crudo", "category": "Legumbres"}
       ],
-      'Proteina Magra': [
-        { alimento: 'Atún al natural en lata', gramos: '30g', category: 'Proteina Magra' },
-        { alimento: 'Calamares y mariscos', gramos: '30g', category: 'Proteina Magra' },
-        { alimento: 'Camarones/gambas', gramos: '40g', category: 'Proteina Magra' },
-        { alimento: 'Carne roja magra', gramos: '30g', category: 'Proteina Magra' },
-        { alimento: 'Clara de huevo', gramos: '30g', category: 'Proteina Magra' },
-        { alimento: 'Jamón de pollo/pavo', gramos: '20g', category: 'Proteina Magra' },
-        { alimento: 'Lomo de cerdo', gramos: '30g', category: 'Proteina Magra' },
-        { alimento: 'Lomo embuchado', gramos: '40g', category: 'Proteina Magra' },
-        { alimento: 'Pechuga/solomillo de pollo o pavo', gramos: '60g', category: 'Proteina Magra' },
-        { alimento: 'Pescado blanco', gramos: '40g', category: 'Proteina Magra' },
-        { alimento: 'Proteína en polvo (whey y vegana)', gramos: '15g', category: 'Proteina Magra' },
-        { alimento: 'Queso burgos light/desnatado', gramos: '40g', category: 'Proteina Magra' },
-        { alimento: 'Queso fresco batido 0%', gramos: '50g', category: 'Proteina Magra' },
-        { alimento: 'Queso mozzarella light', gramos: '60g', category: 'Proteina Magra' },
-        { alimento: 'Seitán', gramos: '70g', category: 'Proteina Magra' },
-        { alimento: 'Soja', gramos: '70g', category: 'Proteina Magra' },
-        { alimento: 'Yogur proteico', gramos: '50g', category: 'Proteina Magra' }
+      "Proteina Magra": [
+        {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra"},
+        {"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra"},
+        {"alimento": "Atún al natural en lata", "gramos": "1/2 lata", "category": "Proteina Magra"},
+        {"alimento": "Pechuga de pollo o pavo", "gramos": "30g", "category": "Proteina Magra"},
+        {"alimento": "Clara de huevo", "gramos": "60g", "category": "Proteina Magra"},
+        {"alimento": "Jamón de pollo/pavo", "gramos": "30g", "category": "Proteina Magra"},
+        {"alimento": "Lomo embuchado", "gramos": "20g", "category": "Proteina Magra"},
+        {"alimento": "Calamares y mariscos", "gramos": "40g", "category": "Proteina Magra"},
+        {"alimento": "Carne roja magra", "gramos": "30g", "category": "Proteina Magra"},
+        {"alimento": "Proteína en polvo (whey y vegana)", "gramos": "1/3 de scoop", "category": "Proteina Magra"},
+        {"alimento": "Lomo de cerdo", "gramos": "30g", "category": "Proteina Magra"},
+        {"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra"},
+        {"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra"},
+        {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra"},
+        {"alimento": "Yogur proteico", "gramos": "70g", "category": "Proteina Magra"},
+        {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra"},
+        {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra"},
+        {"alimento": "Queso cottage", "gramos": "50g", "category": "Proteina Magra"},
+        {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra"}
       ],
-      'Proteina Semi-Magra': [
-        { alimento: 'Atún en aceite', gramos: '30g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Carne de cerdo (graso)', gramos: '30g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Carne roja grasa', gramos: '30g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Cordero', gramos: '65g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Huevo', gramos: '30g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Jamón serrano/ibérico', gramos: '30g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Queso burgos natural', gramos: '40g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Queso mozzarella normal', gramos: '25g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Queso parmesano', gramos: '25g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Salmón, caballa', gramos: '40g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Sardinas', gramos: '40g', category: 'Proteina Semi-Magra' },
-        { alimento: 'Tofu', gramos: '70g', category: 'Proteina Semi-Magra' }
+      "Proteina Semi-Magra": [
+        {"alimento": "Salmón, caballa", "gramos": "40g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Huevo", "gramos": "1 unidad", "category": "Proteina Semi-Magra"},
+        {"alimento": "Carne de cerdo (graso)", "gramos": "30g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Carne roja grasa", "gramos": "30g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Jamón serrano/ibérico", "gramos": "30g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Sardinas", "gramos": "30g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Atún en aceite", "gramos": "40g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Cordero", "gramos": "30g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Tofu", "gramos": "65g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Queso burgos natural", "gramos": "70g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Queso mozzarella normal", "gramos": "40g", "category": "Proteina Semi-Magra"},
+        {"alimento": "Queso parmesano", "gramos": "25g", "category": "Proteina Semi-Magra"}
       ],
-      'Lácteos': [
-        { alimento: 'Cuajada', gramos: '240g', category: 'Lácteos' },
-        { alimento: 'Kefir', gramos: '200g', category: 'Lácteos' },
-        { alimento: 'Leche de cabra', gramos: '150g', category: 'Lácteos' },
-        { alimento: 'Leche de oveja', gramos: '135g', category: 'Lácteos' },
-        { alimento: 'Leche descremada/desnatada', gramos: '200g', category: 'Lácteos' },
-        { alimento: 'Leche entera', gramos: '200g', category: 'Lácteos' },
-        { alimento: 'Leche semidesnatada', gramos: '240g', category: 'Lácteos' },
-        { alimento: 'Yogur descremado (s/a)', gramos: '200g', category: 'Lácteos' },
-        { alimento: 'Yogur natural entero', gramos: '200g', category: 'Lácteos' },
-        { alimento: 'Yogur semidesnatado (s/a)', gramos: '240g', category: 'Lácteos' }
+      "Lácteos": [
+        {"alimento": "Leche descremada/desnatada", "gramos": "200g", "category": "Lácteos"},
+        {"alimento": "Yogur descremado (s/a)", "gramos": "200g", "category": "Lácteos"},
+        {"alimento": "Leche semidesnatada", "gramos": "240g", "category": "Lácteos"},
+        {"alimento": "Yogur semidesnatado (s/a)", "gramos": "240g", "category": "Lácteos"},
+        {"alimento": "Leche entera", "gramos": "200g", "category": "Lácteos"},
+        {"alimento": "Leche de cabra", "gramos": "200g", "category": "Lácteos"},
+        {"alimento": "Leche de oveja", "gramos": "150g", "category": "Lácteos"},
+        {"alimento": "Cuajada", "gramos": "135g", "category": "Lácteos"},
+        {"alimento": "Yogur natural entero", "gramos": "240g", "category": "Lácteos"},
+        {"alimento": "Kefir", "gramos": "200g", "category": "Lácteos"}
       ],
-      'Grasas': [
-        { alimento: 'Aceite de coco', gramos: '5g', category: 'Grasas' },
-        { alimento: 'Aceite de oliva', gramos: '5g', category: 'Grasas' },
-        { alimento: 'Aceituna verde (deshuesadas)', gramos: '30g', category: 'Grasas' },
-        { alimento: 'Aceitunas negras', gramos: '40g', category: 'Grasas' },
-        { alimento: 'Almendras', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Aguacate', gramos: '30g', category: 'Grasas' },
-        { alimento: 'Avellanas', gramos: '8g', category: 'Grasas' },
-        { alimento: 'Cacahuetes/maní', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Cashews/anacardos', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Chocolate negro (70-75%)', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Coco rallado', gramos: '8g', category: 'Grasas' },
-        { alimento: 'Crema de frutos secos', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Leche de coco', gramos: '25g', category: 'Grasas' },
-        { alimento: 'Mantequilla', gramos: '5g', category: 'Grasas' },
-        { alimento: 'Mantequilla de maní', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Mayonesa', gramos: '7g', category: 'Grasas' },
-        { alimento: 'Nata para cocinar 15%', gramos: '25g', category: 'Grasas' },
-        { alimento: 'Nueces', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Pistachos', gramos: '10g', category: 'Grasas' },
-        { alimento: 'Queso Crema normal', gramos: '20g', category: 'Grasas' },
-        { alimento: 'Semillas de girasol, ajonjolí, chía', gramos: '20g', category: 'Grasas' }
+      "Grasas": [
+        {"alimento": "Aguacate", "gramos": "30g", "category": "Grasas"},
+        {"alimento": "Aceite de oliva", "gramos": "5g", "category": "Grasas"},
+        {"alimento": "Pistachos", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Mantequilla", "gramos": "5g", "category": "Grasas"},
+        {"alimento": "Avellanas", "gramos": "8g", "category": "Grasas"},
+        {"alimento": "Mantequilla de maní", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Crema de frutos secos", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Coco rallado", "gramos": "8g", "category": "Grasas"},
+        {"alimento": "Aceituna verde (deshuesadas)", "gramos": "30g", "category": "Grasas"},
+        {"alimento": "Aceitunas negras", "gramos": "40g", "category": "Grasas"},
+        {"alimento": "Almendras", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Cashews/anacardos", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Nueces", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Aceite de coco", "gramos": "5g", "category": "Grasas"},
+        {"alimento": "Chocolate negro (70-75%)", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Nata para cocinar 15%", "gramos": "25g", "category": "Grasas"},
+        {"alimento": "Leche de coco", "gramos": "25g", "category": "Grasas"},
+        {"alimento": "Cacahuetes/maní", "gramos": "10g", "category": "Grasas"},
+        {"alimento": "Mayonesa", "gramos": "7g", "category": "Grasas"},
+        {"alimento": "Queso Crema normal", "gramos": "20g", "category": "Grasas"},
+        {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas"}
       ],
-      'Frutas': [
-        { alimento: 'Arándanos', gramos: '100g', category: 'Frutas' },
-        { alimento: 'Banana', gramos: '80g', category: 'Frutas' },
-        { alimento: 'Caqui', gramos: '90g', category: 'Frutas' },
-        { alimento: 'Cerezas', gramos: '110g', category: 'Frutas' },
-        { alimento: 'Chirimoya', gramos: '80g', category: 'Frutas' },
-        { alimento: 'Ciruela', gramos: '100g', category: 'Frutas' },
-        { alimento: 'Dátiles', gramos: '20g', category: 'Frutas' },
-        { alimento: 'Frambuesas', gramos: '120g', category: 'Frutas' },
-        { alimento: 'Fresas', gramos: '120g', category: 'Frutas' },
-        { alimento: 'Granada', gramos: '80g', category: 'Frutas' },
-        { alimento: 'Guanábana', gramos: '90g', category: 'Frutas' },
-        { alimento: 'Higos', gramos: '80g', category: 'Frutas' },
-        { alimento: 'Kiwi', gramos: '100g', category: 'Frutas' },
-        { alimento: 'Mandarina', gramos: '130g', category: 'Frutas' },
-        { alimento: 'Mango', gramos: '100g', category: 'Frutas' },
-        { alimento: 'Manzana', gramos: '130g', category: 'Frutas' },
-        { alimento: 'Melón', gramos: '200g', category: 'Frutas' },
-        { alimento: 'Moras', gramos: '150g', category: 'Frutas' },
-        { alimento: 'Naranja', gramos: '130g', category: 'Frutas' },
-        { alimento: 'Papaya', gramos: '200g', category: 'Frutas' },
-        { alimento: 'Pera', gramos: '120g', category: 'Frutas' },
-        { alimento: 'Piña', gramos: '110g', category: 'Frutas' },
-        { alimento: 'Sandía', gramos: '200g', category: 'Frutas' },
-        { alimento: 'Uvas', gramos: '90g', category: 'Frutas' },
-        { alimento: 'Uvas pasas', gramos: '20g', category: 'Frutas' }
+      "Frutas": [
+        {"alimento": "Banana", "gramos": "80g", "category": "Frutas"},
+        {"alimento": "Piña", "gramos": "110g", "category": "Frutas"},
+        {"alimento": "Melón", "gramos": "200g", "category": "Frutas"},
+        {"alimento": "Sandía", "gramos": "200g", "category": "Frutas"},
+        {"alimento": "Fresas", "gramos": "120g", "category": "Frutas"},
+        {"alimento": "Frambuesas", "gramos": "120g", "category": "Frutas"},
+        {"alimento": "Moras", "gramos": "150g", "category": "Frutas"},
+        {"alimento": "Arándanos", "gramos": "100g", "category": "Frutas"},
+        {"alimento": "Papaya", "gramos": "200g", "category": "Frutas"},
+        {"alimento": "Mango", "gramos": "100g", "category": "Frutas"},
+        {"alimento": "Manzana", "gramos": "130g", "category": "Frutas"},
+        {"alimento": "Pera", "gramos": "120g", "category": "Frutas"},
+        {"alimento": "Kiwi", "gramos": "100g", "category": "Frutas"},
+        {"alimento": "Caqui", "gramos": "90g", "category": "Frutas"},
+        {"alimento": "Durazno/melocotón", "gramos": "100g", "category": "Frutas"},
+        {"alimento": "Ciruela", "gramos": "100g", "category": "Frutas"},
+        {"alimento": "Uvas", "gramos": "90g", "category": "Frutas"},
+        {"alimento": "Higos", "gramos": "80g", "category": "Frutas"},
+        {"alimento": "Naranja", "gramos": "130g", "category": "Frutas"},
+        {"alimento": "Mandarina", "gramos": "130g", "category": "Frutas"},
+        {"alimento": "Cerezas", "gramos": "110g", "category": "Frutas"},
+        {"alimento": "Chirimoya", "gramos": "80g", "category": "Frutas"},
+        {"alimento": "Granada", "gramos": "80g", "category": "Frutas"},
+        {"alimento": "Guanábana", "gramos": "90g", "category": "Frutas"},
+        {"alimento": "Uvas pasas", "gramos": "20g", "category": "Frutas"},
+        {"alimento": "Dátiles", "gramos": "20g", "category": "Frutas"}
       ]
-    };
+    }
+    
     
   }
 
@@ -212,6 +218,8 @@ export class FoodCalculatorService {
       }
     });
 
+    // Guardar el estado actual del mealPlan
+    this.currentMealPlan = mealPlan;
     return mealPlan;
   }
 
@@ -276,13 +284,57 @@ export class FoodCalculatorService {
 
   // Calcular cantidad total de un alimento
   private calculateTotalAmount(food: FoodItem, portions: number): string {
+    // Si no hay porciones, mostrar 0
+    if (portions === 0) {
+      return '0';
+    }
+    
+    // Manejar fracciones (como "1/3 de scoop")
+    const fractionMatch = food.gramos.match(/(\d+)\/(\d+)/);
+    if (fractionMatch) {
+      const numerator = parseInt(fractionMatch[1]);
+      const denominator = parseInt(fractionMatch[2]);
+      const totalNumerator = numerator * portions;
+      
+      // Simplificar la fracción
+      const gcd = this.gcd(totalNumerator, denominator);
+      const simplifiedNum = totalNumerator / gcd;
+      const simplifiedDen = denominator / gcd;
+      
+      if (simplifiedDen === 1) {
+        return `${simplifiedNum} scoop${simplifiedNum > 1 ? 's' : ''}`;
+      } else {
+        return `${simplifiedNum}/${simplifiedDen} scoop`;
+      }
+    }
+    
+    // Buscar números en el campo gramos
     const gramosMatch = food.gramos.match(/(\d+)/);
     if (gramosMatch) {
-      const baseGrams = parseInt(gramosMatch[1]);
-      const totalGrams = baseGrams * portions;
-      return `${totalGrams}g`;
+      const baseAmount = parseInt(gramosMatch[1]);
+      const totalAmount = baseAmount * portions;
+      
+      // Si el texto original contiene "g" o "gramos", usar "g"
+      if (food.gramos.toLowerCase().includes('g')) {
+        return `${totalAmount}g`;
+      }
+      // Si contiene "unidad", usar "unidades"
+      else if (food.gramos.toLowerCase().includes('unidad')) {
+        return `${totalAmount} unidades`;
+      }
+      // Para otros casos, mantener el formato original
+      else {
+        return `${totalAmount} ${food.gramos.replace(/\d+/, '').trim()}`;
+      }
     }
+    
+    // Si no hay números, mostrar el formato original multiplicado
     return `${portions} x ${food.gramos}`;
+  }
+
+  // Calcular el máximo común divisor
+  private gcd(a: number, b: number): number {
+    return b === 0 ? a : this.gcd(b, a % b);
   }
 
   // Obtener resumen de macronutrientes
@@ -301,8 +353,8 @@ export class FoodCalculatorService {
 
   // Cambiar un alimento sugerido por otro de la misma categoría
   replaceFood(category: string, currentFood: FoodItem, newFood: FoodItem, portions: number): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
-    // Obtener el plan actual
-    let mealPlan = this.generateMealPlan();
+    // Obtener el plan actual - usar el plan existente si está disponible
+    let mealPlan = this.currentMealPlan || this.generateMealPlan();
     
     if (mealPlan[category]) {
       // Encontrar y reemplazar el alimento
@@ -333,6 +385,8 @@ export class FoodCalculatorService {
       }
     }
     
+    // Guardar el estado actual del mealPlan
+    this.currentMealPlan = mealPlan;
     return mealPlan;
   }
 

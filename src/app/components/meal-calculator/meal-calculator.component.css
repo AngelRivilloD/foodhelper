@@ -49,7 +49,7 @@
   padding: 6px 12px;
   border-radius: 20px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -133,7 +133,6 @@
   border-radius: 12px;
   padding: 16px;
   transition: all 0.3s ease;
-  margin-bottom: 12px;
   border: 1px solid #e0e0e0;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
@@ -180,8 +179,9 @@
 }
 
 .portion-info {
-  background: #e8f5e8;
-  border-color: #4caf50;
+  background: #ebebeb;
+  border-color: #d1d1d1;
+  border-radius: 16px;
 }
 
 .amount-info {
@@ -290,16 +290,16 @@
 .dropdown-options {
   position: absolute;
   top: 100%;
-  right: 0;
+  right: -18px;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  max-height: 200px;
+  max-height: 50vh;
   overflow-y: auto;
   margin-top: 4px;
-  width: 250px;
+  width: 280px;
 }
 
 .dropdown-option {
@@ -623,4 +623,24 @@
   .food-info h4 {
     font-size: 1rem;
   }
+}
+
+/* Clickable weight styles */
+.clickable-weight {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 16px;
+  padding: 4px 8px;
+  margin: -2px -6px;
+}
+
+.clickable-weight:hover {
+  background-color: #f0f8ff;
+  border: 1px solid #4a90e2;
+}
+
+.cooked-mode {
+  background-color: #e8f5e8 !important;
+  border: 1px solid #4caf50 !important;
+  color: #2e7d32;
 }
