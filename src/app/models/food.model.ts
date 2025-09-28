@@ -17,6 +17,7 @@ export interface FoodItem {
   alimento: string;
   gramos: string;
   category: 'Carbohidratos' | 'Legumbres' | 'Proteina Magra' | 'Proteina Semi-Magra' | 'Lácteos' | 'Grasas' | 'Frutas';
+  tipo?: string[];
 }
 
 export interface DailyTarget {

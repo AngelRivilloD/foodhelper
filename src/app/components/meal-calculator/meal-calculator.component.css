@@ -167,18 +167,16 @@
 .portion-info,
 .amount-info {
   background: #f8f9fa;
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 8px;
-  color: #1a1a1a;
+  color: whitesmoke;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  border: 1px solid #e0e0e0;
 }
 
 .portion-info {
-  background: #ebebeb;
-  border-color: #d1d1d1;
+  background: #2b2b2b;
   border-radius: 16px;
 }
 
@@ -634,19 +632,9 @@
 /* Clickable weight styles */
 .clickable-weight {
   cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 16px;
-  padding: 4px 8px;
-  margin: -2px -6px;
-}
-
-.clickable-weight:hover {
-  background-color: #f0f8ff;
-  border: 1px solid #4a90e2;
 }
 
 .cooked-mode {
-  background-color: #e8f5e8 !important;
-  border: 1px solid #4caf50 !important;
-  color: #2e7d32;
+  background-color: #666666 !important;
+  color: white;
 }

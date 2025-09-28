@@ -1,4 +1,4 @@
-<div class="meal-calculator-container">
+<div class="meal-calculator-container" (click)="closeDropdowns()">
   <header class="header">
     <h2>Plan de comidas</h2>
     
@@ -72,7 +72,7 @@
                 <button 
                   class="change-btn dropdown-btn"
                   [class.hidden]="showAlternatives !== null"
-                  (click)="showAlternatives = showAlternatives === item.food.alimento ? null : item.food.alimento">
+                  (click)="showAlternatives = showAlternatives === item.food.alimento ? null : item.food.alimento; $event.stopPropagation()">
                   <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
                     <path d="M21 3v5h-5"/>
@@ -83,10 +83,10 @@
                 </button>
                 
                 <!-- Opciones del desplegable -->
-                <div class="dropdown-options" *ngIf="showAlternatives === item.food.alimento">
+                <div class="dropdown-options" *ngIf="showAlternatives === item.food.alimento" (click)="$event.stopPropagation()">
                   <button 
                     class="dropdown-option"
-                    *ngFor="let alternative of getAlternatives(category.key, item.food)"
+                    *ngFor="let alternative of getAlternatives(category.key, item.food, selectedMealType)"
                     (click)="replaceFood(category.key, item.food, alternative); showAlternatives = null">
                     {{ alternative.alimento }}
                     <small>{{ alternative.gramos }}</small>

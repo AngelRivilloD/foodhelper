@@ -17,6 +17,7 @@ export class FoodCalculatorService {
   };
 
   private currentMealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } | null = null;
+  private currentMealType: string = 'DESAYUNO';
 
   private dailyTargetSubject = new BehaviorSubject<DailyTarget>({
     'Carbohidratos': 5,
@@ -45,139 +46,133 @@ export class FoodCalculatorService {
   loadCompleteFoodDatabase(): void {
     this.foodDatabase = {
       "Carbohidratos": [
-        {"alimento": "Papa/patata", "gramos": "90g", "category": "Carbohidratos"},
-        {"alimento": "Boniato/batata", "gramos": "75g", "category": "Carbohidratos"},
-        {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos"},
-        {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos"},
-        {"alimento": "Quinoa", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Pasta", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Arroz", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Avena/harina de avena", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Cornflakes", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Pan blanco o integral de barra", "gramos": "30g", "category": "Carbohidratos"},
-        {"alimento": "Pan tostado", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Pan de molde", "gramos": "30g", "category": "Carbohidratos"},
-        {"alimento": "Pan thins", "gramos": "1 unidad", "category": "Carbohidratos"},
-        {"alimento": "Obleas estilo kalan", "gramos": "30g", "category": "Carbohidratos"},
-        {"alimento": "Miel", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Maíz dulce", "gramos": "140g", "category": "Carbohidratos"},
-        {"alimento": "Cous-cous", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Tortitas de arroz/maíz", "gramos": "2 unidades", "category": "Carbohidratos"},
-        {"alimento": "Tortilla para fajitas", "gramos": "2 unidades", "category": "Carbohidratos"},
-        {"alimento": "Azúcar blanco/moreno", "gramos": "15g", "category": "Carbohidratos"},
-        {"alimento": "Crema de arroz", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Palomitas de maíz", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Granola baja en grasa", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos"},
-        {"alimento": "Pan Árabe", "gramos": "30gr", "category": "Carbohidratos"},
-        {"alimento": "Pan Wasa", "gramos": "2 unidades", "category": "Carbohidratos"},
-        {"alimento": "Galleta María", "gramos": "3 unidades", "category": "Carbohidratos"}
+        {"alimento": "Papa/patata", "gramos": "90g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Boniato/batata", "gramos": "75g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Quinoa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Pasta", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Avena/harina de avena", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Cornflakes", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno"]},
+        {"alimento": "Pan blanco o integral de barra", "gramos": "30g", "category": "Carbohidratos", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Pan tostado", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Pan de molde", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Pan thins", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Miel", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Maíz dulce", "gramos": "140g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Cous-cous", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Tortitas de arroz/maíz", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Tortilla para fajitas", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Azúcar blanco/moreno", "gramos": "15g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Crema de arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Palomitas de maíz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["merienda"]},
+        {"alimento": "Granola baja en grasa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Pan Árabe", "gramos": "30gr", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Pan Wasa", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Galleta María", "gramos": "3 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]}
       ],
       "Legumbres": [
-        {"alimento": "Lentejas", "gramos": "30g crudo", "category": "Legumbres"},
-        {"alimento": "Garbanzos", "gramos": "30g crudo", "category": "Legumbres"},
-        {"alimento": "Frijoles/caraotas/alubias", "gramos": "30g crudo", "category": "Legumbres"}
+        {"alimento": "Lentejas", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]},
+        {"alimento": "Garbanzos", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]},
+        {"alimento": "Frijoles/caraotas/alubias", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]}
       ],
       "Proteina Magra": [
-        {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra"},
-        {"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra"},
-        {"alimento": "Atún al natural en lata", "gramos": "1/2 lata", "category": "Proteina Magra"},
-        {"alimento": "Pechuga de pollo o pavo", "gramos": "30g", "category": "Proteina Magra"},
-        {"alimento": "Clara de huevo", "gramos": "60g", "category": "Proteina Magra"},
-        {"alimento": "Jamón de pollo/pavo", "gramos": "30g", "category": "Proteina Magra"},
-        {"alimento": "Lomo embuchado", "gramos": "20g", "category": "Proteina Magra"},
-        {"alimento": "Calamares y mariscos", "gramos": "40g", "category": "Proteina Magra"},
-        {"alimento": "Carne roja magra", "gramos": "30g", "category": "Proteina Magra"},
-        {"alimento": "Proteína en polvo (whey y vegana)", "gramos": "1/3 de scoop", "category": "Proteina Magra"},
-        {"alimento": "Lomo de cerdo", "gramos": "30g", "category": "Proteina Magra"},
-        {"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra"},
-        {"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra"},
-        {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra"},
-        {"alimento": "Yogur proteico", "gramos": "70g", "category": "Proteina Magra"},
-        {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra"},
-        {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra"},
-        {"alimento": "Queso cottage", "gramos": "50g", "category": "Proteina Magra"},
-        {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra"}
+        {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Atún al natural en lata", "gramos": "1/2 lata", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Pechuga de pollo o pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Clara de huevo", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Jamón de pollo/pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Lomo embuchado", "gramos": "20g", "category": "Proteina Magra", "tipo": ["merienda", "cena"]},
+        {"alimento": "Calamares y mariscos", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Carne roja magra", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Proteína en polvo (whey y vegana)", "gramos": "1/3 de scoop", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Lomo de cerdo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur proteico", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Queso cottage", "gramos": "50g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]}
       ],
       "Proteina Semi-Magra": [
-        {"alimento": "Salmón, caballa", "gramos": "40g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Huevo", "gramos": "1 unidad", "category": "Proteina Semi-Magra"},
-        {"alimento": "Carne de cerdo (graso)", "gramos": "30g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Carne roja grasa", "gramos": "30g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Jamón serrano/ibérico", "gramos": "30g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Sardinas", "gramos": "30g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Atún en aceite", "gramos": "40g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Cordero", "gramos": "30g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Tofu", "gramos": "65g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Queso burgos natural", "gramos": "70g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Queso mozzarella normal", "gramos": "40g", "category": "Proteina Semi-Magra"},
-        {"alimento": "Queso parmesano", "gramos": "25g", "category": "Proteina Semi-Magra"}
+        {"alimento": "Salmón, caballa", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Huevo", "gramos": "1 unidad", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Carne de cerdo (graso)", "gramos": "30g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Carne roja grasa", "gramos": "30g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Jamón serrano/ibérico", "gramos": "30g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Atún en aceite", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Tofu", "gramos": "65g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Queso burgos natural", "gramos": "70g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Queso mozzarella normal", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Queso parmesano", "gramos": "25g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]}
       ],
       "Lácteos": [
-        {"alimento": "Leche descremada/desnatada", "gramos": "200g", "category": "Lácteos"},
-        {"alimento": "Yogur descremado (s/a)", "gramos": "200g", "category": "Lácteos"},
-        {"alimento": "Leche semidesnatada", "gramos": "240g", "category": "Lácteos"},
-        {"alimento": "Yogur semidesnatado (s/a)", "gramos": "240g", "category": "Lácteos"},
-        {"alimento": "Leche entera", "gramos": "200g", "category": "Lácteos"},
-        {"alimento": "Leche de cabra", "gramos": "200g", "category": "Lácteos"},
-        {"alimento": "Leche de oveja", "gramos": "150g", "category": "Lácteos"},
-        {"alimento": "Cuajada", "gramos": "135g", "category": "Lácteos"},
-        {"alimento": "Yogur natural entero", "gramos": "240g", "category": "Lácteos"},
-        {"alimento": "Kefir", "gramos": "200g", "category": "Lácteos"}
+        {"alimento": "Leche descremada/desnatada", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur descremado (s/a)", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Leche semidesnatada", "gramos": "240g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur semidesnatado (s/a)", "gramos": "240g", "category": "Lácteos", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Leche entera", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Leche de cabra", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Leche de oveja", "gramos": "150g", "category": "Lácteos", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Cuajada", "gramos": "135g", "category": "Lácteos", "tipo": ["merienda", "cena"]},
+        {"alimento": "Yogur natural entero", "gramos": "240g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Kefir", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]}
       ],
       "Grasas": [
-        {"alimento": "Aguacate", "gramos": "30g", "category": "Grasas"},
-        {"alimento": "Aceite de oliva", "gramos": "5g", "category": "Grasas"},
-        {"alimento": "Pistachos", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Mantequilla", "gramos": "5g", "category": "Grasas"},
-        {"alimento": "Avellanas", "gramos": "8g", "category": "Grasas"},
-        {"alimento": "Mantequilla de maní", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Crema de frutos secos", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Coco rallado", "gramos": "8g", "category": "Grasas"},
-        {"alimento": "Aceituna verde (deshuesadas)", "gramos": "30g", "category": "Grasas"},
-        {"alimento": "Aceitunas negras", "gramos": "40g", "category": "Grasas"},
-        {"alimento": "Almendras", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Cashews/anacardos", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Nueces", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Aceite de coco", "gramos": "5g", "category": "Grasas"},
-        {"alimento": "Chocolate negro (70-75%)", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Nata para cocinar 15%", "gramos": "25g", "category": "Grasas"},
-        {"alimento": "Leche de coco", "gramos": "25g", "category": "Grasas"},
-        {"alimento": "Cacahuetes/maní", "gramos": "10g", "category": "Grasas"},
-        {"alimento": "Mayonesa", "gramos": "7g", "category": "Grasas"},
-        {"alimento": "Queso Crema normal", "gramos": "20g", "category": "Grasas"},
-        {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas"}
+        {"alimento": "Aguacate", "gramos": "30g", "category": "Grasas", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Aceite de oliva", "gramos": "5g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Pistachos", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Mantequilla", "gramos": "5g", "category": "Grasas", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Avellanas", "gramos": "8g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Mantequilla de maní", "gramos": "10g", "category": "Grasas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Crema de frutos secos", "gramos": "10g", "category": "Grasas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Coco rallado", "gramos": "8g", "category": "Grasas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Aceituna verde (deshuesadas)", "gramos": "30g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Aceitunas negras", "gramos": "40g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Almendras", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Cashews/anacardos", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Nueces", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Aceite de coco", "gramos": "5g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Chocolate negro (70-75%)", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Nata para cocinar 15%", "gramos": "25g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Leche de coco", "gramos": "25g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Cacahuetes/maní", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
+        {"alimento": "Mayonesa", "gramos": "7g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Queso Crema normal", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "merienda"]}
       ],
       "Frutas": [
-        {"alimento": "Banana", "gramos": "80g", "category": "Frutas"},
-        {"alimento": "Piña", "gramos": "110g", "category": "Frutas"},
-        {"alimento": "Melón", "gramos": "200g", "category": "Frutas"},
-        {"alimento": "Sandía", "gramos": "200g", "category": "Frutas"},
-        {"alimento": "Fresas", "gramos": "120g", "category": "Frutas"},
-        {"alimento": "Frambuesas", "gramos": "120g", "category": "Frutas"},
-        {"alimento": "Moras", "gramos": "150g", "category": "Frutas"},
-        {"alimento": "Arándanos", "gramos": "100g", "category": "Frutas"},
-        {"alimento": "Papaya", "gramos": "200g", "category": "Frutas"},
-        {"alimento": "Mango", "gramos": "100g", "category": "Frutas"},
-        {"alimento": "Manzana", "gramos": "130g", "category": "Frutas"},
-        {"alimento": "Pera", "gramos": "120g", "category": "Frutas"},
-        {"alimento": "Kiwi", "gramos": "100g", "category": "Frutas"},
-        {"alimento": "Caqui", "gramos": "90g", "category": "Frutas"},
-        {"alimento": "Durazno/melocotón", "gramos": "100g", "category": "Frutas"},
-        {"alimento": "Ciruela", "gramos": "100g", "category": "Frutas"},
-        {"alimento": "Uvas", "gramos": "90g", "category": "Frutas"},
-        {"alimento": "Higos", "gramos": "80g", "category": "Frutas"},
-        {"alimento": "Naranja", "gramos": "130g", "category": "Frutas"},
-        {"alimento": "Mandarina", "gramos": "130g", "category": "Frutas"},
-        {"alimento": "Cerezas", "gramos": "110g", "category": "Frutas"},
-        {"alimento": "Chirimoya", "gramos": "80g", "category": "Frutas"},
-        {"alimento": "Granada", "gramos": "80g", "category": "Frutas"},
-        {"alimento": "Guanábana", "gramos": "90g", "category": "Frutas"},
-        {"alimento": "Uvas pasas", "gramos": "20g", "category": "Frutas"},
-        {"alimento": "Dátiles", "gramos": "20g", "category": "Frutas"}
+        {"alimento": "Banana", "gramos": "80g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Piña", "gramos": "110g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Melón", "gramos": "200g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Sandía", "gramos": "200g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Fresas", "gramos": "120g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Frambuesas", "gramos": "120g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Moras", "gramos": "150g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Arándanos", "gramos": "100g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Papaya", "gramos": "200g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Mango", "gramos": "100g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Manzana", "gramos": "130g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Pera", "gramos": "120g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Kiwi", "gramos": "100g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Durazno/melocotón", "gramos": "100g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Ciruela", "gramos": "100g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Uvas", "gramos": "90g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Naranja", "gramos": "130g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Mandarina", "gramos": "130g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Cerezas", "gramos": "110g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Granada", "gramos": "80g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Uvas pasas", "gramos": "20g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Dátiles", "gramos": "20g", "category": "Frutas", "tipo": ["desayuno", "merienda"]}
       ]
     }
+    
     
     
   }
@@ -185,6 +180,11 @@ export class FoodCalculatorService {
   // Establecer objetivos diarios
   setDailyTarget(target: DailyTarget): void {
     this.dailyTargetSubject.next(target);
+  }
+
+  // Establecer tipo de comida actual
+  setCurrentMealType(mealType: string): void {
+    this.currentMealType = mealType;
   }
 
   // Obtener objetivos actuales
@@ -198,9 +198,10 @@ export class FoodCalculatorService {
   }
 
   // Calcular plan de comidas basado en objetivos
-  generateMealPlan(): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
+  generateMealPlan(mealType?: string): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
     const target = this.getDailyTarget();
     const mealPlan: { [category: string]: any[] } = {};
+    const currentMealType = mealType || this.currentMealType;
 
     Object.keys(target).forEach(category => {
       const targetPortions = target[category as keyof DailyTarget];
@@ -208,7 +209,7 @@ export class FoodCalculatorService {
       
       if (availableFoods.length > 0 && targetPortions > 0) {
         // Seleccionar alimentos inteligentemente (máximo 3-4 por categoría)
-        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions);
+        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions, currentMealType);
         
         mealPlan[category] = suggestedFoods.map(item => ({
           food: item.food,
@@ -224,12 +225,26 @@ export class FoodCalculatorService {
   }
 
   // Seleccionar alimentos sugeridos de manera inteligente
-  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number): { food: FoodItem, portions: number }[] {
+  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string): { food: FoodItem, portions: number }[] {
     // Algoritmo de selección inteligente - SOLO UNA SUGERENCIA POR DEFECTO
     const suggestions: { food: FoodItem, portions: number }[] = [];
     
+    // Filtrar por tipo de comida si se especifica
+    let filteredFoods = foods;
+    if (mealType && mealType !== '') {
+      const normalizedMealType = mealType.toLowerCase();
+      filteredFoods = foods.filter(food => 
+        food.tipo && food.tipo.includes(normalizedMealType)
+      );
+    }
+    
+    // Si no hay alimentos filtrados, usar todos los alimentos
+    if (filteredFoods.length === 0) {
+      filteredFoods = foods;
+    }
+    
     // Priorizar alimentos más comunes/versátiles
-    const priorityFoods = this.getPriorityFoods(foods);
+    const priorityFoods = this.getPriorityFoods(filteredFoods);
     
     // NUEVA REGLA: Solo una sugerencia por defecto para todas las categorías
     const selectedFood = priorityFoods[0];
@@ -302,9 +317,23 @@ export class FoodCalculatorService {
       const simplifiedDen = denominator / gcd;
       
       if (simplifiedDen === 1) {
-        return `${simplifiedNum} scoop${simplifiedNum > 1 ? 's' : ''}`;
+        // Determinar la unidad correcta
+        if (food.gramos.toLowerCase().includes('scoop')) {
+          return `${simplifiedNum} scoop${simplifiedNum > 1 ? 's' : ''}`;
+        } else if (food.gramos.toLowerCase().includes('lata')) {
+          return `${simplifiedNum} lata${simplifiedNum > 1 ? 's' : ''}`;
+        } else {
+          return `${simplifiedNum} ${food.gramos.replace(/\d+\/\d+\s*/, '').trim()}`;
+        }
       } else {
-        return `${simplifiedNum}/${simplifiedDen} scoop`;
+        // Determinar la unidad correcta para fracciones
+        if (food.gramos.toLowerCase().includes('scoop')) {
+          return `${simplifiedNum}/${simplifiedDen} scoop`;
+        } else if (food.gramos.toLowerCase().includes('lata')) {
+          return `${simplifiedNum}/${simplifiedDen} lata`;
+        } else {
+          return `${simplifiedNum}/${simplifiedDen} ${food.gramos.replace(/\d+\/\d+\s*/, '').trim()}`;
+        }
       }
     }
     
@@ -316,7 +345,7 @@ export class FoodCalculatorService {
       
       // Si el texto original contiene "g" o "gramos", usar "g"
       if (food.gramos.toLowerCase().includes('g')) {
-        return `${totalAmount}g`;
+        return `${totalAmount}g crudo`;
       }
       // Si contiene "unidad", usar "unidades"
       else if (food.gramos.toLowerCase().includes('unidad')) {
@@ -376,11 +405,11 @@ export class FoodCalculatorService {
           });
         } else {
           // Para otras categorías, reemplazar normalmente
-          mealPlan[category][index] = {
-            food: newFood,
-            portions: portions,
-            totalAmount: this.calculateTotalAmount(newFood, portions)
-          };
+        mealPlan[category][index] = {
+          food: newFood,
+          portions: portions,
+          totalAmount: this.calculateTotalAmount(newFood, portions)
+        };
         }
       }
     }
@@ -391,9 +420,19 @@ export class FoodCalculatorService {
   }
 
   // Obtener alternativas para un alimento específico
-  getAlternatives(category: string, currentFood: FoodItem): FoodItem[] {
+  getAlternatives(category: string, currentFood: FoodItem, mealType?: string): FoodItem[] {
     const allFoods = this.getFoodsByCategory(category);
-    return allFoods.filter(food => food.alimento !== currentFood.alimento);
+    let filteredFoods = allFoods.filter(food => food.alimento !== currentFood.alimento);
+    
+    // Filtrar por tipo de comida si se especifica
+    if (mealType && mealType !== '') {
+      const normalizedMealType = mealType.toLowerCase();
+      filteredFoods = filteredFoods.filter(food => 
+        food.tipo && food.tipo.includes(normalizedMealType)
+      );
+    }
+    
+    return filteredFoods;
   }
 
   // Ajustar porciones de un alimento específico
@@ -418,12 +457,12 @@ export class FoodCalculatorService {
           });
         } else {
           // Para otras categorías, ajustar normalmente
-          mealPlan[category][index] = {
-            food: food,
-            portions: newPortions,
-            totalAmount: this.calculateTotalAmount(food, newPortions)
-          };
-        }
+        mealPlan[category][index] = {
+          food: food,
+          portions: newPortions,
+          totalAmount: this.calculateTotalAmount(food, newPortions)
+        };
+      }
       }
     }
     

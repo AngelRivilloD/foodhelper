@@ -54,7 +54,7 @@ export class MealCalculatorComponent implements OnInit {
   }
 
   generateMealPlan(): void {
-    this.mealPlan = this.foodCalculatorService.generateMealPlan();
+    this.mealPlan = this.foodCalculatorService.generateMealPlan(this.selectedMealType);
   }
 
   getFoodsByCategory(category: string): FoodItem[] {
@@ -78,8 +78,8 @@ export class MealCalculatorComponent implements OnInit {
   // }
 
   // Obtener alternativas para un alimento
-  getAlternatives(category: string, currentFood: FoodItem): FoodItem[] {
-    return this.foodCalculatorService.getAlternatives(category, currentFood).sort((a, b) => 
+  getAlternatives(category: string, currentFood: FoodItem, mealType?: string): FoodItem[] {
+    return this.foodCalculatorService.getAlternatives(category, currentFood, mealType).sort((a, b) => 
       a.alimento.localeCompare(b.alimento)
     );
   }
@@ -144,6 +144,7 @@ export class MealCalculatorComponent implements OnInit {
   generateMealPlanForMeal(): void {
     const mealObjectives = this.getMealObjectives();
     this.foodCalculatorService.setDailyTarget(mealObjectives as any);
+    this.foodCalculatorService.setCurrentMealType(this.selectedMealType);
     this.generateMealPlan();
   }
 
@@ -190,7 +191,7 @@ export class MealCalculatorComponent implements OnInit {
 
   // Verificar si el alimento debe mostrar peso cocinado (solo gramos de ciertas categorías)
   shouldShowCookedWeight(totalAmount: string): boolean {
-    return totalAmount.includes('g') && !totalAmount.includes('unidad');
+    return totalAmount.includes('g') && !totalAmount.includes('unidad') && !totalAmount.includes('lata');
   }
 
   // Verificar si la categoría permite peso cocinado
@@ -217,5 +218,10 @@ export class MealCalculatorComponent implements OnInit {
       }
     }
     return totalAmount;
+  }
+
+  // Cerrar todos los dropdowns
+  closeDropdowns(): void {
+    this.showAlternatives = null;
   }
 }
