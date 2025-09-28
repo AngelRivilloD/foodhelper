@@ -70,6 +70,7 @@ export class MealCalculatorComponent implements OnInit {
     this.mealPlan = this.foodCalculatorService.replaceFood(category, currentFood, newFood, this.getTargetValue(category));
   }
 
+
   // MÉTODOS DE AJUSTE DE PORCIONES - OCULTOS
   // adjustPortions(category: string, food: FoodItem, newPortions: number): void {
   //   this.mealPlan = this.foodCalculatorService.adjustPortions(category, food, newPortions);
