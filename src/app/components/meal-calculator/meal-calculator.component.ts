@@ -77,7 +77,9 @@ export class MealCalculatorComponent implements OnInit {
 
   // Obtener alternativas para un alimento
   getAlternatives(category: string, currentFood: FoodItem): FoodItem[] {
-    return this.foodCalculatorService.getAlternatives(category, currentFood);
+    return this.foodCalculatorService.getAlternatives(category, currentFood).sort((a, b) => 
+      a.alimento.localeCompare(b.alimento)
+    );
   }
 
   // incrementPortions(category: string, food: FoodItem): void {
