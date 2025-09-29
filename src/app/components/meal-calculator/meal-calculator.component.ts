@@ -326,4 +326,10 @@ export class MealCalculatorComponent implements OnInit {
     
     return foodIcons[foodName] || '🍽️';
   }
+
+  // Obtener la etiqueta del tipo de comida seleccionado
+  getMealTypeLabel(): string {
+    const mealType = this.mealTypes.find(type => type.key === this.selectedMealType);
+    return mealType ? mealType.label : 'comida';
+  }
 }

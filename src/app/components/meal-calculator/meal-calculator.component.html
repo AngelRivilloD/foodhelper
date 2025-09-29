@@ -130,7 +130,7 @@
 
   <!-- Resumen de ingredientes -->
   <div class="ingredients-summary">
-    <h3>Resumen del plato</h3>
+    <h3>Resumen del {{ getMealTypeLabel() }}</h3>
     <div class="simple-list">
       <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
         <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">

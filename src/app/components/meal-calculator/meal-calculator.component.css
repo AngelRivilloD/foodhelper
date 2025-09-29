@@ -180,7 +180,9 @@
 }
 
 .portion-info {
-  background: #ececec;
+  background: #fefdfa;
+  border: 1px solid #dbd2b6;
+  color: #9b8a58;
   border-radius: 16px;
 }
 
@@ -571,11 +573,12 @@ margin-top: 40px;
 }
 
 .ingredient-amount {
-  background: #ebebeb;
-  border: 1px solid #d1d1d1;
+  background: #fefdfa;
+  border: 1px solid #dbd2b6;
+  color: #9b8a58;
+
   border-radius: 16px;
   padding: 6px 10px;
-  color: #363636;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
@@ -601,6 +604,8 @@ margin-top: 40px;
     flex-direction: row;
     padding: 16px 20px;
     gap: 8px;
+    background-color: #fefdfa94;
+        border-radius: 16px;
   }
   
   .category-header h3 {
@@ -659,6 +664,4 @@ margin-top: 40px;
 }
 
 .cooked-mode {
-  background-color: #666666 !important;
-  color: white;
 }
