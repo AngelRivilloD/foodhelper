@@ -26,14 +26,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   ];
 
   macroCategories = [
-    { key: 'Carbohidratos', label: 'Carbohidratos', icon: '🍞', color: '#FF6B6B' },
-    // { key: 'Legumbres', label: 'Legumbres', icon: '🫘', color: '#8B4513' },
-    { key: 'Proteina Magra', label: 'Proteína Magra', icon: '🥩', color: '#4ECDC4' },
     { key: 'Proteina Semi-Magra', label: 'Proteína SM', icon: '🐟', color: '#2ECC71' },
+    { key: 'Proteina Magra', label: 'Proteína Magra', icon: '🥩', color: '#4ECDC4' },
+    { key: 'Carbohidratos', label: 'Carbohidratos', icon: '🍞', color: '#FF6B6B' },
     { key: 'Lácteos', label: 'Lácteos', icon: '🥛', color: '#3498DB' },
     { key: 'Grasas', label: 'Grasas', icon: '🥑', color: '#45B7D1' },
     { key: 'Frutas', label: 'Frutas', icon: '🍓', color: '#FECA57' },
     { key: 'Vegetales', label: 'Vegetales', icon: '🥬', color: '#2ECC71' }
+    // { key: 'Legumbres', label: 'Legumbres', icon: '🫘', color: '#8B4513' },
   ];
 
   constructor(
@@ -81,9 +81,36 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     return mealObjectives[category] || 0;
   }
 
+  // Obtener el valor objetivo original (sin ajustes especiales)
+  getOriginalTargetValue(category: string): number {
+    const profileMealObjectives = this.profileConfigService.getMealObjectives(this.currentProfile);
+    const mealObjectives = profileMealObjectives[this.selectedMealType];
+    
+    if (!mealObjectives) {
+      return 0;
+    }
+
+    // Mapear objetivos originales sin ajustes
+    const originalObjectives = {
+      'Proteina Semi-Magra': mealObjectives['proteína SM'] || 0,
+      'Proteina Magra': mealObjectives['proteína M'] || 0,
+      'Carbohidratos': mealObjectives['carbohidratos'] || 0,
+      'Lácteos': mealObjectives['leche/yogurt'] || 0,
+      'Grasas': mealObjectives['grasas'] || 0,
+      'Frutas': mealObjectives['fruta'] || 0,
+      'Vegetales': mealObjectives['vegetales'] || 0
+    };
+
+    return originalObjectives[category as keyof typeof originalObjectives] || 0;
+  }
+
   // Cambiar un alimento por otro
   replaceFood(category: string, currentFood: FoodItem, newFood: FoodItem): void {
-    this.mealPlan = this.foodCalculatorService.replaceFood(category, currentFood, newFood, this.getTargetValue(category));
+    // Para carbohidratos, usar el valor original para evitar problemas con yogur bebible
+    const portions = category === 'Carbohidratos' ? this.getOriginalTargetValue(category) : this.getTargetValue(category);
+    this.mealPlan = this.foodCalculatorService.replaceFood(category, currentFood, newFood, portions);
+    // Forzar actualización de la vista para reflejar cambios en objetivos
+    this.mealPlan = { ...this.mealPlan };
   }
 
 
@@ -151,15 +178,66 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     }
 
     // Mapear objetivos de la comida a categorías del sistema
-    return {
-      'Carbohidratos': mealObjectives['carbohidratos'] || 0,
-      'Proteina Magra': mealObjectives['proteína M'] || 0,
+    let objectives = {
       'Proteina Semi-Magra': mealObjectives['proteína SM'] || 0,
+      'Proteina Magra': mealObjectives['proteína M'] || 0,
+      'Carbohidratos': mealObjectives['carbohidratos'] || 0,
       'Lácteos': mealObjectives['leche/yogurt'] || 0,
       'Grasas': mealObjectives['grasas'] || 0,
       'Frutas': mealObjectives['fruta'] || 0,
       'Vegetales': mealObjectives['vegetales'] || 0
     };
+
+    // Aplicar regla especial para yogur proteico bebible
+    if (this.mealPlan && this.mealPlan['Proteina Magra']) {
+      const hasYogurBebible = this.mealPlan['Proteina Magra'].some(
+        item => item.food.alimento === 'Yogur proteico bebible' && item.portions > 0
+      );
+      
+      if (hasYogurBebible) {
+        // Reducir carbohidratos en 1 porción
+        objectives['Carbohidratos'] = Math.max(0, objectives['Carbohidratos'] - 1);
+      }
+    }
+
+    // Aplicar regla especial para yogur proteico sabores
+    if (this.mealPlan && this.mealPlan['Proteina Magra']) {
+      const hasYogurSabores = this.mealPlan['Proteina Magra'].some(
+        item => item.food.alimento === 'Yogur proteico sabores' && item.portions > 0
+      );
+      
+      if (hasYogurSabores) {
+        // Reducir carbohidratos en 1 porción
+        objectives['Carbohidratos'] = Math.max(0, objectives['Carbohidratos'] - 1);
+      }
+    }
+
+    // Aplicar regla especial para helado proteico
+    if (this.mealPlan && this.mealPlan['Proteina Magra']) {
+      const hasHelado = this.mealPlan['Proteina Magra'].some(
+        item => item.food.alimento === 'Helado proteico' && item.portions > 0
+      );
+      
+      if (hasHelado) {
+        // Reducir carbohidratos en 1 porción
+        objectives['Carbohidratos'] = Math.max(0, objectives['Carbohidratos'] - 1);
+      }
+    }
+
+    // Aplicar regla especial para salmón
+    if (this.mealPlan && this.mealPlan['Proteina Magra']) {
+      const hasSalmon = this.mealPlan['Proteina Magra'].some(
+        item => item.food.alimento === 'Salmón' && item.portions > 0
+      );
+      
+      if (hasSalmon) {
+        // Eliminar grasas del plan
+        objectives['Grasas'] = 0;
+      }
+      // Si no hay salmón, mantener las grasas originales (no hacer nada)
+    }
+
+    return objectives;
   }
 
   // Generar plan de comidas para la comida seleccionada
@@ -203,9 +281,11 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   // Obtener el peso a mostrar (original o cocinado)
   getDisplayWeight(category: string, food: FoodItem, totalAmount: string): string {
     // Solo aplicar lógica de cocinado a alimentos medidos en gramos de categorías específicas
+    // Excluir helado proteico que no se cocina
     if (this.isCookedMode(category, food) && 
         this.shouldShowCookedWeight(totalAmount) && 
-        this.shouldCategoryShowCookedWeight(category)) {
+        this.shouldCategoryShowCookedWeight(category) &&
+        food.alimento !== 'Helado proteico') {
       return this.getCookedWeight(totalAmount);
     }
     return totalAmount;
@@ -215,7 +295,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   shouldShowCookedWeight(totalAmount: string): boolean {
     return (totalAmount.includes('g') || totalAmount.includes('taza')) && 
            !totalAmount.includes('unidad') && 
-           !totalAmount.includes('lata');
+           !totalAmount.includes('lata') &&
+           !totalAmount.includes('helado'); // Excluir helado proteico
   }
 
   // Verificar si la categoría permite peso cocinado
@@ -326,6 +407,18 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Seitán': '🥩',
       'Queso burgos light/desnatado': '🧀',
       'Yogur proteico': '🥛',
+      'Yogur proteico bebible': '🥛',
+      'Yogur proteico sabores': '🥛',
+      'Gelatina proteica': '🍮',
+      'Yogur straciatella': '🥛',
+      'Yogur proteico natrual': '🥛',
+      'Queso fresco batido 0%': '🧀',
+      'Queso havarti light': '🧀',
+      'Queso mozzarella light': '🧀',
+      'Queso cottage': '🧀',
+      'Queso fresco light': '🧀',
+      'Salmón': '🐟',
+      'Helado proteico': '🍦',
       
       // Proteína Semi-Magra
       'Huevo': '🥚',
@@ -344,7 +437,6 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Yogur natural desnatado': '🥛',
       'Yogur griego desnatado': '🥛',
       'Queso fresco desnatado': '🧀',
-      'Queso cottage': '🧀',
       
       // Grasas
       'Aguacate': '🥑',
@@ -363,6 +455,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Leche de coco': '🥛',
       'Semillas de girasol, ajonjolí, chía': '🥜',
       'Queso Crema normal': '🧀',
+      'Queso feta': '🧀',
       'Avellanas': '🥜',
       'Cashews/anacardos': '🥜',
       'Pistachos': '🥜',

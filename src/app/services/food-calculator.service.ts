@@ -49,6 +49,7 @@ export class FoodCalculatorService {
     this.foodDatabase = {
       "Carbohidratos": [
         {"alimento": "Patata", "gramos": "90g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Gnocchis", "gramos": "40g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Boniato", "gramos": "75g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
@@ -96,14 +97,20 @@ export class FoodCalculatorService {
         //{"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         //{"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
-        {"alimento": "Yogur proteico", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur straciatella", "gramos": "1/2 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur proteico sabores", "gramos": "2/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Gelatina proteica", "gramos": "1 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "comida", "merienda", "cena"]},
+        {"alimento": "Yogur proteico natrual", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur proteico bebible", "gramos": "1/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Queso havarti light", "gramos": "1 loncha", "category": "Proteina Magra", "tipo": ["desayuno","comida","merienda", "cena"]},
         {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Queso cottage", "gramos": "50g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
-        {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]}
+        {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Salmón", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Helado proteico", "gramos": "80g", "category": "Proteina Magra", "tipo": ["comida", "merienda", "cena"]},
       ],
       "Proteina Semi-Magra": [
-        {"alimento": "Salmón, caballa", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Huevo", "gramos": "1 unidad", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "comida", "cena"]},
         {"alimento": "Carne de cerdo (graso)", "gramos": "30g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Carne roja grasa", "gramos": "30g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
@@ -146,7 +153,9 @@ export class FoodCalculatorService {
         {"alimento": "Leche de coco", "gramos": "25g", "category": "Grasas", "tipo": ["comida", "cena"]},
         {"alimento": "Cacahuetes/maní", "gramos": "10g", "category": "Grasas", "tipo": ["merienda"]},
         {"alimento": "Mayonesa", "gramos": "7g", "category": "Grasas", "tipo": ["comida", "cena"]},
+        {"alimento": "Hummus", "gramos": "20g", "category": "Grasas", "tipo": ["comida", "cena"]},
         {"alimento": "Queso Crema normal", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Queso feta", "gramos": "30g", "category": "Grasas", "tipo": ["desayuno","comida", "cena"]},
         {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "merienda"]}
       ],
       "Frutas": [
@@ -263,6 +272,26 @@ export class FoodCalculatorService {
         }));
       }
     });
+
+    // Asegurar que siempre haya carbohidratos disponibles si hay proteína magra
+    // (para casos especiales como yogur bebible que puede reducir carbohidratos a 0)
+    if (mealPlan['Proteina Magra'] && mealPlan['Proteina Magra'].length > 0 && !mealPlan['Carbohidratos']) {
+      const carbohidratosTarget = target['Carbohidratos'];
+      if (carbohidratosTarget > 0) {
+        const availableCarbohidratos = this.getFoodsByCategory('Carbohidratos');
+        if (availableCarbohidratos.length > 0) {
+          const suggestedCarbohidratos = this.selectSuggestedFoods(availableCarbohidratos, carbohidratosTarget, currentMealType);
+          mealPlan['Carbohidratos'] = suggestedCarbohidratos.map(item => ({
+            food: item.food,
+            portions: item.portions,
+            totalAmount: this.calculateTotalAmount(item.food, item.portions, 'Carbohidratos')
+          }));
+        }
+      }
+    }
+
+    // Aplicar reglas especiales para alimentos específicos
+    this.applySpecialFoodRules(mealPlan);
 
     // Guardar el estado actual del mealPlan
     this.currentMealPlan = mealPlan;
@@ -390,8 +419,8 @@ export class FoodCalculatorService {
       
       // Si el texto original contiene "g" o "gramos", usar "g"
       if (food.gramos.toLowerCase().includes('g')) {
-        // No mostrar "crudo" para frutas y grasas
-        if (category === 'Frutas' || category === 'Grasas') {
+        // No mostrar "crudo" para frutas, grasas y helado proteico
+        if (category === 'Frutas' || category === 'Grasas' || food.alimento === 'Helado proteico') {
           return `${totalAmount}g`;
         }
         return `${totalAmount}g crudo`;
@@ -399,6 +428,10 @@ export class FoodCalculatorService {
       // Si contiene "unidad", usar "unidades"
       else if (food.gramos.toLowerCase().includes('unidad')) {
         return `${totalAmount} unidades`;
+      }
+      // Si contiene "loncha", usar "lonchas"
+      else if (food.gramos.toLowerCase().includes('loncha')) {
+        return `${totalAmount} loncha${totalAmount > 1 ? 's' : ''}`;
       }
       // Para otros casos, mantener el formato original
       else {
@@ -463,6 +496,9 @@ export class FoodCalculatorService {
         }
       }
     }
+    
+    // Aplicar reglas especiales para alimentos específicos
+    this.applySpecialFoodRules(mealPlan);
     
     // Guardar el estado actual del mealPlan
     this.currentMealPlan = mealPlan;
@@ -555,5 +591,152 @@ export class FoodCalculatorService {
     }
     
     return mealPlan;
+  }
+
+  // Aplicar reglas especiales para alimentos específicos
+  private applySpecialFoodRules(mealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] }): void {
+    // Regla especial: Yogur proteico bebible
+    // Si se selecciona yogur proteico bebible, cuenta como 3 porciones de proteína magra
+    // y resta 1 porción de carbohidratos
+    if (mealPlan['Proteina Magra']) {
+      const yogurBebibleIndex = mealPlan['Proteina Magra'].findIndex(
+        item => item.food.alimento === 'Yogur proteico bebible'
+      );
+      
+      if (yogurBebibleIndex !== -1) {
+        const yogurItem = mealPlan['Proteina Magra'][yogurBebibleIndex];
+        
+        // Si hay yogur bebible, ajustar las porciones
+        if (yogurItem.portions > 0) {
+          // Aumentar a 3 porciones de proteína magra
+          yogurItem.portions = 3;
+          yogurItem.totalAmount = this.calculateTotalAmount(yogurItem.food, 3, 'Proteina Magra');
+          
+          // Reducir carbohidratos en 1 porción si existen
+          if (mealPlan['Carbohidratos'] && mealPlan['Carbohidratos'].length > 0) {
+            const carbohidratoIndex = mealPlan['Carbohidratos'].findIndex(
+              item => item.portions > 0
+            );
+            
+            if (carbohidratoIndex !== -1) {
+              const carbohidratoItem = mealPlan['Carbohidratos'][carbohidratoIndex];
+              carbohidratoItem.portions = Math.max(0, carbohidratoItem.portions - 1);
+              
+              if (carbohidratoItem.portions === 0) {
+                // Si se queda en 0, mantener el carbohidrato pero con 0 porciones
+                // para que esté disponible para cambios futuros
+                carbohidratoItem.totalAmount = '0g';
+              } else {
+                // Recalcular el totalAmount
+                carbohidratoItem.totalAmount = this.calculateTotalAmount(
+                  carbohidratoItem.food, 
+                  carbohidratoItem.portions, 
+                  'Carbohidratos'
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Regla especial: Yogur proteico sabores
+    // Si se selecciona yogur proteico sabores, resta 1 porción de carbohidratos
+    if (mealPlan['Proteina Magra']) {
+      const yogurSaboresIndex = mealPlan['Proteina Magra'].findIndex(
+        item => item.food.alimento === 'Yogur proteico sabores' && item.portions > 0
+      );
+      
+      if (yogurSaboresIndex !== -1) {
+        // Reducir carbohidratos en 1 porción si existen
+        if (mealPlan['Carbohidratos'] && mealPlan['Carbohidratos'].length > 0) {
+          const carbohidratoIndex = mealPlan['Carbohidratos'].findIndex(
+            item => item.portions > 0
+          );
+          
+          if (carbohidratoIndex !== -1) {
+            const carbohidratoItem = mealPlan['Carbohidratos'][carbohidratoIndex];
+            carbohidratoItem.portions = Math.max(0, carbohidratoItem.portions - 1);
+            
+            if (carbohidratoItem.portions === 0) {
+              // Si se queda en 0, mantener el carbohidrato pero con 0 porciones
+              // para que esté disponible para cambios futuros
+              carbohidratoItem.totalAmount = '0g';
+            } else {
+              // Recalcular el totalAmount
+              carbohidratoItem.totalAmount = this.calculateTotalAmount(
+                carbohidratoItem.food, 
+                carbohidratoItem.portions, 
+                'Carbohidratos'
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Regla especial: Helado proteico
+    // Si se selecciona helado proteico, resta 1 porción de carbohidratos
+    if (mealPlan['Proteina Magra']) {
+      const heladoIndex = mealPlan['Proteina Magra'].findIndex(
+        item => item.food.alimento === 'Helado proteico' && item.portions > 0
+      );
+      
+      if (heladoIndex !== -1) {
+        // Reducir carbohidratos en 1 porción si existen
+        if (mealPlan['Carbohidratos'] && mealPlan['Carbohidratos'].length > 0) {
+          const carbohidratoIndex = mealPlan['Carbohidratos'].findIndex(
+            item => item.portions > 0
+          );
+          
+          if (carbohidratoIndex !== -1) {
+            const carbohidratoItem = mealPlan['Carbohidratos'][carbohidratoIndex];
+            carbohidratoItem.portions = Math.max(0, carbohidratoItem.portions - 1);
+            
+            if (carbohidratoItem.portions === 0) {
+              // Si se queda en 0, mantener el carbohidrato pero con 0 porciones
+              // para que esté disponible para cambios futuros
+              carbohidratoItem.totalAmount = '0g';
+            } else {
+              // Recalcular el totalAmount
+              carbohidratoItem.totalAmount = this.calculateTotalAmount(
+                carbohidratoItem.food, 
+                carbohidratoItem.portions, 
+                'Carbohidratos'
+              );
+            }
+          }
+        }
+      }
+    }
+
+    // Regla especial: Salmón
+    // Si se selecciona salmón, eliminar todas las grasas del plan
+    if (mealPlan['Proteina Magra']) {
+      const salmonIndex = mealPlan['Proteina Magra'].findIndex(
+        item => item.food.alimento === 'Salmón' && item.portions > 0
+      );
+      
+      if (salmonIndex !== -1) {
+        // Eliminar todas las grasas del plan
+        if (mealPlan['Grasas']) {
+          mealPlan['Grasas'] = [];
+        }
+      } else {
+        // Si no hay salmón, restaurar las grasas si no existen
+        const target = this.getDailyTarget();
+        if (target['Grasas'] > 0 && (!mealPlan['Grasas'] || mealPlan['Grasas'].length === 0)) {
+          const availableGrasas = this.getFoodsByCategory('Grasas');
+          if (availableGrasas.length > 0) {
+            const suggestedGrasas = this.selectSuggestedFoods(availableGrasas, target['Grasas'], this.currentMealType);
+            mealPlan['Grasas'] = suggestedGrasas.map(item => ({
+              food: item.food,
+              portions: item.portions,
+              totalAmount: this.calculateTotalAmount(item.food, item.portions, 'Grasas')
+            }));
+          }
+        }
+      }
+    }
   }
 }
