@@ -1,6 +1,6 @@
 <div class="meal-calculator-container" (click)="closeDropdowns()">
   <header class="header">
-    <h2>Plan de comidas</h2>
+    <h2>Plan de comidas de {{ currentProfile }}</h2>
     
     <!-- Selector de tipo de comida -->
     <div class="meal-type-selector">
@@ -17,13 +17,34 @@
   </header>
 
   <div class="meal-categories">
+    <!-- Skeleton loading -->
+    <div class="skeleton-container" *ngIf="isLoading">
+      <div class="skeleton-category" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton-header">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-target"></div>
+        </div>
+        <div class="skeleton-content">
+          <div class="skeleton-item">
+            <div class="skeleton-food-info">
+              <div class="skeleton-icon"></div>
+              <div class="skeleton-name"></div>
+            </div>
+            <div class="skeleton-amount"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido real -->
     <div 
       class="category-section" 
-      *ngFor="let category of getActiveCategories()">
+      *ngFor="let category of getActiveCategories()"
+      [class.hidden]="isLoading">
       
       <div class="category-header">
         <h3>{{ category.label }}</h3>
-        <span class="category-target">{{ getTargetValue(category.key) }} porciones</span>
+        <span class="category-target">{{ getPortionsText(category.key) }}</span>
       </div>
 
       <div class="foods-list" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
@@ -90,8 +111,11 @@
                     class="dropdown-option"
                     *ngFor="let alternative of getAlternatives(category.key, item.food, selectedMealType)"
                     (click)="replaceFood(category.key, item.food, alternative); showAlternatives = null">
-                    {{ alternative.alimento }}
-                    <small>{{ alternative.gramos }}</small>
+                    <span class="dropdown-icon">{{ getFoodIcon(alternative.alimento) }}</span>
+                    <span class="dropdown-content">
+                      <span class="dropdown-name">{{ alternative.alimento }}</span>
+                      <small class="dropdown-amount">{{ alternative.gramos }}</small>
+                    </span>
                   </button>
                 </div>
               </div>
@@ -129,7 +153,7 @@
   </div>
 
   <!-- Resumen de ingredientes -->
-  <div class="ingredients-summary">
+  <div class="ingredients-summary" [class.hidden]="isLoading">
     <h3>Resumen del {{ getMealTypeLabel() }}</h3>
     <div class="simple-list">
       <div class="ingredient-line" *ngFor="let category of getActiveCategories()">

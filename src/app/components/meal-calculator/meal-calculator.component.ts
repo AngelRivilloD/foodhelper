@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { ProfileConfigService } from '../../services/profile-config.service';
 import { FoodItem } from '../../models/food.model';
@@ -8,7 +8,7 @@ import { FoodItem } from '../../models/food.model';
   templateUrl: './meal-calculator.component.html',
   styleUrls: ['./meal-calculator.component.css']
 })
-export class MealCalculatorComponent implements OnInit {
+export class MealCalculatorComponent implements OnInit, OnChanges {
   @Input() currentProfile: string = 'Angel';
   
   mealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } = {};
@@ -16,6 +16,7 @@ export class MealCalculatorComponent implements OnInit {
   showAddFood: string | null = null;
   selectedMealType: string = 'DESAYUNO';
   cookedItems: Set<string> = new Set(); // Rastrear qué items están en modo cocinado
+  isLoading: boolean = false;
   
   mealTypes = [
     { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
@@ -31,7 +32,8 @@ export class MealCalculatorComponent implements OnInit {
     { key: 'Proteina Semi-Magra', label: 'Proteína SM', icon: '🐟', color: '#2ECC71' },
     { key: 'Lácteos', label: 'Lácteos', icon: '🥛', color: '#3498DB' },
     { key: 'Grasas', label: 'Grasas', icon: '🥑', color: '#45B7D1' },
-    { key: 'Frutas', label: 'Frutas', icon: '🍓', color: '#FECA57' }
+    { key: 'Frutas', label: 'Frutas', icon: '🍓', color: '#FECA57' },
+    { key: 'Vegetales', label: 'Vegetales', icon: '🥬', color: '#2ECC71' }
   ];
 
   constructor(
@@ -46,6 +48,19 @@ export class MealCalculatorComponent implements OnInit {
     this.profileConfigService.dailyTarget$.subscribe(() => {
       this.loadProfileDailyTarget();
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['currentProfile'] && !changes['currentProfile'].firstChange) {
+      // Activar skeleton cuando cambia el perfil
+      this.isLoading = true;
+      
+      // Simular un pequeño delay para mostrar el skeleton
+      setTimeout(() => {
+        this.loadProfileDailyTarget();
+        this.isLoading = false;
+      }, 500);
+    }
   }
 
   private loadProfileDailyTarget(): void {
@@ -117,7 +132,13 @@ export class MealCalculatorComponent implements OnInit {
   // Cambiar tipo de comida
   selectMealType(mealType: string): void {
     this.selectedMealType = mealType;
-    this.generateMealPlanForMeal();
+    this.isLoading = true;
+    
+    // Simular un pequeño delay para mostrar el skeleton
+    setTimeout(() => {
+      this.generateMealPlanForMeal();
+      this.isLoading = false;
+    }, 500);
   }
 
   // Obtener objetivos de la comida seleccionada
@@ -136,7 +157,8 @@ export class MealCalculatorComponent implements OnInit {
       'Proteina Semi-Magra': mealObjectives['proteína SM'] || 0,
       'Lácteos': mealObjectives['leche/yogurt'] || 0,
       'Grasas': mealObjectives['grasas'] || 0,
-      'Frutas': mealObjectives['fruta'] || 0
+      'Frutas': mealObjectives['fruta'] || 0,
+      'Vegetales': mealObjectives['vegetales'] || 0
     };
   }
 
@@ -189,32 +211,53 @@ export class MealCalculatorComponent implements OnInit {
     return totalAmount;
   }
 
-  // Verificar si el alimento debe mostrar peso cocinado (solo gramos de ciertas categorías)
+  // Verificar si el alimento debe mostrar peso cocinado (solo gramos y tazas de ciertas categorías)
   shouldShowCookedWeight(totalAmount: string): boolean {
-    return totalAmount.includes('g') && !totalAmount.includes('unidad') && !totalAmount.includes('lata');
+    return (totalAmount.includes('g') || totalAmount.includes('taza')) && 
+           !totalAmount.includes('unidad') && 
+           !totalAmount.includes('lata');
   }
 
   // Verificar si la categoría permite peso cocinado
   shouldCategoryShowCookedWeight(category: string): boolean {
-    const categoriesWithCookedWeight = ['Carbohidratos', 'Proteina Magra', 'Proteina Semi-Magra', 'Lácteos'];
+    const categoriesWithCookedWeight = ['Carbohidratos', 'Proteina Magra', 'Proteina Semi-Magra', 'Lácteos', 'Vegetales'];
     return categoriesWithCookedWeight.includes(category);
   }
 
-  // Calcular peso cocinado (restando 20%)
+  // Calcular peso cocinado (restando 20% para gramos, 50% para tazas)
   getCookedWeight(totalAmount: string): string {
     // Extraer el número del totalAmount
     const match = totalAmount.match(/(\d+)/);
     if (match) {
       const rawWeight = parseInt(match[1]);
-      const cookedWeight = Math.round(rawWeight * 0.8); // Restar 20%
       
-      // Mantener la unidad original
-      if (totalAmount.includes('g')) {
-        return `${cookedWeight}g cocinado`;
-      } else if (totalAmount.includes('unidad')) {
-        return `${cookedWeight} unidades cocinadas`;
+      // Lógica específica para vegetales (tazas): 1/2 taza cocinado = 1 taza crudo
+      if (totalAmount.includes('taza')) {
+        const cookedWeight = rawWeight * 0.5; // 50% para vegetales
+        
+        // Manejar fracciones para tazas
+        if (cookedWeight === 0.5) {
+          return '1/2 taza cocinado';
+        } else if (cookedWeight === 1.5) {
+          return '1 1/2 tazas cocinado';
+        } else if (cookedWeight === 2.5) {
+          return '2 1/2 tazas cocinado';
+        } else {
+          const roundedWeight = Math.round(cookedWeight);
+          return `${roundedWeight} taza${roundedWeight > 1 ? 's' : ''} cocinado`;
+        }
       } else {
-        return `${cookedWeight} cocinado`;
+        // Lógica para otros alimentos (gramos): restar 20%
+        const cookedWeight = Math.round(rawWeight * 0.8);
+        
+        // Mantener la unidad original
+        if (totalAmount.includes('g')) {
+          return `${cookedWeight}g cocinado`;
+        } else if (totalAmount.includes('unidad')) {
+          return `${cookedWeight} unidades cocinadas`;
+        } else {
+          return `${cookedWeight} cocinado`;
+        }
       }
     }
     return totalAmount;
@@ -263,9 +306,14 @@ export class MealCalculatorComponent implements OnInit {
       'Pan blanco o integral de barra': '🍞',
       'Azúcar blanco/moreno': '🍯',
       'Crema de arroz': '🥣',
+      'Patata': '🥔',
+      'Boniato': '🥔',
+      'Yuca (cocido)': '🥔',
+      'Fajitas medianas': '🌮',
+      'Harina de maíz': '🌾',
       
       // Proteínas
-      'Pechuga de pollo o pavo': '🍗',
+      'Pechuga de pollo/pavo': '🍗',
       'Pescado blanco': '🐟',
       'Camarones/gambas': '🦐',
       'Atún al natural en lata': '🐟',
@@ -299,13 +347,28 @@ export class MealCalculatorComponent implements OnInit {
       'Queso cottage': '🧀',
       
       // Grasas
-      'Aceite de oliva': '🫒',
       'Aguacate': '🥑',
       'Almendras': '🥜',
       'Nueces': '🥜',
       'Aceitunas': '🫒',
       'Mantequilla': '🧈',
-      'Crema de cacahuete': '🥜',
+      'Mantequilla de maní': '🥜',
+      'Crema de frutos secos': '🥜',
+      'Coco rallado': '🥥',
+      'Aceituna verde (deshuesadas)': '🫒',
+      'Aceitunas negras': '🫒',
+      'Cacahuetes/maní': '🥜',
+      'Chocolate negro (70-75%)': '🍫',
+      'Nata para cocinar 15%': '🥛',
+      'Leche de coco': '🥛',
+      'Semillas de girasol, ajonjolí, chía': '🥜',
+      'Queso Crema normal': '🧀',
+      'Avellanas': '🥜',
+      'Cashews/anacardos': '🥜',
+      'Pistachos': '🥜',
+      'Aceite de oliva': '🫒',
+      'Mayonesa': '',
+      
       
       // Frutas
       'Banana': '🍌',
@@ -321,7 +384,49 @@ export class MealCalculatorComponent implements OnInit {
       'Granada': '🍎',
       'Uvas pasas': '🍇',
       'Dátiles': '🟤',
-      'Fresas': '🍓'
+      'Fresas': '🍓',
+      
+      // Vegetales
+      'Acelgas': '🥬',
+      'Hinojo': '🥬',
+      'Ají dulce': '🌶️',
+      'Hongos': '🍄',
+      'Ajo': '🧄',
+      'Jugo de tomate': '🍅',
+      'Ajo porro': '🧄',
+      'Lechuga': '🥬',
+      'Alcachofa': '🥬',
+      'Nabo': '🥬',
+      'Pimiento': '🫑',
+      'Calabacín': '🥒',
+      'Quimbombó': '🥬',
+      'Cebolla': '🧅',
+      'Rábanos': '🥬',
+      'Cebollín': '🧄',
+      'Remolacha': '🥬',
+      'Apio': '🥬',
+      'Alfalfa': '🌱',
+      'Palmito': '🥬',
+      'Calabaza': '🎃',
+      'Pepino': '🥒',
+      'Berenjena': '🍆',
+      'Perejil': '🌿',
+      'Berros': '🥬',
+      'Brócoli': '🥦',
+      'Chayota': '🥬',
+      'Repollo': '🥬',
+      'Coliflor': '🥬',
+      'Tomate': '🍅',
+      'Corazón de alcachofa': '🥬',
+      'Tomate en lata': '🍅',
+      'Repollitos de Bruselas': '🥬',
+      'Escarola': '🥬',
+      'Vainitas': '🫛',
+      'Espárragos': '🥬',
+      'Vegetales chinos': '🥬',
+      'Espinaca': '🥬',
+      'Zanahoria': '🥕',
+      'Edamames': '🫘'
     };
     
     return foodIcons[foodName] || '🍽️';
@@ -331,5 +436,11 @@ export class MealCalculatorComponent implements OnInit {
   getMealTypeLabel(): string {
     const mealType = this.mealTypes.find(type => type.key === this.selectedMealType);
     return mealType ? mealType.label : 'comida';
+  }
+
+  // Obtener el texto de porciones con pluralización correcta
+  getPortionsText(category: string): string {
+    const value = this.getTargetValue(category);
+    return value === 1 ? '1 porción' : `${value} porciones`;
   }
 }

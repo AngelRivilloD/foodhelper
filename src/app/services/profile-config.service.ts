@@ -352,7 +352,8 @@ export class ProfileConfigService {
         'Proteina Semi-Magra': dailyTotals['proteína SM'],
         'Lácteos': dailyTotals['leche/yogurt'],
         'Grasas': dailyTotals['grasas'],
-        'Frutas': dailyTotals['fruta']
+        'Frutas': dailyTotals['fruta'],
+        'Vegetales': dailyTotals['vegetales']
       };
     });
     

@@ -16,7 +16,7 @@ export interface Food {
 export interface FoodItem {
   alimento: string;
   gramos: string;
-  category: 'Carbohidratos' | 'Legumbres' | 'Proteina Magra' | 'Proteina Semi-Magra' | 'Lácteos' | 'Grasas' | 'Frutas';
+  category: 'Carbohidratos' | 'Legumbres' | 'Proteina Magra' | 'Proteina Semi-Magra' | 'Lácteos' | 'Grasas' | 'Frutas' | 'Vegetales';
   tipo?: string[];
 }
 
@@ -28,6 +28,7 @@ export interface DailyTarget {
   Lácteos: number;
   Grasas: number;
   Frutas: number;
+  Vegetales: number;
 }
 
 export interface MealPlan {
@@ -55,4 +56,5 @@ export interface DailyMacros {
   Lácteos: number;
   Grasas: number;
   Frutas: number;
+  Vegetales: number;
 }

@@ -18,7 +18,8 @@ export class TargetSetterComponent implements OnInit {
     'Proteina Semi-Magra': 1,
     'Lácteos': 2,
     'Grasas': 2,
-    'Frutas': 3
+    'Frutas': 3,
+    'Vegetales': 3
   };
 
   macroCategories = [
@@ -28,7 +29,8 @@ export class TargetSetterComponent implements OnInit {
     { key: 'Proteina Semi-Magra', label: 'Proteína Semi-Magra', icon: '🐟', color: '#2ECC71' },
     { key: 'Lácteos', label: 'Lácteos', icon: '🥛', color: '#3498DB' },
     { key: 'Grasas', label: 'Grasas', icon: '🥑', color: '#45B7D1' },
-    { key: 'Frutas', label: 'Frutas', icon: '🍓', color: '#FECA57' }
+    { key: 'Frutas', label: 'Frutas', icon: '🍓', color: '#FECA57' },
+    { key: 'Vegetales', label: 'Vegetales', icon: '🥬', color: '#2ECC71' }
   ];
 
   constructor(

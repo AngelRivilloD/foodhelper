@@ -13,7 +13,8 @@ export class FoodCalculatorService {
     'Proteina Semi-Magra': [],
     'Lácteos': [],
     'Grasas': [],
-    'Frutas': []
+    'Frutas': [],
+    'Vegetales': []
   };
 
   private currentMealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } | null = null;
@@ -26,7 +27,8 @@ export class FoodCalculatorService {
     'Proteina Semi-Magra': 1,
     'Lácteos': 2,
     'Grasas': 3,
-    'Frutas': 2
+    'Frutas': 2,
+    'Vegetales': 3
   });
 
   public dailyTarget$ = this.dailyTargetSubject.asObservable();
@@ -46,8 +48,8 @@ export class FoodCalculatorService {
   loadCompleteFoodDatabase(): void {
     this.foodDatabase = {
       "Carbohidratos": [
-        {"alimento": "Papa/patata", "gramos": "90g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
-        {"alimento": "Boniato/batata", "gramos": "75g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Patata", "gramos": "90g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Boniato", "gramos": "75g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Quinoa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
@@ -64,12 +66,12 @@ export class FoodCalculatorService {
         {"alimento": "Maíz dulce", "gramos": "140g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Cous-cous", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Tortitas de arroz/maíz", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
-        {"alimento": "Tortilla para fajitas", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Fajitas medianas", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Azúcar blanco/moreno", "gramos": "15g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
-        {"alimento": "Crema de arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
+      //  {"alimento": "Crema de arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Palomitas de maíz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["merienda"]},
         {"alimento": "Granola baja en grasa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
-        {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
+       // {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
         {"alimento": "Pan Árabe", "gramos": "30gr", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Pan Wasa", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Galleta María", "gramos": "3 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]}
@@ -81,18 +83,18 @@ export class FoodCalculatorService {
       ],
       "Proteina Magra": [
         {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        //{"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Atún al natural en lata", "gramos": "1/2 lata", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Pechuga de pollo o pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Pechuga de pollo/pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Clara de huevo", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "comida", "cena"]},
         {"alimento": "Jamón de pollo/pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Lomo embuchado", "gramos": "20g", "category": "Proteina Magra", "tipo": ["merienda", "cena"]},
-        {"alimento": "Calamares y mariscos", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        //{"alimento": "Calamares y mariscos", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Carne roja magra", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Proteína en polvo (whey y vegana)", "gramos": "1/3 de scoop", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Proteína en polvo", "gramos": "1/3 de scoop", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Lomo de cerdo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        //{"alimento": "Soja", "gramos": "15g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        //{"alimento": "Seitán", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur proteico", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
@@ -170,7 +172,50 @@ export class FoodCalculatorService {
         {"alimento": "Granada", "gramos": "80g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Uvas pasas", "gramos": "20g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Dátiles", "gramos": "20g", "category": "Frutas", "tipo": ["desayuno", "merienda"]}
-      ]
+      ],
+        "Vegetales": [
+         // {"alimento": "Acelgas", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+         // {"alimento": "Hinojo", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+         // {"alimento": "Ají dulce", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Hongos", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Ajo", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Jugo de tomate", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+         // {"alimento": "Ajo porro", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Lechuga", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+        //  {"alimento": "Alcachofa", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+        //  {"alimento": "Nabo", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Pimiento", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Calabacín", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+         // {"alimento": "Quimbombó", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Cebolla", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+         // {"alimento": "Rábanos", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Cebollín", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Remolacha", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Apio", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Alfalfa", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Palmito", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Calabaza", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Pepino", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Berenjena", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Perejil", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Berros", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Brócoli", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          //{"alimento": "Chayota", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Repollo", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Coliflor", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Tomate", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          //{"alimento": "Corazón de alcachofa", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Tomate en lata", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          //{"alimento": "Repollitos de Bruselas", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          //{"alimento": "Escarola", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Vainitas", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Espárragos", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          //{"alimento": "Vegetales chinos", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Espinaca", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Zanahoria", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]},
+          {"alimento": "Edamames", "gramos": "1 taza crudo", "category": "Vegetales", "tipo": ["comida", "cena"]}
+        ]
+      
     }
     
     
@@ -380,7 +425,8 @@ export class FoodCalculatorService {
       'Proteina Semi-Magra': target['Proteina Semi-Magra'],
       'Lácteos': target['Lácteos'],
       'Grasas': target['Grasas'],
-      'Frutas': target['Frutas']
+      'Frutas': target['Frutas'],
+      'Vegetales': target['Vegetales']
     };
   }
 

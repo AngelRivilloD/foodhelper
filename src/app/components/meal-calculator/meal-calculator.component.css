@@ -302,7 +302,7 @@
   max-height: 50vh;
   overflow-y: auto;
   margin-top: 4px;
-  width: 280px;
+  width: 320px;
 }
 
 .dropdown-option {
@@ -318,9 +318,9 @@
   text-align: left;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   border-bottom: 1px solid #f0f0f0;
-  justify-content: space-between;
+  gap: 12px;
 }
 
 .dropdown-option:last-child {
@@ -336,6 +336,32 @@
   color: #666666;
   font-size: 0.8rem;
   margin-top: 2px;
+}
+
+.dropdown-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+}
+
+.dropdown-name {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.dropdown-amount {
+  color: #666666;
+  font-size: 0.8rem;
+  margin: 0;
 }
 
 /* Ocultar botón cuando el dropdown está abierto */
@@ -515,6 +541,111 @@
 .no-foods small {
   font-size: 0.9rem;
   color: #999999;
+}
+
+/* Skeleton Loading */
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skeleton-category {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 1px 3px 1px;
+  min-height: 156px; /* Altura mínima para mantener consistencia */
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.skeleton-title {
+  width: 120px;
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-target {
+  width: 80px;
+  height: 20px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  justify-content: space-around;
+}
+
+.skeleton-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  min-height: 60px; /* Altura mínima para coincidir con food-item */
+}
+
+.skeleton-food-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.skeleton-icon {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 50%;
+}
+
+.skeleton-name {
+  width: 120px;
+  height: 18px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-amount {
+  width: 70px;
+  height: 28px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 16px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.hidden {
+  display: none !important;
 }
 
 /* Resumen de ingredientes */
