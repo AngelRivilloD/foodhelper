@@ -224,4 +224,106 @@ export class MealCalculatorComponent implements OnInit {
   closeDropdowns(): void {
     this.showAlternatives = null;
   }
+
+  // Obtener el icono del alimento actual en la categoría
+  getCategoryIcon(categoryKey: string): string {
+    const categoryItems = this.mealPlan[categoryKey];
+    if (categoryItems && categoryItems.length > 0) {
+      const currentFood = categoryItems[0].food.alimento;
+      return this.getFoodIcon(currentFood);
+    }
+    // Fallback al icono de categoría si no hay alimentos
+    const category = this.macroCategories.find(cat => cat.key === categoryKey);
+    return category ? category.icon : '🍽️';
+  }
+
+  // Mapear alimentos a iconos
+  getFoodIcon(foodName: string): string {
+    const foodIcons: { [key: string]: string } = {
+      // Carbohidratos
+      'Arroz': '🍚',
+      'Pasta': '🍝',
+      'Quinoa': '🌾',
+      'Avena/harina de avena': '🥣',
+      'Pan de molde': '🍞',
+      'Pan tostado': '🍞',
+      'Pan thins': '🍞',
+      'Tortitas de arroz/maíz': '🍘',
+      'Tortilla para fajitas': '🌮',
+      'Miel': '🍯',
+      'Maíz dulce': '🌽',
+      'Cous-cous': '🌾',
+      'Palomitas de maíz': '🍿',
+      'Granola baja en grasa': '🥣',
+      'Casabe': '🍞',
+      'Pan Árabe': '🥖',
+      'Pan Wasa': '🍞',
+      'Galleta María': '🍪',
+      'Cornflakes': '🥣',
+      'Pan blanco o integral de barra': '🍞',
+      'Azúcar blanco/moreno': '🍯',
+      'Crema de arroz': '🥣',
+      
+      // Proteínas
+      'Pechuga de pollo o pavo': '🍗',
+      'Pescado blanco': '🐟',
+      'Camarones/gambas': '🦐',
+      'Atún al natural en lata': '🐟',
+      'Clara de huevo': '🥚',
+      'Jamón de pollo/pavo': '🍖',
+      'Lomo embuchado': '🍖',
+      'Proteína en polvo (whey y vegana)': '🥤',
+      'Lomo de cerdo': '🍖',
+      'Soja': '🫘',
+      'Seitán': '🥩',
+      'Queso burgos light/desnatado': '🧀',
+      'Yogur proteico': '🥛',
+      
+      // Proteína Semi-Magra
+      'Huevo': '🥚',
+      'Salmón, caballa': '🐟',
+      'Carne de cerdo (graso)': '🥩',
+      'Carne roja grasa': '🥩',
+      'Jamón serrano/ibérico': '🍖',
+      'Atún en aceite': '🐟',
+      'Tofu': '🧀',
+      'Queso burgos natural': '🧀',
+      'Queso mozzarella normal': '🧀',
+      'Queso parmesano': '🧀',
+      
+      // Lácteos
+      'Leche desnatada': '🥛',
+      'Yogur natural desnatado': '🥛',
+      'Yogur griego desnatado': '🥛',
+      'Queso fresco desnatado': '🧀',
+      'Queso cottage': '🧀',
+      
+      // Grasas
+      'Aceite de oliva': '🫒',
+      'Aguacate': '🥑',
+      'Almendras': '🥜',
+      'Nueces': '🥜',
+      'Aceitunas': '🫒',
+      'Mantequilla': '🧈',
+      'Crema de cacahuete': '🥜',
+      
+      // Frutas
+      'Banana': '🍌',
+      'Manzana': '🍎',
+      'Pera': '🍐',
+      'Kiwi': '🥝',
+      'Durazno/melocotón': '🍑',
+      'Ciruela': '🟣',
+      'Uvas': '🍇',
+      'Naranja': '🍊',
+      'Mandarina': '🍊',
+      'Cerezas': '🍒',
+      'Granada': '🍎',
+      'Uvas pasas': '🍇',
+      'Dátiles': '🟤',
+      'Fresas': '🍓'
+    };
+    
+    return foodIcons[foodName] || '🍽️';
+  }
 }

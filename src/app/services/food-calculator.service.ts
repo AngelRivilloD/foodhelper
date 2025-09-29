@@ -148,7 +148,7 @@ export class FoodCalculatorService {
         {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "merienda"]}
       ],
       "Frutas": [
-        {"alimento": "Banana", "gramos": "80g", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
+        {"alimento": "Banana", "gramos": "1/2 unidad", "category": "Frutas", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Piña", "gramos": "110g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Melón", "gramos": "200g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Sandía", "gramos": "200g", "category": "Frutas", "tipo": ["desayuno", "merienda", "cena"]},
@@ -214,7 +214,7 @@ export class FoodCalculatorService {
         mealPlan[category] = suggestedFoods.map(item => ({
           food: item.food,
           portions: item.portions,
-          totalAmount: this.calculateTotalAmount(item.food, item.portions)
+          totalAmount: this.calculateTotalAmount(item.food, item.portions, category)
         }));
       }
     });
@@ -298,7 +298,7 @@ export class FoodCalculatorService {
   }
 
   // Calcular cantidad total de un alimento
-  private calculateTotalAmount(food: FoodItem, portions: number): string {
+  private calculateTotalAmount(food: FoodItem, portions: number, category?: string): string {
     // Si no hay porciones, mostrar 0
     if (portions === 0) {
       return '0';
@@ -345,6 +345,10 @@ export class FoodCalculatorService {
       
       // Si el texto original contiene "g" o "gramos", usar "g"
       if (food.gramos.toLowerCase().includes('g')) {
+        // No mostrar "crudo" para frutas y grasas
+        if (category === 'Frutas' || category === 'Grasas') {
+          return `${totalAmount}g`;
+        }
         return `${totalAmount}g crudo`;
       }
       // Si contiene "unidad", usar "unidades"
@@ -397,7 +401,7 @@ export class FoodCalculatorService {
             if (i === index) {
               item.food = newFood;
               item.portions = portions;
-              item.totalAmount = this.calculateTotalAmount(newFood, portions);
+              item.totalAmount = this.calculateTotalAmount(newFood, portions, category);
             } else {
               item.portions = 0;
               item.totalAmount = '0g';
@@ -408,7 +412,7 @@ export class FoodCalculatorService {
         mealPlan[category][index] = {
           food: newFood,
           portions: portions,
-          totalAmount: this.calculateTotalAmount(newFood, portions)
+          totalAmount: this.calculateTotalAmount(newFood, portions, category)
         };
         }
       }
@@ -449,7 +453,7 @@ export class FoodCalculatorService {
           mealPlan[category].forEach((item, i) => {
             if (i === index) {
               item.portions = newPortions;
-              item.totalAmount = this.calculateTotalAmount(food, newPortions);
+              item.totalAmount = this.calculateTotalAmount(food, newPortions, category);
             } else {
               item.portions = 0;
               item.totalAmount = '0g';
@@ -460,7 +464,7 @@ export class FoodCalculatorService {
         mealPlan[category][index] = {
           food: food,
           portions: newPortions,
-          totalAmount: this.calculateTotalAmount(food, newPortions)
+          totalAmount: this.calculateTotalAmount(food, newPortions, category)
         };
       }
       }
@@ -483,13 +487,13 @@ export class FoodCalculatorService {
     if (existingIndex !== -1) {
       // Si ya existe, incrementar porciones
       mealPlan[category][existingIndex].portions += portions;
-      mealPlan[category][existingIndex].totalAmount = this.calculateTotalAmount(food, mealPlan[category][existingIndex].portions);
+      mealPlan[category][existingIndex].totalAmount = this.calculateTotalAmount(food, mealPlan[category][existingIndex].portions, category);
     } else {
       // Si no existe, agregarlo
       mealPlan[category].push({
         food: food,
         portions: portions,
-        totalAmount: this.calculateTotalAmount(food, portions)
+        totalAmount: this.calculateTotalAmount(food, portions, category)
       });
     }
     

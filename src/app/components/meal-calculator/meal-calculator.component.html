@@ -22,7 +22,6 @@
       *ngFor="let category of getActiveCategories()">
       
       <div class="category-header">
-        <span class="category-icon" [style.color]="category.color">{{ category.icon }}</span>
         <h3>{{ category.label }}</h3>
         <span class="category-target">{{ getTargetValue(category.key) }} porciones</span>
       </div>
@@ -34,7 +33,10 @@
           
           <div class="food-item-content">
             <div class="food-info">
-              <h4>{{ item.food.alimento }}</h4>
+              <h4>
+                <span class="food-icon">{{ getFoodIcon(item.food.alimento) }}</span>
+                {{ item.food.alimento }}
+              </h4>
               <div class="food-details">
                 <!-- <span class="portion-info">
                   {{ item.portions }} porción{{ item.portions !== 1 ? 'es' : '' }}
@@ -126,12 +128,20 @@
     </div>
   </div>
 
-  <div class="actions">
-    <button class="action-btn primary" (click)="generateMealPlan()">
-      🔄 Recalcular Plan
-    </button>
-    <button class="action-btn secondary">
-      📤 Exportar Lista
-    </button>
+  <!-- Resumen de ingredientes -->
+  <div class="ingredients-summary">
+    <h3>Resumen del plato</h3>
+    <div class="simple-list">
+      <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
+        <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
+          <div class="ingredient-info">
+            <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
+            <span class="ingredient-name">{{ item.food.alimento }}</span>
+          </div>
+          <span class="ingredient-amount">{{ getDisplayWeight(category.key, item.food, item.totalAmount) }}</span>
+        </div>
+      </div>
+    </div>
   </div>
+
 </div>
