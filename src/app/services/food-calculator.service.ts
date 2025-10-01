@@ -523,41 +523,30 @@ export class FoodCalculatorService {
 
   // Ajustar porciones de un alimento específico
   adjustPortions(category: string, food: FoodItem, newPortions: number): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
-    let mealPlan = this.generateMealPlan();
+    // Usar el plan actual si está disponible, sino generar uno nuevo
+    let mealPlan = this.currentMealPlan || this.generateMealPlan();
     
     if (mealPlan[category]) {
       const index = mealPlan[category].findIndex(item => item.food.alimento === food.alimento);
       if (index !== -1) {
-        // REGLA ESPECIAL PARA CARBOHIDRATOS: Si se ajusta un carbohidrato, 
-        // poner las otras opciones en 0 porciones
-        if (category === 'Carbohidratos') {
-          // Poner todas las porciones en el alimento seleccionado
-          mealPlan[category].forEach((item, i) => {
-            if (i === index) {
-              item.portions = newPortions;
-              item.totalAmount = this.calculateTotalAmount(food, newPortions, category);
-            } else {
-              item.portions = 0;
-              item.totalAmount = '0g';
-            }
-          });
-        } else {
-          // Para otras categorías, ajustar normalmente
+        // Ajustar normalmente para todas las categorías
         mealPlan[category][index] = {
           food: food,
           portions: newPortions,
           totalAmount: this.calculateTotalAmount(food, newPortions, category)
         };
       }
-      }
     }
     
+    // Guardar el estado actual del mealPlan
+    this.currentMealPlan = mealPlan;
     return mealPlan;
   }
 
   // Agregar un nuevo alimento al plan
   addFoodToPlan(category: string, food: FoodItem, portions: number = 1): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
-    let mealPlan = this.generateMealPlan();
+    // Usar el plan actual si está disponible, sino generar uno nuevo
+    let mealPlan = this.currentMealPlan || this.generateMealPlan();
     
     if (!mealPlan[category]) {
       mealPlan[category] = [];
@@ -579,17 +568,22 @@ export class FoodCalculatorService {
       });
     }
     
+    // Guardar el estado actual del mealPlan
+    this.currentMealPlan = mealPlan;
     return mealPlan;
   }
 
   // Remover un alimento del plan
   removeFoodFromPlan(category: string, food: FoodItem): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
-    let mealPlan = this.generateMealPlan();
+    // Usar el plan actual si está disponible, sino generar uno nuevo
+    let mealPlan = this.currentMealPlan || this.generateMealPlan();
     
     if (mealPlan[category]) {
       mealPlan[category] = mealPlan[category].filter(item => item.food.alimento !== food.alimento);
     }
     
+    // Guardar el estado actual del mealPlan
+    this.currentMealPlan = mealPlan;
     return mealPlan;
   }
 

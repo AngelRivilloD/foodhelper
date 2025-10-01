@@ -44,7 +44,21 @@
       
       <div class="category-header">
         <h3>{{ category.label }}</h3>
-        <span class="category-target">{{ getPortionsText(category.key) }}</span>
+        <span class="category-target"
+              [class.completed]="getTotalPortionsUsed(category.key) === getTargetValue(category.key)">
+          <span class="portions-used">{{ getTotalPortionsUsed(category.key) }}</span>
+          <span class="portions-separator">/</span>
+          <span class="portions-total">{{ getTargetValue(category.key) }}</span>
+          <span class="portions-label">porciones</span>
+        </span>
+      </div>
+
+      <!-- Barra de progreso -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" 
+             [class.completed]="getTotalPortionsUsed(category.key) === getTargetValue(category.key)"
+             [style.width.%]="(getTotalPortionsUsed(category.key) / getTargetValue(category.key)) * 100">
+        </div>
       </div>
 
       <div class="foods-list" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
@@ -58,33 +72,33 @@
                 <span class="food-icon">{{ getFoodIcon(item.food.alimento) }}</span>
                 {{ item.food.alimento }}
               </h4>
-              <div class="food-details">
-                <!-- <span class="portion-info">
-                  {{ item.portions }} porción{{ item.portions !== 1 ? 'es' : '' }}
-                </span> -->
-                <span class="portion-info" 
-                      [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                      [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                      (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
-                  {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
-                </span>
+              <div class="food-inline-controls">
+                <!-- Controles de porciones -->
+                <div class="portion-controls">
+                  <button 
+                    class="portion-btn decrement"
+                    (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
+                    [disabled]="item.portions <= 0">
+                    −
+                  </button>
+                  <!-- <span class="portion-display">{{ item.portions }}</span> -->
+                  <button 
+                    class="portion-btn increment"
+                    (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
+                    [disabled]="!canAddMorePortions(category.key)">
+                    +
+                  </button>
+                </div>
+                
+                <div class="food-details">
+                  <span class="portion-info" 
+                        [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                        [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                        (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+                    {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
+                  </span>
+                </div>
               </div>
-              
-              <!-- Controles de porciones - OCULTOS -->
-              <!-- <div class="portion-controls">
-                <button 
-                  class="portion-btn decrement"
-                  (click)="decrementPortions(category.key, item.food)"
-                  [disabled]="item.portions <= 1">
-                  −
-                </button>
-                <span class="portion-display">{{ item.portions }}</span>
-                <button 
-                  class="portion-btn increment"
-                  (click)="incrementPortions(category.key, item.food)">
-                  +
-                </button>
-              </div> -->
             </div>
             
             <div class="food-actions">
@@ -94,7 +108,7 @@
               <div class="dropdown-container">
                 <button 
                   class="change-btn dropdown-btn"
-                  [class.hidden]="showAlternatives !== null"
+                  [class.hidden]="showAlternatives !== null || showAddFood !== null"
                   (click)="showAlternatives = showAlternatives === item.food.alimento ? null : item.food.alimento; $event.stopPropagation()">
                   <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw-icon lucide-refresh-cw">
                     <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -125,36 +139,52 @@
         </div>
       </div>
 
-      <div class="no-foods" *ngIf="!mealPlan[category.key] || mealPlan[category.key].length === 0">
+      <!-- <div class="no-foods" *ngIf="!mealPlan[category.key] || mealPlan[category.key].length === 0">
         <p>No hay alimentos configurados para esta categoría</p>
         <small>Agrega alimentos en la configuración</small>
-      </div>
+      </div> -->
 
-      <!-- Botón para agregar más alimentos
-      <div class="add-food-section" *ngIf="mealPlan[category.key] && mealPlan[category.key].length > 0">
-        <button class="add-food-btn" (click)="showAddFood = showAddFood === category.key ? null : category.key">
-          ➕ Agregar más alimentos
-        </button>
-        
-        <div class="available-foods" *ngIf="showAddFood === category.key">
-          <h5>Alimentos disponibles:</h5>
-          <div class="available-foods-list">
+      <!-- Botón para agregar más alimentos -->
+      <div class="add-food-section" *ngIf="canAddMorePortions(category.key)">
+        <div class="dropdown-container add-food-dropdown">
+          <button 
+            class="add-food-btn"
+            [class.hidden]="showAlternatives !== null || showAddFood !== null"
+            (click)="showAddFood = showAddFood === category.key ? null : category.key; $event.stopPropagation()"
+            [title]="'Agregar más alimentos'">
+            Agregar alimento
+          </button>
+          
+          <!-- Opciones del desplegable -->
+          <div class="dropdown-options" *ngIf="showAddFood === category.key" (click)="$event.stopPropagation()">
             <button 
-              class="available-food-btn"
+              class="dropdown-option"
               *ngFor="let food of getAvailableFoods(category.key)"
-              (click)="addFoodToPlan(category.key, food)">
-              {{ food.alimento }}
-              <small>{{ food.gramos }}</small>
+              (click)="addFoodToPlan(category.key, food); showAddFood = null">
+              <span class="dropdown-icon">{{ getFoodIcon(food.alimento) }}</span>
+              <span class="dropdown-content">
+                <span class="dropdown-name">{{ food.alimento }}</span>
+                <small class="dropdown-amount">{{ food.gramos }}</small>
+              </span>
             </button>
           </div>
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 
   <!-- Resumen de ingredientes -->
   <div class="ingredients-summary" [class.hidden]="isLoading">
-    <h3>Resumen del {{ getMealTypeLabel() }}</h3>
+    <div class="summary-header">
+      <h3>Resumen del {{ getMealTypeLabel() }}</h3>
+      <span class="global-target"
+            [class.completed]="getTotalPortionsUsedGlobal() === getTotalPortionsTargetGlobal()">
+        <span class="global-portions-used">{{ getTotalPortionsUsedGlobal() }}</span>
+        <span class="global-portions-separator">/</span>
+        <span class="global-portions-total">{{ getTotalPortionsTargetGlobal() }}</span>
+        <span class="global-portions-label">porciones totales</span>
+      </span>
+    </div>
     <div class="simple-list">
       <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
         <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
@@ -162,7 +192,12 @@
             <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
             <span class="ingredient-name">{{ item.food.alimento }}</span>
           </div>
-          <span class="ingredient-amount">{{ getDisplayWeight(category.key, item.food, item.totalAmount) }}</span>
+          <span class="ingredient-amount"
+                [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+            {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
+          </span>
         </div>
       </div>
     </div>

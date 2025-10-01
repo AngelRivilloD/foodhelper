@@ -114,10 +114,10 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   }
 
 
-  // MÉTODOS DE AJUSTE DE PORCIONES - OCULTOS
-  // adjustPortions(category: string, food: FoodItem, newPortions: number): void {
-  //   this.mealPlan = this.foodCalculatorService.adjustPortions(category, food, newPortions);
-  // }
+  // MÉTODOS DE AJUSTE DE PORCIONES
+  adjustPortions(category: string, food: FoodItem, newPortions: number): void {
+    this.mealPlan = this.foodCalculatorService.adjustPortions(category, food, newPortions);
+  }
 
   // Obtener alternativas para un alimento
   getAlternatives(category: string, currentFood: FoodItem, mealType?: string): FoodItem[] {
@@ -126,19 +126,48 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     );
   }
 
-  // incrementPortions(category: string, food: FoodItem): void {
-  //   const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
-  //   if (currentItem) {
-  //     this.adjustPortions(category, food, currentItem.portions + 1);
-  //   }
-  // }
+  incrementPortions(category: string, food: FoodItem): void {
+    const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
+    if (currentItem) {
+      const totalUsed = this.getTotalPortionsUsed(category);
+      const targetPortions = this.getTargetValue(category);
+      // Solo permitir incrementar si no se excede el objetivo
+      if (totalUsed < targetPortions) {
+        this.adjustPortions(category, food, currentItem.portions + 1);
+      }
+    }
+  }
 
-  // decrementPortions(category: string, food: FoodItem): void {
-  //   const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
-  //   if (currentItem && currentItem.portions > 1) {
-  //     this.adjustPortions(category, food, currentItem.portions - 1);
-  //   }
-  // }
+  decrementPortions(category: string, food: FoodItem): void {
+    const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
+    if (currentItem && currentItem.portions > 0) {
+      const newPortions = currentItem.portions - 1;
+      if (newPortions === 0) {
+        // Si llega a 0, remover el alimento
+        this.removeFoodFromPlan(category, food);
+      } else {
+        this.adjustPortions(category, food, newPortions);
+      }
+    }
+  }
+
+  // Obtener total de porciones usadas en una categoría
+  getTotalPortionsUsed(category: string): number {
+    if (!this.mealPlan[category]) return 0;
+    return this.mealPlan[category].reduce((total, item) => total + item.portions, 0);
+  }
+
+  // Obtener porciones restantes disponibles
+  getRemainingPortions(category: string): number {
+    const target = this.getTargetValue(category);
+    const used = this.getTotalPortionsUsed(category);
+    return Math.max(0, target - used);
+  }
+
+  // Verificar si se pueden agregar más porciones
+  canAddMorePortions(category: string): boolean {
+    return this.getRemainingPortions(category) > 0;
+  }
 
   // Agregar un nuevo alimento al plan
   addFoodToPlan(category: string, food: FoodItem): void {
@@ -153,7 +182,18 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   // Obtener alimentos disponibles para agregar (excluyendo los ya en el plan)
   getAvailableFoods(category: string): FoodItem[] {
     const currentFoods = this.mealPlan[category]?.map(item => item.food.alimento) || [];
-    return this.getFoodsByCategory(category).filter(food => !currentFoods.includes(food.alimento));
+    const allFoods = this.getFoodsByCategory(category);
+    
+    // Filtrar por tipo de comida
+    const normalizedMealType = this.selectedMealType.toLowerCase();
+    const filteredFoods = allFoods.filter(food => 
+      food.tipo && food.tipo.includes(normalizedMealType)
+    );
+    
+    // Excluir los alimentos ya en el plan y ordenar alfabéticamente
+    return filteredFoods
+      .filter(food => !currentFoods.includes(food.alimento))
+      .sort((a, b) => a.alimento.localeCompare(b.alimento));
   }
 
   // Cambiar tipo de comida
@@ -347,6 +387,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   // Cerrar todos los dropdowns
   closeDropdowns(): void {
     this.showAlternatives = null;
+    this.showAddFood = null;
   }
 
   // Obtener el icono del alimento actual en la categoría
@@ -535,5 +576,21 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   getPortionsText(category: string): string {
     const value = this.getTargetValue(category);
     return value === 1 ? '1 porción' : `${value} porciones`;
+  }
+
+  // Obtener el total de porciones usadas en todas las categorías
+  getTotalPortionsUsedGlobal(): number {
+    const activeCategories = this.getActiveCategories();
+    return activeCategories.reduce((total, category) => {
+      return total + this.getTotalPortionsUsed(category.key);
+    }, 0);
+  }
+
+  // Obtener el total de porciones objetivo en todas las categorías
+  getTotalPortionsTargetGlobal(): number {
+    const activeCategories = this.getActiveCategories();
+    return activeCategories.reduce((total, category) => {
+      return total + this.getTargetValue(category.key);
+    }, 0);
   }
 }
