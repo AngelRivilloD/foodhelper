@@ -61,9 +61,9 @@
 }
 
 .meal-type-btn.active {
-  background: #faffdd;
-    border-color: #d6e689;
-    color: #83961b;
+  background: #fff9ee;
+  border: 1px solid #dbd2b6;
+  color: #9b8a58;
 }
 
 
@@ -185,11 +185,6 @@
   border-top: 1px solid #f1f1f1;
 }
 
-.food-item:hover {
-  background: #f8f9fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
 .food-item-content {
   display: flex;
   align-items: center;
@@ -205,7 +200,7 @@
   color: #1a1a1a;
   font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -219,7 +214,7 @@
 .food-inline-controls {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -231,20 +226,10 @@
 
 .portion-info,
 .amount-info {
-  background: #f8f9fa;
-  padding: 6px 10px;
-  border-radius: 8px;
-  color: rgb(71, 71, 71);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.portion-info {
-  background: #fefdfa;
-  border: 1px solid #dbd2b6;
-  color: #9b8a58;
-  border-radius: 16px;
+  color: rgb(75 75 75);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 .amount-info {
@@ -275,13 +260,13 @@
 .portion-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .portion-btn {
   background: #ffffff;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
   font-size: 1.6rem;
@@ -778,19 +763,14 @@ margin-top: 40px;
   font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .ingredient-amount {
-  background: #fefdfa;
-  border: 1px solid #dbd2b6;
-  color: #9b8a58;
-
-  border-radius: 16px;
-  padding: 6px 10px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
+  color: rgb(75 75 75);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
   white-space: nowrap;
 }
 
