@@ -74,6 +74,14 @@
   margin-bottom: 30px;
 }
 
+@media (min-width: 1024px) {
+  .meal-categories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
 .category-section {
   background: #ffffff;
   border-radius: 16px;
@@ -92,6 +100,7 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  padding: 16px 20px;
 }
 
 .category-icon {
@@ -101,7 +110,7 @@
 .category-header h3 {
   font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 400;
   margin: 0;
   flex: 1;
@@ -198,7 +207,7 @@
 .food-info h4 {
   font-family: 'DM Sans', sans-serif;
   color: #1a1a1a;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   margin: 0 0 12px 0;
   display: flex;
