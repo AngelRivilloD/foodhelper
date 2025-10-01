@@ -78,15 +78,22 @@
                   <button 
                     class="portion-btn decrement"
                     (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
-                    [disabled]="item.portions <= 0">
-                    −
+                    [disabled]="item.portions <= 0"
+                    aria-label="Decrementar porciones">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
                   </button>
                   <!-- <span class="portion-display">{{ item.portions }}</span> -->
                   <button 
                     class="portion-btn increment"
                     (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
-                    [disabled]="!canAddMorePortions(category.key)">
-                    +
+                    [disabled]="!canAddMorePortions(category.key)"
+                    aria-label="Incrementar porciones">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
                   </button>
                 </div>
                 
