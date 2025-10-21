@@ -182,7 +182,7 @@ export class ProfileConfigService {
           "leche/yogurt": 0,
           "vegetales": 0,
           "fruta": 1,
-          "carbohidratos": 2,
+          "carbohidratos": 1,
           "proteína M": 2,
           "proteína SM": 2,
           "grasas": 1
@@ -192,7 +192,7 @@ export class ProfileConfigService {
           "vegetales": 1,
           "fruta": 0,
           "carbohidratos": 2,
-          "proteína M": 5,
+          "proteína M": 4,
           "proteína SM": 0,
           "grasas": 1
         },
@@ -210,7 +210,7 @@ export class ProfileConfigService {
           "vegetales": 1,
           "fruta": 0,
           "carbohidratos": 2,
-          "proteína M": 3,
+          "proteína M": 4,
           "proteína SM": 0,
           "grasas": 1
         }
