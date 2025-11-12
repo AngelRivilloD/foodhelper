@@ -157,8 +157,8 @@ export class ProfileConfigService {
         "MERIENDA": {
           "leche/yogurt": 0,
           "vegetales": 0,
-          "fruta": 1,
-          "carbohidratos": 2,
+          "fruta": 2,
+          "carbohidratos": 0,
           "proteína M": 3,
           "proteína SM": 0,
           "grasas": 1
