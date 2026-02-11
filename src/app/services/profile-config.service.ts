@@ -139,10 +139,10 @@ export class ProfileConfigService {
         "DESAYUNO": {
           "leche/yogurt": 0,
           "vegetales": 0,
-          "fruta": 1,
+          "fruta": 0,
           "carbohidratos": 2,
           "proteína M": 2,
-          "proteína SM": 3,
+          "proteína SM": 2,
           "grasas": 1
         },
         "COMIDA": {
@@ -161,16 +161,16 @@ export class ProfileConfigService {
           "carbohidratos": 0,
           "proteína M": 3,
           "proteína SM": 0,
-          "grasas": 1
+          "grasas": 0
         },
         "CENA": {
           "leche/yogurt": 0,
           "vegetales": 1,
           "fruta": 0,
           "carbohidratos": 2,
-          "proteína M": 6,
+          "proteína M": 7,
           "proteína SM": 0,
-          "grasas": 0
+          "grasas": 1
         }
       };
     }
