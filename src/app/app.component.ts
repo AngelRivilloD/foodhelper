@@ -9,21 +9,20 @@ export class AppComponent {
   title = 'foodhelper';
   selectedProfile = 'Angel';
   currentSection = 'plan'; // 'plan' o 'config'
-  profiles = ['Angel', 'Ferchu'];
+  profiles = ['Angel', 'Ferchu', 'Jose Daniel'];
+  showProfileMenu = false;
 
   onSectionSelected(section: string) {
     this.currentSection = section;
-    console.log('Sección seleccionada:', section);
+    this.showProfileMenu = false;
   }
 
   onProfileSelected(profile: string) {
     this.selectedProfile = profile;
-    console.log('Perfil seleccionado:', profile);
+    this.showProfileMenu = false;
   }
 
-  toggleProfile() {
-    const currentIndex = this.profiles.indexOf(this.selectedProfile);
-    this.selectedProfile = this.profiles[(currentIndex + 1) % this.profiles.length];
-    console.log('Perfil seleccionado:', this.selectedProfile);
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
   }
 }

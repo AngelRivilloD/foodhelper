@@ -29,6 +29,12 @@ export interface ProfileMealObjectives {
   };
 }
 
+export interface ProfileFoodPreferences {
+  [profile: string]: {
+    [category: string]: string[]; // lista de nombres de alimentos preferidos
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -42,9 +48,13 @@ export class ProfileConfigService {
   private mealObjectivesSubject = new BehaviorSubject<ProfileMealObjectives>(this.loadMealObjectivesFromStorage());
   public mealObjectives$ = this.mealObjectivesSubject.asObservable();
 
+  private foodPreferencesSubject = new BehaviorSubject<ProfileFoodPreferences>(this.loadFoodPreferencesFromStorage());
+  public foodPreferences$ = this.foodPreferencesSubject.asObservable();
+
   private readonly STORAGE_KEY = 'foodhelper_profile_config';
   private readonly DAILY_TARGET_STORAGE_KEY = 'foodhelper_daily_targets';
   private readonly MEAL_OBJECTIVES_STORAGE_KEY = 'foodhelper_meal_objectives';
+  private readonly FOOD_PREFERENCES_STORAGE_KEY = 'foodhelper_food_preferences';
 
   constructor() {
     // Cargar configuración inicial si no existe
@@ -99,6 +109,23 @@ export class ProfileConfigService {
       localStorage.setItem(this.MEAL_OBJECTIVES_STORAGE_KEY, JSON.stringify(mealObjectives));
     } catch (error) {
       console.error('Error saving meal objectives:', error);
+    }
+  }
+
+  private loadFoodPreferencesFromStorage(): ProfileFoodPreferences {
+    try {
+      const stored = localStorage.getItem(this.FOOD_PREFERENCES_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private saveFoodPreferencesToStorage(prefs: ProfileFoodPreferences): void {
+    try {
+      localStorage.setItem(this.FOOD_PREFERENCES_STORAGE_KEY, JSON.stringify(prefs));
+    } catch (error) {
+      console.error('Error saving food preferences:', error);
     }
   }
 
@@ -217,6 +244,61 @@ export class ProfileConfigService {
       };
     }
 
+    // Configuración por defecto para Jose Daniel
+    if (!currentConfig['Jose Daniel']) {
+      currentConfig['Jose Daniel'] = {
+        'Carbohidratos': 9,
+        'Legumbres': 0,
+        'Proteina Magra': 13,
+        'Proteina Semi-Magra': 4,
+        'Lácteos': 0,
+        'Grasas': 3,
+        'Frutas': 1
+      };
+    }
+
+    // Objetivos por comida para Jose Daniel
+    if (!currentMealObjectives['Jose Daniel']) {
+      currentMealObjectives['Jose Daniel'] = {
+        "DESAYUNO": {
+          "leche/yogurt": 0,
+          "vegetales": 0,
+          "fruta": 0,
+          "carbohidratos": 2,
+          "proteína M": 3,
+          "proteína SM": 2,
+          "grasas": 1
+        },
+        "COMIDA": {
+          "leche/yogurt": 0,
+          "vegetales": 2,
+          "fruta": 0,
+          "carbohidratos": 4,
+          "proteína M": 6,
+          "proteína SM": 0,
+          "grasas": 1
+        },
+        "MERIENDA": {
+          "leche/yogurt": 0,
+          "vegetales": 0,
+          "fruta": 1,
+          "carbohidratos": 1,
+          "proteína M": 1,
+          "proteína SM": 0,
+          "grasas": 0
+        },
+        "CENA": {
+          "leche/yogurt": 0,
+          "vegetales": 2,
+          "fruta": 0,
+          "carbohidratos": 2,
+          "proteína M": 3,
+          "proteína SM": 2,
+          "grasas": 1
+        }
+      };
+    }
+
     // Calcular daily targets basados en objetivos por comida
     this.calculateDailyTargetsFromMeals(currentMealObjectives);
 
@@ -322,6 +404,48 @@ export class ProfileConfigService {
 
   getCurrentMealObjectives(): ProfileMealObjectives {
     return this.mealObjectivesSubject.value;
+  }
+
+  // Métodos para preferencias de alimentos
+  getFoodPreferences(profile: string): { [category: string]: string[] } {
+    return this.foodPreferencesSubject.value[profile] || {};
+  }
+
+  setFoodPreference(profile: string, category: string, foods: string[]): void {
+    const current = this.foodPreferencesSubject.value;
+    if (!current[profile]) {
+      current[profile] = {};
+    }
+    current[profile][category] = foods;
+    this.foodPreferencesSubject.next(current);
+    this.saveFoodPreferencesToStorage(current);
+  }
+
+  toggleFoodPreference(profile: string, category: string, foodName: string): void {
+    const current = this.foodPreferencesSubject.value;
+    if (!current[profile]) {
+      current[profile] = {};
+    }
+    if (!current[profile][category]) {
+      current[profile][category] = [];
+    }
+    const idx = current[profile][category].indexOf(foodName);
+    if (idx === -1) {
+      current[profile][category].push(foodName);
+    } else {
+      current[profile][category].splice(idx, 1);
+    }
+    this.foodPreferencesSubject.next(current);
+    this.saveFoodPreferencesToStorage(current);
+  }
+
+  isFoodPreferred(profile: string, category: string, foodName: string): boolean {
+    const prefs = this.foodPreferencesSubject.value[profile];
+    // Si no hay preferencias configuradas para esta categoría, todos los alimentos se consideran preferidos
+    if (!prefs || !prefs[category] || prefs[category].length === 0) {
+      return true;
+    }
+    return prefs[category].includes(foodName);
   }
 
   // Calcular daily targets basados en objetivos por comida

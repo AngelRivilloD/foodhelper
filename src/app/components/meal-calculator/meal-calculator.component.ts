@@ -191,13 +191,21 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   getAvailableFoods(category: string): FoodItem[] {
     const currentFoods = this.mealPlan[category]?.map(item => item.food.alimento) || [];
     const allFoods = this.getFoodsByCategory(category);
-    
+
+    // Filtrar por preferencias del perfil
+    const prefs = this.profileConfigService.getFoodPreferences(this.currentProfile);
+    const prefList = prefs[category];
+    let preferredFoods = allFoods;
+    if (prefList && prefList.length > 0) {
+      preferredFoods = allFoods.filter(f => prefList.includes(f.alimento));
+    }
+
     // Filtrar por tipo de comida
     const normalizedMealType = this.selectedMealType.toLowerCase();
-    const filteredFoods = allFoods.filter(food => 
+    const filteredFoods = preferredFoods.filter(food =>
       food.tipo && food.tipo.includes(normalizedMealType)
     );
-    
+
     // Excluir los alimentos ya en el plan y ordenar alfabéticamente
     return filteredFoods
       .filter(food => !currentFoods.includes(food.alimento))
@@ -293,6 +301,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     const mealObjectives = this.getMealObjectives();
     this.foodCalculatorService.setDailyTarget(mealObjectives as any);
     this.foodCalculatorService.setCurrentMealType(this.selectedMealType);
+    // Pasar preferencias de alimentos del perfil actual
+    const prefs = this.profileConfigService.getFoodPreferences(this.currentProfile);
+    this.foodCalculatorService.setFoodPreferences(prefs);
     this.generateMealPlan();
   }
 

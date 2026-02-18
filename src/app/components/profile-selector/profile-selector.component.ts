@@ -11,7 +11,8 @@ export class ProfileSelectorComponent {
   selectedProfile = 'Angel';
   profiles = [
     { value: 'Angel', label: 'Angel' },
-    { value: 'Ferchu', label: 'Ferchu' }
+    { value: 'Ferchu', label: 'Ferchu' },
+    { value: 'Jose Daniel', label: 'Jose Daniel' }
   ];
 
   onProfileChange(event: Event) {

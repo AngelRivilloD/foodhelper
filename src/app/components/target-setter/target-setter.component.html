@@ -1,77 +1,43 @@
 <div class="target-setter-container">
   <header class="header">
-    <h2>Objetivos diarios</h2>
-    <p>Configura las porciones de {{ currentProfile }}</p>
+    <h2>Configurar</h2>
+    <p>Preferencias de {{ currentProfile }}</p>
   </header>
 
-  <div class="targets-grid">
-    <div 
-      class="target-item" 
-      *ngFor="let category of macroCategories"
-      [style.border-color]="category.color">
-      
-      <div class="target-header">
-        <span class="target-icon" [style.color]="category.color">{{ category.icon }}</span>
-        <h3>{{ category.label }}</h3>
-      </div>
-
-      <div class="target-controls">
-        <button 
-          class="control-btn decrement"
-          (click)="decrementTarget(category.key)"
-          [disabled]="isTargetDisabled(category.key)">
-          −
+  <!-- Food Preferences Section -->
+  <div class="food-preferences-section">
+    <div class="food-preferences-content">
+      <div class="pref-category" *ngFor="let category of macroCategories">
+        <button class="pref-category-header" (click)="toggleCategory(category.key)">
+          <span class="pref-category-info">
+            <span class="pref-category-icon">{{ category.icon }}</span>
+            <span class="pref-category-name">{{ category.label }}</span>
+          </span>
+          <span class="pref-category-count">{{ getPreferredCount(category.key) }}/{{ getTotalFoodCount(category.key) }}</span>
+          <svg [class.rotated]="expandedCategory === category.key" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
         </button>
-        
-        <div class="target-value">
-          <input 
-            type="number" 
-            [value]="getTargetValue(category.key)"
-            (input)="onInputChange(category.key, $event)"
-            min="0"
-            class="target-input">
-          <span class="target-unit">porciones</span>
+
+        <div class="pref-food-list" *ngIf="expandedCategory === category.key">
+          <div class="pref-food-actions">
+            <a class="pref-action-link" (click)="selectAllFoods(category.key)">Todos</a>
+            <span class="pref-action-separator">|</span>
+            <a class="pref-action-link" (click)="deselectAllFoods(category.key)">Ninguno</a>
+          </div>
+          <label
+            class="pref-food-item"
+            *ngFor="let food of getFoodsForCategory(category.key)"
+            [class.selected]="isFoodPreferred(category.key, food.alimento)">
+            <input
+              type="checkbox"
+              [checked]="isFoodPreferred(category.key, food.alimento)"
+              (change)="toggleFoodPreference(category.key, food.alimento)">
+            <span class="pref-food-emoji">{{ getFoodEmoji(food.alimento) }}</span>
+            <span class="pref-food-name">{{ food.alimento }}</span>
+          </label>
         </div>
-        
-        <button 
-          class="control-btn increment"
-          (click)="incrementTarget(category.key)">
-          +
-        </button>
       </div>
-
-      <div class="target-preview">
-        <span class="preview-text">
-          {{ getTargetValue(category.key) }} porción{{ getTargetPlural(category.key) }}
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="summary">
-    <h3>Resumen Total</h3>
-    <div class="total-macros">
-      <span class="total-item">
-        🍞 {{ targets['Carbohidratos'] }} carbohidratos
-      </span>
-      <span class="total-item">
-        🫘 {{ targets['Legumbres'] }} legumbres
-      </span>
-      <span class="total-item">
-        🥩 {{ targets['Proteina Magra'] }} proteína magra
-      </span>
-      <span class="total-item">
-        🐟 {{ targets['Proteina Semi-Magra'] }} proteína semi-magra
-      </span>
-      <span class="total-item">
-        🥛 {{ targets['Lácteos'] }} lácteos
-      </span>
-      <span class="total-item">
-        🥑 {{ targets['Grasas'] }} grasas
-      </span>
-      <span class="total-item">
-        🍓 {{ targets['Frutas'] }} frutas
-      </span>
     </div>
   </div>
 </div>

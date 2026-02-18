@@ -19,6 +19,7 @@ export class FoodCalculatorService {
 
   private currentMealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } | null = null;
   private currentMealType: string = 'DESAYUNO';
+  private currentFoodPreferences: { [category: string]: string[] } = {};
 
   private dailyTargetSubject = new BehaviorSubject<DailyTarget>({
     'Carbohidratos': 5,
@@ -241,6 +242,11 @@ export class FoodCalculatorService {
     this.currentMealType = mealType;
   }
 
+  // Establecer preferencias de alimentos del perfil actual
+  setFoodPreferences(preferences: { [category: string]: string[] }): void {
+    this.currentFoodPreferences = preferences;
+  }
+
   // Obtener objetivos actuales
   getDailyTarget(): DailyTarget {
     return this.dailyTargetSubject.value;
@@ -249,6 +255,15 @@ export class FoodCalculatorService {
   // Obtener alimentos por categoría
   getFoodsByCategory(category: string): FoodItem[] {
     return this.foodDatabase[category] || [];
+  }
+
+  // Filtrar alimentos por preferencias del perfil
+  private filterByPreferences(foods: FoodItem[], category: string): FoodItem[] {
+    const prefs = this.currentFoodPreferences[category];
+    if (!prefs || prefs.length === 0) {
+      return foods; // Sin preferencias = mostrar todos
+    }
+    return foods.filter(f => prefs.includes(f.alimento));
   }
 
   // Calcular plan de comidas basado en objetivos
@@ -310,18 +325,30 @@ export class FoodCalculatorService {
     // Algoritmo de selección inteligente - SOLO UNA SUGERENCIA POR DEFECTO
     const suggestions: { food: FoodItem, portions: number }[] = [];
 
+    // Filtrar por preferencias del perfil
+    const category = foods[0]?.category || '';
+    let filteredFoods = this.filterByPreferences(foods, category);
+
     // Filtrar por tipo de comida si se especifica
-    let filteredFoods = foods;
     if (mealType && mealType !== '') {
       const normalizedMealType = mealType.toLowerCase();
-      filteredFoods = foods.filter(food =>
+      filteredFoods = filteredFoods.filter(food =>
         food.tipo && food.tipo.includes(normalizedMealType)
       );
     }
 
-    // Si no hay alimentos filtrados, usar todos los alimentos
+    // Si no hay alimentos filtrados, usar todos los alimentos (sin filtro de preferencias)
     if (filteredFoods.length === 0) {
       filteredFoods = foods;
+      if (mealType && mealType !== '') {
+        const normalizedMealType = mealType.toLowerCase();
+        filteredFoods = filteredFoods.filter(food =>
+          food.tipo && food.tipo.includes(normalizedMealType)
+        );
+      }
+      if (filteredFoods.length === 0) {
+        filteredFoods = foods;
+      }
     }
 
     // Comprobar si hay un default específico para este meal type + categoría
@@ -526,16 +553,17 @@ export class FoodCalculatorService {
   // Obtener alternativas para un alimento específico
   getAlternatives(category: string, currentFood: FoodItem, mealType?: string): FoodItem[] {
     const allFoods = this.getFoodsByCategory(category);
-    let filteredFoods = allFoods.filter(food => food.alimento !== currentFood.alimento);
-    
+    let filteredFoods = this.filterByPreferences(allFoods, category);
+    filteredFoods = filteredFoods.filter(food => food.alimento !== currentFood.alimento);
+
     // Filtrar por tipo de comida si se especifica
     if (mealType && mealType !== '') {
       const normalizedMealType = mealType.toLowerCase();
-      filteredFoods = filteredFoods.filter(food => 
+      filteredFoods = filteredFoods.filter(food =>
         food.tipo && food.tipo.includes(normalizedMealType)
       );
     }
-    
+
     return filteredFoods;
   }
 
