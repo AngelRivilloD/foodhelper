@@ -14,7 +14,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   mealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } = {};
   showAlternatives: string | null = null;
   showAddFood: string | null = null;
-  selectedMealType: string = 'DESAYUNO';
+  selectedMealType: string = this.getDefaultMealType();
   cookedItems: Set<string> = new Set(); // Rastrear qué items están en modo cocinado
   isLoading: boolean = false;
   
@@ -26,7 +26,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   ];
 
   macroCategories = [
-    { key: 'Proteina Semi-Magra', label: 'Proteína SM', icon: '🐟', color: '#2ECC71' },
+    { key: 'Proteina Semi-Magra', label: 'Proteína Semigrasa', icon: '🐟', color: '#2ECC71' },
     { key: 'Proteina Magra', label: 'Proteína Magra', icon: '🥩', color: '#4ECDC4' },
     { key: 'Carbohidratos', label: 'Carbohidratos', icon: '🍞', color: '#FF6B6B' },
     { key: 'Lácteos', label: 'Lácteos', icon: '🥛', color: '#3498DB' },
@@ -35,6 +35,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     { key: 'Vegetales', label: 'Vegetales', icon: '🥬', color: '#2ECC71' }
     // { key: 'Legumbres', label: 'Legumbres', icon: '🫘', color: '#8B4513' },
   ];
+
+  private getDefaultMealType(): string {
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 12) return 'DESAYUNO';
+    if (hour >= 12 && hour < 16) return 'COMIDA';
+    if (hour >= 16 && hour < 21) return 'MERIENDA';
+    return 'CENA';
+  }
 
   constructor(
     private foodCalculatorService: FoodCalculatorService,

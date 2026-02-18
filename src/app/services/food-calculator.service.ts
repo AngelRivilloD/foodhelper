@@ -298,37 +298,55 @@ export class FoodCalculatorService {
     return mealPlan;
   }
 
+  // Defaults específicos por tipo de comida y categoría
+  private mealTypeDefaults: { [mealType: string]: { [category: string]: string } } = {
+    'DESAYUNO': { 'Carbohidratos': 'Pan blanco o integral de barra' },
+    'MERIENDA': { 'Proteina Magra': 'Proteína en polvo' },
+    'CENA': { 'Carbohidratos': 'Harina de maíz (pan)' }
+  };
+
   // Seleccionar alimentos sugeridos de manera inteligente
   private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string): { food: FoodItem, portions: number }[] {
     // Algoritmo de selección inteligente - SOLO UNA SUGERENCIA POR DEFECTO
     const suggestions: { food: FoodItem, portions: number }[] = [];
-    
+
     // Filtrar por tipo de comida si se especifica
     let filteredFoods = foods;
     if (mealType && mealType !== '') {
       const normalizedMealType = mealType.toLowerCase();
-      filteredFoods = foods.filter(food => 
+      filteredFoods = foods.filter(food =>
         food.tipo && food.tipo.includes(normalizedMealType)
       );
     }
-    
+
     // Si no hay alimentos filtrados, usar todos los alimentos
     if (filteredFoods.length === 0) {
       filteredFoods = foods;
     }
-    
-    // Priorizar alimentos más comunes/versátiles
-    const priorityFoods = this.getPriorityFoods(filteredFoods);
-    
-    // NUEVA REGLA: Solo una sugerencia por defecto para todas las categorías
-    const selectedFood = priorityFoods[0];
+
+    // Comprobar si hay un default específico para este meal type + categoría
+    let selectedFood: FoodItem | undefined;
+    if (mealType) {
+      const defaults = this.mealTypeDefaults[mealType.toUpperCase()];
+      const category = foods[0]?.category || '';
+      if (defaults && defaults[category]) {
+        selectedFood = filteredFoods.find(f => f.alimento === defaults[category]);
+      }
+    }
+
+    // Si no hay default específico, usar prioridad general
+    if (!selectedFood) {
+      const priorityFoods = this.getPriorityFoods(filteredFoods);
+      selectedFood = priorityFoods[0];
+    }
+
     if (selectedFood && targetPortions > 0) {
       suggestions.push({
         food: selectedFood,
         portions: targetPortions
       });
     }
-    
+
     return suggestions;
   }
 
