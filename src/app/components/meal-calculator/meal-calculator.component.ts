@@ -15,8 +15,11 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   showAlternatives: string | null = null;
   showAddFood: string | null = null;
   selectedMealType: string = this.getDefaultMealType();
-  cookedItems: Set<string> = new Set(); // Rastrear qué items están en modo cocinado
+  rawItems: Set<string> = new Set(); // Rastrear qué items el usuario cambió a modo crudo
+  swappingItem: string | null = null; // ID del item animándose
+  swapDirection: 'left' | 'right' = 'right';
   isLoading: boolean = false;
+  isSummaryLoading: boolean = false;
   
   mealTypes = [
     { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
@@ -40,7 +43,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     const hour = new Date().getHours();
     if (hour >= 6 && hour < 12) return 'DESAYUNO';
     if (hour >= 12 && hour < 16) return 'COMIDA';
-    if (hour >= 16 && hour < 21) return 'MERIENDA';
+    if (hour >= 16 && hour < 19) return 'MERIENDA';
     return 'CENA';
   }
 
@@ -76,8 +79,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     this.generateMealPlanForMeal();
   }
 
-  generateMealPlan(): void {
-    this.mealPlan = this.foodCalculatorService.generateMealPlan(this.selectedMealType);
+  generateMealPlan(randomize: boolean = false): void {
+    this.mealPlan = this.foodCalculatorService.generateMealPlan(this.selectedMealType, randomize);
   }
 
   getFoodsByCategory(category: string): FoodItem[] {
@@ -129,9 +132,29 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
 
   // Obtener alternativas para un alimento
   getAlternatives(category: string, currentFood: FoodItem, mealType?: string): FoodItem[] {
-    return this.foodCalculatorService.getAlternatives(category, currentFood, mealType).sort((a, b) => 
+    return this.foodCalculatorService.getAlternatives(category, currentFood, mealType).sort((a, b) =>
       a.alimento.localeCompare(b.alimento)
     );
+  }
+
+  // Cambiar al siguiente o anterior alimento alternativo desde el resumen
+  swapFoodInSummary(category: string, currentFood: FoodItem, direction: 'left' | 'right'): void {
+    const alternatives = this.getAlternatives(category, currentFood, this.selectedMealType);
+    if (alternatives.length > 0) {
+      const itemId = this.getItemId(category, currentFood);
+      this.swapDirection = direction;
+      this.swappingItem = itemId;
+
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * alternatives.length);
+        this.replaceFood(category, currentFood, alternatives[randomIndex]);
+        this.swappingItem = null;
+      }, 150);
+    }
+  }
+
+  isSwapping(category: string, food: FoodItem): boolean {
+    return this.swappingItem === this.getItemId(category, food);
   }
 
   incrementPortions(category: string, food: FoodItem): void {
@@ -210,6 +233,21 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     return filteredFoods
       .filter(food => !currentFoods.includes(food.alimento))
       .sort((a, b) => a.alimento.localeCompare(b.alimento));
+  }
+
+  // Regenerar el menú completo con selección aleatoria
+  regenerateMeal(): void {
+    this.isSummaryLoading = true;
+    setTimeout(() => {
+      const mealObjectives = this.getMealObjectives();
+      this.foodCalculatorService.setDailyTarget(mealObjectives as any);
+      this.foodCalculatorService.setCurrentMealType(this.selectedMealType);
+      const prefs = this.profileConfigService.getFoodPreferences(this.currentProfile);
+      this.foodCalculatorService.setFoodPreferences(prefs);
+      this.generateMealPlan(true);
+      this.rawItems.clear();
+      this.isSummaryLoading = false;
+    }, 500);
   }
 
   // Cambiar tipo de comida
@@ -324,25 +362,23 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   // Toggle entre peso original y cocinado
   toggleCookedWeight(category: string, food: FoodItem): void {
     const itemId = this.getItemId(category, food);
-    if (this.cookedItems.has(itemId)) {
-      this.cookedItems.delete(itemId);
+    if (this.rawItems.has(itemId)) {
+      this.rawItems.delete(itemId);
     } else {
-      this.cookedItems.add(itemId);
+      this.rawItems.add(itemId);
     }
   }
 
-  // Verificar si un item está en modo cocinado
+  // Verificar si un item está en modo cocinado (por defecto sí, salvo que el usuario lo haya cambiado)
   isCookedMode(category: string, food: FoodItem): boolean {
     const itemId = this.getItemId(category, food);
-    return this.cookedItems.has(itemId);
+    return !this.rawItems.has(itemId);
   }
 
-  // Obtener el peso a mostrar (original o cocinado)
+  // Obtener el peso a mostrar (cocinado por defecto, crudo si el usuario lo cambia)
   getDisplayWeight(category: string, food: FoodItem, totalAmount: string): string {
-    // Solo aplicar lógica de cocinado a alimentos medidos en gramos de categorías específicas
-    // Excluir helado proteico que no se cocina
-    if (this.isCookedMode(category, food) && 
-        this.shouldShowCookedWeight(totalAmount) && 
+    if (this.isCookedMode(category, food) &&
+        this.shouldShowCookedWeight(totalAmount) &&
         this.shouldCategoryShowCookedWeight(category) &&
         food.alimento !== 'Helado proteico') {
       return this.getCookedWeight(totalAmount);
@@ -484,6 +520,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Huevo': '🥚',
       'Salmón, caballa': '🐟',
       'Carne de cerdo (graso)': '🥩',
+      'Carne roja magra': '🥩',
       'Carne roja grasa': '🥩',
       'Jamón serrano/ibérico': '🍖',
       'Atún en aceite': '🐟',

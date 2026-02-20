@@ -58,9 +58,9 @@ export class FoodCalculatorService {
         {"alimento": "Pasta", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Avena/harina de avena", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
-        {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
         {"alimento": "Cornflakes", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno"]},
-        {"alimento": "Pan blanco o integral de barra", "gramos": "30g", "category": "Carbohidratos", "tipo": ["desayuno", "comida", "cena"]},
+        {"alimento": "Pan blanco o integral de barra", "gramos": "30g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
         {"alimento": "Pan tostado", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Pan de molde", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Pan thins", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
@@ -100,16 +100,16 @@ export class FoodCalculatorService {
         {"alimento": "Queso burgos light/desnatado", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur straciatella", "gramos": "1/2 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur proteico sabores", "gramos": "2/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
-        {"alimento": "Gelatina proteica", "gramos": "1 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "comida", "merienda", "cena"]},
+        {"alimento": "Gelatina proteica", "gramos": "1 unidad", "category": "Proteina Magra", "tipo": ["merienda"]},
         {"alimento": "Yogur proteico natrual", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur proteico bebible", "gramos": "1/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
-        {"alimento": "Queso havarti light", "gramos": "1 loncha", "category": "Proteina Magra", "tipo": ["desayuno","comida","merienda", "cena"]},
-        {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Queso havarti light", "gramos": "1 loncha", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Queso mozzarella light", "gramos": "40g", "category": "Proteina Magra", "tipo": ["desayuno", "cena"]},
         {"alimento": "Queso cottage", "gramos": "50g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Queso fresco light", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Salmón", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Helado proteico", "gramos": "80g", "category": "Proteina Magra", "tipo": ["comida", "merienda", "cena"]},
+        {"alimento": "Helado proteico", "gramos": "80g", "category": "Proteina Magra", "tipo": ["merienda"]},
       ],
       "Proteina Semi-Magra": [
         {"alimento": "Huevo", "gramos": "1 unidad", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "comida", "cena"]},
@@ -119,8 +119,8 @@ export class FoodCalculatorService {
         {"alimento": "Atún en aceite", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Tofu", "gramos": "65g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Queso burgos natural", "gramos": "70g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "merienda", "cena"]},
-        {"alimento": "Queso mozzarella normal", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "comida", "cena"]},
-        {"alimento": "Queso parmesano", "gramos": "25g", "category": "Proteina Semi-Magra", "tipo": ["comida", "cena"]}
+        {"alimento": "Queso mozzarella normal", "gramos": "40g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "cena"]},
+        {"alimento": "Queso parmesano", "gramos": "25g", "category": "Proteina Semi-Magra", "tipo": ["desayuno", "cena"]}
       ],
       "Lácteos": [
         {"alimento": "Leche descremada/desnatada", "gramos": "200g", "category": "Lácteos", "tipo": ["desayuno", "merienda", "cena"]},
@@ -156,7 +156,7 @@ export class FoodCalculatorService {
         {"alimento": "Mayonesa", "gramos": "7g", "category": "Grasas", "tipo": ["comida", "cena"]},
         {"alimento": "Hummus", "gramos": "20g", "category": "Grasas", "tipo": ["comida", "cena"]},
         {"alimento": "Queso Crema normal", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "cena"]},
-        {"alimento": "Queso feta", "gramos": "30g", "category": "Grasas", "tipo": ["desayuno","comida", "cena"]},
+        {"alimento": "Queso feta", "gramos": "30g", "category": "Grasas", "tipo": ["desayuno", "cena"]},
         {"alimento": "Semillas de girasol, ajonjolí, chía", "gramos": "20g", "category": "Grasas", "tipo": ["desayuno", "merienda"]}
       ],
       "Frutas": [
@@ -267,7 +267,7 @@ export class FoodCalculatorService {
   }
 
   // Calcular plan de comidas basado en objetivos
-  generateMealPlan(mealType?: string): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
+  generateMealPlan(mealType?: string, randomize: boolean = false): { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } {
     const target = this.getDailyTarget();
     const mealPlan: { [category: string]: any[] } = {};
     const currentMealType = mealType || this.currentMealType;
@@ -275,10 +275,9 @@ export class FoodCalculatorService {
     Object.keys(target).forEach(category => {
       const targetPortions = target[category as keyof DailyTarget];
       const availableFoods = this.getFoodsByCategory(category);
-      
+
       if (availableFoods.length > 0 && targetPortions > 0) {
-        // Seleccionar alimentos inteligentemente (máximo 3-4 por categoría)
-        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions, currentMealType);
+        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions, currentMealType, randomize);
         
         mealPlan[category] = suggestedFoods.map(item => ({
           food: item.food,
@@ -321,7 +320,7 @@ export class FoodCalculatorService {
   };
 
   // Seleccionar alimentos sugeridos de manera inteligente
-  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string): { food: FoodItem, portions: number }[] {
+  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string, randomize: boolean = false): { food: FoodItem, portions: number }[] {
     // Algoritmo de selección inteligente - SOLO UNA SUGERENCIA POR DEFECTO
     const suggestions: { food: FoodItem, portions: number }[] = [];
 
@@ -351,20 +350,31 @@ export class FoodCalculatorService {
       }
     }
 
-    // Comprobar si hay un default específico para este meal type + categoría
     let selectedFood: FoodItem | undefined;
-    if (mealType) {
-      const defaults = this.mealTypeDefaults[mealType.toUpperCase()];
-      const category = foods[0]?.category || '';
-      if (defaults && defaults[category]) {
-        selectedFood = filteredFoods.find(f => f.alimento === defaults[category]);
-      }
-    }
 
-    // Si no hay default específico, usar prioridad general
-    if (!selectedFood) {
-      const priorityFoods = this.getPriorityFoods(filteredFoods);
-      selectedFood = priorityFoods[0];
+    if (randomize) {
+      // Selección aleatoria, excluyendo el alimento actual del plan si existe
+      const currentPlanFoods = this.currentMealPlan
+        ? Object.values(this.currentMealPlan).flat().map((i: any) => i.food.alimento)
+        : [];
+      const pool = filteredFoods.filter(f => !currentPlanFoods.includes(f.alimento));
+      const source = pool.length > 0 ? pool : filteredFoods;
+      selectedFood = source[Math.floor(Math.random() * source.length)];
+    } else {
+      // Comprobar si hay un default específico para este meal type + categoría
+      if (mealType) {
+        const defaults = this.mealTypeDefaults[mealType.toUpperCase()];
+        const category = foods[0]?.category || '';
+        if (defaults && defaults[category]) {
+          selectedFood = filteredFoods.find(f => f.alimento === defaults[category]);
+        }
+      }
+
+      // Si no hay default específico, usar prioridad general
+      if (!selectedFood) {
+        const priorityFoods = this.getPriorityFoods(filteredFoods);
+        selectedFood = priorityFoods[0];
+      }
     }
 
     if (selectedFood && targetPortions > 0) {
@@ -456,12 +466,18 @@ export class FoodCalculatorService {
       }
     }
     
+    // Alimentos que se muestran en unidades en vez de gramos
+    const unitFoods = ['Pan blanco o integral de barra', 'Pan Árabe', 'Harina de maíz (pan)'];
+    if (unitFoods.includes(food.alimento)) {
+      return `${portions} und`;
+    }
+
     // Buscar números en el campo gramos
     const gramosMatch = food.gramos.match(/(\d+)/);
     if (gramosMatch) {
       const baseAmount = parseInt(gramosMatch[1]);
       const totalAmount = baseAmount * portions;
-      
+
       // Si el texto original contiene "g" o "gramos", usar "g"
       if (food.gramos.toLowerCase().includes('g')) {
         // No mostrar "crudo" para frutas, grasas y helado proteico

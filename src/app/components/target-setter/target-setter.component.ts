@@ -127,7 +127,7 @@ export class TargetSetterComponent implements OnInit, OnChanges {
       'Lentejas': '🫘', 'Garbanzos': '🫘', 'Frijoles/caraotas/alubias': '🫘',
       'Pescado blanco': '🐟', 'Atún al natural en lata': '🐟', 'Pechuga de pollo/pavo': '🍗',
       'Clara de huevo': '🥚', 'Jamón de pollo/pavo': '🥩', 'Lomo embuchado': '🥩',
-      'Carne roja magra': '🥩', 'Proteína en polvo': '🥤', 'Lomo de cerdo': '🐖',
+      'Carne roja magra': '🐄', 'Proteína en polvo': '🥤', 'Lomo de cerdo': '🐖',
       'Queso burgos light/desnatado': '🧀', 'Yogur straciatella': '🍨', 'Yogur proteico sabores': '🍨',
       'Gelatina proteica': '🍮', 'Yogur proteico natrual': '🍨', 'Yogur proteico bebible': '🥤',
       'Queso fresco batido 0%': '🧀', 'Queso havarti light': '🧀', 'Queso mozzarella light': '🧀',

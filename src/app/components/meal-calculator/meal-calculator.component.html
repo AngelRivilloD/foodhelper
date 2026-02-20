@@ -181,7 +181,19 @@
   </div>
 
   <!-- Resumen de ingredientes -->
-  <div class="ingredients-summary" [class.hidden]="isLoading">
+  <!-- Skeleton del resumen -->
+  <div class="simple-list summary-skeleton" *ngIf="isSummaryLoading">
+    <div class="sk-item" *ngFor="let i of [1,2,3,4]">
+      <div class="sk-icon"></div>
+      <div class="sk-text">
+        <div class="sk-category"></div>
+        <div class="sk-name"></div>
+        <div class="sk-amount"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ingredients-summary" [class.hidden]="isLoading || isSummaryLoading">
     <div class="summary-header">
       <h3>Resumen del {{ getMealTypeLabel() }}</h3>
       <span class="global-target"
@@ -194,21 +206,34 @@
     </div>
     <div class="simple-list">
       <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
-        <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
-          <div class="ingredient-info">
-            <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
+        <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]"
+             [class.swap-out-left]="isSwapping(category.key, item.food) && swapDirection === 'left'"
+             [class.swap-out-right]="isSwapping(category.key, item.food) && swapDirection === 'right'"
+             [class.swap-in]="!isSwapping(category.key, item.food)">
+          <button class="swap-arrow" (click)="swapFoodInSummary(category.key, item.food, 'left'); $event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
+          <div class="ingredient-text">
+            <span class="ingredient-category">{{ category.label }}</span>
             <span class="ingredient-name">{{ item.food.alimento }}</span>
+            <span class="ingredient-amount"
+                  [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                  [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
+                  (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+              {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
+            </span>
           </div>
-          <span class="ingredient-amount"
-                [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
-            {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
-          </span>
+          <button class="swap-arrow" (click)="swapFoodInSummary(category.key, item.food, 'right'); $event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
       </div>
     </div>
-    <p class="summary-hint">Puedes modificar los alimentos más abajo</p>
+    <button class="generate-menu-btn" (click)="regenerateMeal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      Sugerir otro menú
+    </button>
   </div>
 
 </div>
