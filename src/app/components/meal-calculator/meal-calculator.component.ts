@@ -20,6 +20,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   swapDirection: 'left' | 'right' = 'right';
   isLoading: boolean = false;
   isSummaryLoading: boolean = false;
+  skeletonItemCount: number = 4;
+  showCategories: boolean = false;
+  showSummaryAlternatives: string | null = null;
   
   mealTypes = [
     { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
@@ -237,6 +240,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
 
   // Regenerar el menú completo con selección aleatoria
   regenerateMeal(): void {
+    this.skeletonItemCount = this.getActiveCategories().reduce((total, cat) =>
+      total + (this.mealPlan[cat.key]?.length || 0), 0) || 4;
     this.isSummaryLoading = true;
     setTimeout(() => {
       const mealObjectives = this.getMealObjectives();
@@ -375,10 +380,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     return !this.rawItems.has(itemId);
   }
 
-  // Obtener el peso a mostrar (cocinado por defecto, crudo si el usuario lo cambia)
+  // Obtener el peso a mostrar (siempre cocinado cuando aplica)
   getDisplayWeight(category: string, food: FoodItem, totalAmount: string): string {
-    if (this.isCookedMode(category, food) &&
-        this.shouldShowCookedWeight(totalAmount) &&
+    if (this.shouldShowCookedWeight(totalAmount) &&
         this.shouldCategoryShowCookedWeight(category) &&
         food.alimento !== 'Helado proteico') {
       return this.getCookedWeight(totalAmount);
@@ -443,6 +447,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   closeDropdowns(): void {
     this.showAlternatives = null;
     this.showAddFood = null;
+    this.showSummaryAlternatives = null;
   }
 
   // Obtener el icono del alimento actual en la categoría
@@ -463,6 +468,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       // Carbohidratos
       'Arroz': '🍚',
       'Pasta': '🍝',
+      'Gnocchis': '🍝',
       'Quinoa': '🌾',
       'Avena/harina de avena': '🥣',
       'Pan de molde': '🍞',
@@ -476,38 +482,46 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Palomitas de maíz': '🍿',
       'Granola baja en grasa': '🥣',
       'Casabe': '🍞',
-      'Pan Árabe': '🥖',
+      'Pan Árabe': '🫓',
       'Pan Wasa': '🍞',
       'Galleta María': '🍪',
       'Cornflakes': '🥣',
-      'Pan blanco o integral de barra': '🍞',
-      'Azúcar blanco/moreno': '🍯',
+      'Pan blanco o integral de barra': '🥖',
+      'Azúcar blanco/moreno': '🍬',
       'Crema de arroz': '🥣',
       'Patata': '🥔',
-      'Boniato': '🥔',
-      'Yuca (cocido)': '🥔',
-      'Fajitas medianas': '🌮',
-      'Harina de maíz': '🌾',
-      
-      // Proteínas
+      'Boniato': '🍠',
+      'Plátano macho': '🍌',
+      'Yuca (cocido)': '🫚',
+      'Fajitas medianas': '🫓',
+      'Harina de maíz': '🌽',
+      'Harina de maíz (pan)': '🌽',
+
+      // Legumbres
+      'Lentejas': '🫘',
+      'Garbanzos': '🫘',
+      'Frijoles/caraotas/alubias': '🫘',
+
+      // Proteína Magra
       'Pechuga de pollo/pavo': '🍗',
       'Pescado blanco': '🐟',
       'Camarones/gambas': '🦐',
       'Atún al natural en lata': '🐟',
       'Clara de huevo': '🥚',
-      'Jamón de pollo/pavo': '🍖',
-      'Lomo embuchado': '🍖',
+      'Jamón de pollo/pavo': '🥩',
+      'Lomo embuchado': '🥩',
       'Proteína en polvo (whey y vegana)': '🥤',
+      'Proteína en polvo': '🥤',
       'Lomo de cerdo': '🍖',
       'Soja': '🫘',
-      'Seitán': '🥩',
+      'Seitán': '🌾',
       'Queso burgos light/desnatado': '🧀',
-      'Yogur proteico': '🥛',
-      'Yogur proteico bebible': '🥛',
-      'Yogur proteico sabores': '🥛',
+      'Yogur proteico': '🍨',
+      'Yogur proteico bebible': '🥤',
+      'Yogur proteico sabores': '🍨',
       'Gelatina proteica': '🍮',
-      'Yogur straciatella': '🥛',
-      'Yogur proteico natrual': '🥛',
+      'Yogur straciatella': '🍨',
+      'Yogur proteico natural': '🍨',
       'Queso fresco batido 0%': '🧀',
       'Queso havarti light': '🧀',
       'Queso mozzarella light': '🧀',
@@ -515,29 +529,39 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Queso fresco light': '🧀',
       'Salmón': '🐟',
       'Helado proteico': '🍦',
-      
+      'Carne roja magra': '🥩',
+
       // Proteína Semi-Magra
       'Huevo': '🥚',
       'Salmón, caballa': '🐟',
       'Carne de cerdo (graso)': '🥩',
-      'Carne roja magra': '🥩',
       'Carne roja grasa': '🥩',
-      'Jamón serrano/ibérico': '🍖',
+      'Jamón serrano/ibérico': '🥩',
       'Atún en aceite': '🐟',
-      'Tofu': '🧀',
+      'Tofu': '🧈',
       'Queso burgos natural': '🧀',
       'Queso mozzarella normal': '🧀',
       'Queso parmesano': '🧀',
-      
+
       // Lácteos
       'Leche desnatada': '🥛',
-      'Yogur natural desnatado': '🥛',
-      'Yogur griego desnatado': '🥛',
+      'Leche descremada/desnatada': '🥛',
+      'Leche semidesnatada': '🥛',
+      'Leche entera': '🥛',
+      'Leche de cabra': '🥛',
+      'Leche de oveja': '🥛',
+      'Yogur natural desnatado': '🍶',
+      'Yogur griego desnatado': '🍶',
+      'Yogur descremado (s/a)': '🍶',
+      'Yogur semidesnatado (s/a)': '🍶',
+      'Yogur natural entero': '🍶',
+      'Cuajada': '🍮',
+      'Kefir': '🥛',
       'Queso fresco desnatado': '🧀',
-      
+
       // Grasas
       'Aguacate': '🥑',
-      'Almendras': '🥜',
+      'Almendras': '🌰',
       'Nueces': '🥜',
       'Aceitunas': '🫒',
       'Mantequilla': '🧈',
@@ -548,34 +572,43 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Aceitunas negras': '🫒',
       'Cacahuetes/maní': '🥜',
       'Chocolate negro (70-75%)': '🍫',
-      'Nata para cocinar 15%': '🥛',
-      'Leche de coco': '🥛',
-      'Semillas de girasol, ajonjolí, chía': '🥜',
+      'Nata para cocinar 15%': '🍶',
+      'Leche de coco': '🥥',
+      'Semillas de girasol, ajonjolí, chía': '🌻',
       'Queso Crema normal': '🧀',
       'Queso feta': '🧀',
-      'Avellanas': '🥜',
+      'Avellanas': '🌰',
       'Cashews/anacardos': '🥜',
       'Pistachos': '🥜',
       'Aceite de oliva': '🫒',
-      'Mayonesa': '',
-      
-      
+      'Aceite de coco': '🥥',
+      'Mayonesa': '🫙',
+      'Hummus': '🫘',
+
       // Frutas
       'Banana': '🍌',
       'Manzana': '🍎',
       'Pera': '🍐',
       'Kiwi': '🥝',
       'Durazno/melocotón': '🍑',
-      'Ciruela': '🟣',
+      'Ciruela': '🍑',
       'Uvas': '🍇',
       'Naranja': '🍊',
       'Mandarina': '🍊',
       'Cerezas': '🍒',
-      'Granada': '🍎',
+      'Granada': '🫐',
       'Uvas pasas': '🍇',
-      'Dátiles': '🟤',
+      'Dátiles': '🌴',
       'Fresas': '🍓',
-      
+      'Piña': '🍍',
+      'Melón': '🍈',
+      'Sandía': '🍉',
+      'Frambuesas': '🫐',
+      'Moras': '🫐',
+      'Arándanos': '🫐',
+      'Papaya': '🥭',
+      'Mango': '🥭',
+
       // Vegetales
       'Acelgas': '🥬',
       'Hinojo': '🥬',
@@ -592,11 +625,11 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Quimbombó': '🥬',
       'Cebolla': '🧅',
       'Rábanos': '🥬',
-      'Cebollín': '🧄',
-      'Remolacha': '🥬',
+      'Cebollín': '🧅',
+      'Remolacha': '🟣',
       'Apio': '🥬',
       'Alfalfa': '🌱',
-      'Palmito': '🥬',
+      'Palmito': '🌴',
       'Calabaza': '🎃',
       'Pepino': '🥒',
       'Berenjena': '🍆',
@@ -605,20 +638,20 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
       'Brócoli': '🥦',
       'Chayota': '🥬',
       'Repollo': '🥬',
-      'Coliflor': '🥬',
+      'Coliflor': '🥦',
       'Tomate': '🍅',
       'Corazón de alcachofa': '🥬',
       'Tomate en lata': '🍅',
       'Repollitos de Bruselas': '🥬',
       'Escarola': '🥬',
       'Vainitas': '🫛',
-      'Espárragos': '🥬',
+      'Espárragos': '🌿',
       'Vegetales chinos': '🥬',
       'Espinaca': '🥬',
       'Zanahoria': '🥕',
-      'Edamames': '🫘'
+      'Edamames': '🫛'
     };
-    
+
     return foodIcons[foodName] || '🍽️';
   }
 

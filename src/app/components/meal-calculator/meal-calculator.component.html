@@ -16,7 +16,7 @@
     </div>
   </header>
 
-  <div class="meal-categories">
+  <div class="meal-categories" *ngIf="showCategories">
     <!-- Skeleton loading -->
     <div class="skeleton-container" *ngIf="isLoading">
       <div class="skeleton-category" *ngFor="let i of [1,2,3,4]">
@@ -98,10 +98,7 @@
                 </div>
                 
                 <div class="food-details">
-                  <span class="portion-info" 
-                        [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                        [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                        (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+                  <span class="portion-info">
                     {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
                   </span>
                 </div>
@@ -182,8 +179,8 @@
 
   <!-- Resumen de ingredientes -->
   <!-- Skeleton del resumen -->
-  <div class="simple-list summary-skeleton" *ngIf="isSummaryLoading">
-    <div class="sk-item" *ngFor="let i of [1,2,3,4]">
+  <div class="simple-list ingredients-card summary-skeleton" *ngIf="isSummaryLoading">
+    <div class="sk-item" *ngFor="let i of [].constructor(skeletonItemCount)">
       <div class="sk-icon"></div>
       <div class="sk-text">
         <div class="sk-category"></div>
@@ -204,7 +201,7 @@
         <span class="global-portions-label">porciones totales</span>
       </span>
     </div>
-    <div class="simple-list">
+    <div class="simple-list ingredients-card">
       <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
         <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]"
              [class.swap-out-left]="isSwapping(category.key, item.food) && swapDirection === 'left'"
@@ -214,13 +211,27 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
           </button>
           <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
-          <div class="ingredient-text">
+          <div class="ingredient-text clickable"
+               (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
             <span class="ingredient-category">{{ category.label }}</span>
-            <span class="ingredient-name">{{ item.food.alimento }}</span>
-            <span class="ingredient-amount"
-                  [class.clickable-weight]="shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                  [class.cooked-mode]="isCookedMode(category.key, item.food) && shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)"
-                  (click)="(shouldShowCookedWeight(item.totalAmount) && shouldCategoryShowCookedWeight(category.key)) ? toggleCookedWeight(category.key, item.food) : null">
+            <div class="ingredient-name-wrapper">
+              <span class="ingredient-name">
+                {{ item.food.alimento }}
+              </span>
+              <div class="summary-dropdown" *ngIf="showSummaryAlternatives === getItemId(category.key, item.food)" (click)="$event.stopPropagation()">
+                <button
+                  class="dropdown-option"
+                  *ngFor="let alt of getAlternatives(category.key, item.food, selectedMealType)"
+                  (click)="replaceFood(category.key, item.food, alt); showSummaryAlternatives = null; $event.stopPropagation()">
+                  <span class="dropdown-icon">{{ getFoodIcon(alt.alimento) }}</span>
+                  <span class="dropdown-content">
+                    <span class="dropdown-name">{{ alt.alimento }}</span>
+                    <small class="dropdown-amount">{{ alt.gramos }}</small>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <span class="ingredient-amount">
               {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
             </span>
           </div>
@@ -230,10 +241,15 @@
         </div>
       </div>
     </div>
-    <button class="generate-menu-btn" (click)="regenerateMeal()">
+        <button class="toggle-categories-btn" [class.active]="showCategories" (click)="showCategories = !showCategories; $event.stopPropagation()">
+      <svg class="toggle-chevron" [class.rotated]="showCategories" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      Configurar porciones del menú
+    </button>
+    <button class="generate-menu-btn" *ngIf="!showCategories" (click)="regenerateMeal()">
       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
       Sugerir otro menú
     </button>
+
   </div>
 
 </div>

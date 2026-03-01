@@ -1,7 +1,6 @@
 .app-container {
   min-height: 100vh;
-  background: #fdfcf8a4;
-   /* //#f0ede4 */
+  background: #FFFFFF;
   padding: 20px 0;
 }
 
@@ -10,7 +9,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  color: #1a1a1a;
+  color: #222222;
   padding: 20px;
 }
 
@@ -49,12 +48,12 @@
     max-width: 320px;
     width: calc(100% - 24px);
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 28px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
     padding: 6px;
     gap: 4px;
   }
@@ -81,9 +80,9 @@
   }
 
   .nav-bottom-tab.active {
-    background: rgba(255, 255, 255, 0.8);
-    color: #9b8a58;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.9);
+    color: #34c759;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .nav-bottom-tab svg {
@@ -106,8 +105,8 @@
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgba(155, 138, 88, 0.15);
-    color: #9b8a58;
+    background: #F5F0E8;
+    color: #222222;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -120,12 +119,12 @@
     position: absolute;
     bottom: calc(100% + 12px);
     right: 0;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
     padding: 6px;
     min-width: 160px;
     display: flex;
@@ -154,8 +153,8 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: rgba(155, 138, 88, 0.1);
-    color: #9b8a58;
+    background: #F5F0E8;
+    color: #222222;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -166,11 +165,11 @@
   }
 
   .profile-menu-item.active {
-    background: rgba(155, 138, 88, 0.12);
-    color: #9b8a58;
+    background: #F5F0E8;
+    color: #8B7355;
   }
 
   .profile-menu-item.active .profile-menu-avatar {
-    background: rgba(155, 138, 88, 0.2);
+    background: #EBE4D6;
   }
 }

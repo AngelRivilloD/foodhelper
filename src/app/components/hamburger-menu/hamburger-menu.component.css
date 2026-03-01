@@ -17,14 +17,14 @@
 }
 
 .hamburger-button:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: #F5F0E8;
   border-radius: 4px;
 }
 
 .hamburger-line {
   width: 25px;
   height: 3px;
-  background-color: #333;
+  background-color: #222222;
   transition: all 0.3s ease;
   border-radius: 2px;
 }
@@ -44,7 +44,7 @@
 .section-display {
   font-family: 'Urbanist', sans-serif;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #222222;
   font-size: 1.1rem;
 }
 
@@ -52,10 +52,10 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #FFFFFF;
+  border: 1px solid #EDE8E0;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   min-width: 180px;
   z-index: 1000;
   opacity: 0;
@@ -76,8 +76,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #F5F0E8;
+  color: #222222;
 }
 
 .menu-item:last-child {
@@ -85,7 +86,7 @@
 }
 
 .menu-item:hover {
-  background-color: #f8f9fa;
+  background-color: #F5F0E8;
 }
 
 .menu-icon {
@@ -97,15 +98,15 @@
   .hamburger-menu {
     gap: 10px;
   }
-  
+
   .section-display {
     font-size: 1rem;
   }
-  
+
   .menu-dropdown {
     min-width: 160px;
   }
-  
+
   .menu-item {
     padding: 10px 14px;
   }

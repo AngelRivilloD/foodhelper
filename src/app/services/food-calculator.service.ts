@@ -101,7 +101,7 @@ export class FoodCalculatorService {
         {"alimento": "Yogur straciatella", "gramos": "1/2 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur proteico sabores", "gramos": "2/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Gelatina proteica", "gramos": "1 unidad", "category": "Proteina Magra", "tipo": ["merienda"]},
-        {"alimento": "Yogur proteico natrual", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
+        {"alimento": "Yogur proteico natural", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Yogur proteico bebible", "gramos": "1/3 unidad", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Queso fresco batido 0%", "gramos": "70g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Queso havarti light", "gramos": "1 loncha", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
