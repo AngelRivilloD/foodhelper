@@ -1,15 +1,16 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { ProfileConfigService } from '../../services/profile-config.service';
-import { FoodItem } from '../../models/food.model';
+import { FoodItem, FixedWeeklyPlan, FixedMealEntry } from '../../models/food.model';
 
 @Component({
   selector: 'app-meal-calculator',
   templateUrl: './meal-calculator.component.html',
   styleUrls: ['./meal-calculator.component.css']
 })
-export class MealCalculatorComponent implements OnInit, OnChanges {
+export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() currentProfile: string = 'Angel';
+  @ViewChild('daySelectorButtons') daySelectorButtons!: ElementRef;
   
   mealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } = {};
   showAlternatives: string | null = null;
@@ -23,10 +24,30 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   skeletonItemCount: number = 4;
   showCategories: boolean = false;
   showSummaryAlternatives: string | null = null;
-  
+
+  // Fixed meal plan
+  mealPlanMode: 'dynamic' | 'fixed' = 'dynamic';
+  fixedPlan: FixedWeeklyPlan = {};
+  selectedDay: string = '';
+  weekDays = [
+    { key: 'Lunes', short: 'L' },
+    { key: 'Martes', short: 'M' },
+    { key: 'Miércoles', short: 'X' },
+    { key: 'Jueves', short: 'J' },
+    { key: 'Viernes', short: 'V' },
+    { key: 'Sábado', short: 'S' },
+    { key: 'Domingo', short: 'D' }
+  ];
+  fixedMealSlots = [
+    { key: 'DESAYUNO', label: 'Desayuno', icon: '🥐', time: '8:00' },
+    { key: 'COMIDA', label: 'Almuerzo', icon: '🍲', time: '12:30' },
+    { key: 'MERIENDA', label: 'Merienda', icon: '🍎', time: '16:00' },
+    { key: 'CENA', label: 'Cena', icon: '🥗', time: '20:00' }
+  ];
+
   mealTypes = [
     { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
-    { key: 'COMIDA', label: 'Comida', icon: '🍽️' },
+    { key: 'COMIDA', label: 'Almuerzo', icon: '🍽️' },
     { key: 'MERIENDA', label: 'Merienda', icon: '☕' },
     { key: 'CENA', label: 'Cena', icon: '🌙' }
   ];
@@ -56,24 +77,49 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
+    this.loadMealPlanMode();
     this.loadProfileDailyTarget();
-    
+
     // Suscribirse a cambios en el perfil
     this.profileConfigService.dailyTarget$.subscribe(() => {
       this.loadProfileDailyTarget();
     });
+
+    // Suscribirse a cambios de modo
+    this.profileConfigService.mealPlanMode$.subscribe(() => {
+      this.loadMealPlanMode();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollToActiveDay();
+  }
+
+  private scrollToActiveDay(): void {
+    setTimeout(() => {
+      const container = this.daySelectorButtons?.nativeElement;
+      if (!container) return;
+      const activeBtn = container.querySelector('.day-selector-btn.active') as HTMLElement;
+      if (activeBtn) {
+        activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }, 100);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['currentProfile'] && !changes['currentProfile'].firstChange) {
-      // Activar skeleton cuando cambia el perfil
-      this.isLoading = true;
-      
-      // Simular un pequeño delay para mostrar el skeleton
-      setTimeout(() => {
-        this.loadProfileDailyTarget();
-        this.isLoading = false;
-      }, 500);
+      this.loadMealPlanMode();
+
+      if (this.mealPlanMode === 'dynamic') {
+        // Activar skeleton cuando cambia el perfil
+        this.isLoading = true;
+
+        // Simular un pequeño delay para mostrar el skeleton
+        setTimeout(() => {
+          this.loadProfileDailyTarget();
+          this.isLoading = false;
+        }, 500);
+      }
     }
   }
 
@@ -381,27 +427,35 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
   }
 
   // Obtener el peso a mostrar (siempre cocinado cuando aplica)
+  // Alimentos que se miden crudos y se cocinan (carnes, pescados, tubérculos)
+  private readonly rawToCookedFoods = [
+    'Pescado blanco', 'Pechuga de pollo/pavo', 'Clara de huevo',
+    'Carne roja magra', 'Lomo de cerdo', 'Salmón',
+    'Carne de cerdo (graso)', 'Carne roja grasa',
+    'Patata', 'Gnocchis', 'Boniato', 'Plátano macho'
+  ];
+
+  // Vegetales que se comen crudos (no convertir a "cocinado")
+  private readonly rawVegetables = [
+    'Lechuga', 'Pepino', 'Tomate', 'Apio', 'Alfalfa', 'Berros',
+    'Perejil', 'Cebollín', 'Palmito', 'Tomate en lata', 'Jugo de tomate', 'Espinaca'
+  ];
+
   getDisplayWeight(category: string, food: FoodItem, totalAmount: string): string {
-    if (this.shouldShowCookedWeight(totalAmount) &&
-        this.shouldCategoryShowCookedWeight(category) &&
-        food.alimento !== 'Helado proteico') {
+    // Si ya dice "cocido", mostrar tal cual
+    if (totalAmount.includes('cocido')) return totalAmount;
+
+    // Alimentos en gramos que se miden crudos → mostrar cocinado
+    if (totalAmount.includes('g') && this.rawToCookedFoods.includes(food.alimento)) {
       return this.getCookedWeight(totalAmount);
     }
+
+    // Vegetales en tazas que se cocinan → mostrar cocinado
+    if (totalAmount.includes('taza') && category === 'Vegetales' && !this.rawVegetables.includes(food.alimento)) {
+      return this.getCookedWeight(totalAmount);
+    }
+
     return totalAmount;
-  }
-
-  // Verificar si el alimento debe mostrar peso cocinado (solo gramos y tazas de ciertas categorías)
-  shouldShowCookedWeight(totalAmount: string): boolean {
-    return (totalAmount.includes('g') || totalAmount.includes('taza')) && 
-           !totalAmount.includes('unidad') && 
-           !totalAmount.includes('lata') &&
-           !totalAmount.includes('helado'); // Excluir helado proteico
-  }
-
-  // Verificar si la categoría permite peso cocinado
-  shouldCategoryShowCookedWeight(category: string): boolean {
-    const categoriesWithCookedWeight = ['Carbohidratos', 'Proteina Magra', 'Proteina Semi-Magra', 'Lácteos', 'Vegetales'];
-    return categoriesWithCookedWeight.includes(category);
   }
 
   // Calcular peso cocinado (restando 20% para gramos, 50% para tazas)
@@ -681,5 +735,51 @@ export class MealCalculatorComponent implements OnInit, OnChanges {
     return activeCategories.reduce((total, category) => {
       return total + this.getTargetValue(category.key);
     }, 0);
+  }
+
+  // Fixed meal plan methods
+  private loadMealPlanMode(): void {
+    this.mealPlanMode = this.profileConfigService.getMealPlanMode(this.currentProfile);
+    if (this.mealPlanMode === 'fixed') {
+      this.fixedPlan = this.profileConfigService.getFixedMealPlan(this.currentProfile);
+      if (!this.selectedDay) {
+        this.selectedDay = this.getCurrentDayName();
+      }
+    }
+  }
+
+  private getCurrentDayName(): string {
+    const dayIndex = new Date().getDay(); // 0=Sunday
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return days[dayIndex];
+  }
+
+  dayAnimating = false;
+
+  selectFixedDay(day: string): void {
+    if (day === this.selectedDay) return;
+    this.dayAnimating = true;
+    setTimeout(() => {
+      this.selectedDay = day;
+      this.dayAnimating = false;
+      this.scrollToActiveDay();
+    }, 150);
+  }
+
+  getFixedMealEntry(day: string, mealType: string): FixedMealEntry | null {
+    const entry = this.fixedPlan?.[day]?.[mealType];
+    if (entry && (entry.recipeName || entry.description)) {
+      return entry;
+    }
+    return null;
+  }
+
+  getFixedMealsForDay(day: string): { key: string, label: string, icon: string, time: string, entry: FixedMealEntry }[] {
+    return this.fixedMealSlots
+      .map(slot => {
+        const entry = this.getFixedMealEntry(day, slot.key);
+        return entry ? { ...slot, entry } : null;
+      })
+      .filter((item): item is { key: string, label: string, icon: string, time: string, entry: FixedMealEntry } => item !== null);
   }
 }

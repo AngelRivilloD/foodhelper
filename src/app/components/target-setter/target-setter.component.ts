@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { ProfileConfigService } from '../../services/profile-config.service';
-import { DailyTarget, FoodItem } from '../../models/food.model';
+import { DailyTarget, FoodItem, FixedWeeklyPlan, FixedMealEntry } from '../../models/food.model';
 
 @Component({
   selector: 'app-target-setter',
@@ -13,6 +13,27 @@ export class TargetSetterComponent implements OnInit, OnChanges {
 
   showFoodPreferences: boolean = false;
   expandedCategory: string | null = null;
+
+  // Fixed meal plan
+  mealPlanMode: 'dynamic' | 'fixed' = 'dynamic';
+  selectedDay: string = 'Lunes';
+  expandedMeal: string | null = null;
+  fixedPlan: FixedWeeklyPlan = {};
+  weekDays = [
+    { key: 'Lunes', short: 'L' },
+    { key: 'Martes', short: 'M' },
+    { key: 'Miércoles', short: 'X' },
+    { key: 'Jueves', short: 'J' },
+    { key: 'Viernes', short: 'V' },
+    { key: 'Sábado', short: 'S' },
+    { key: 'Domingo', short: 'D' }
+  ];
+  fixedMealTypes = [
+    { key: 'DESAYUNO', label: 'Desayuno', icon: '🌅' },
+    { key: 'COMIDA', label: 'Almuerzo', icon: '🍽️' },
+    { key: 'MERIENDA', label: 'Merienda', icon: '☕' },
+    { key: 'CENA', label: 'Cena', icon: '🌙' }
+  ];
 
   targets: DailyTarget = {
     'Carbohidratos': 3,
@@ -43,7 +64,8 @@ export class TargetSetterComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.loadProfileDailyTarget();
-    
+    this.loadMealPlanMode();
+
     // Suscribirse a cambios en el perfil
     this.profileConfigService.dailyTarget$.subscribe(() => {
       this.loadProfileDailyTarget();
@@ -97,6 +119,7 @@ export class TargetSetterComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['currentProfile'] && !changes['currentProfile'].firstChange) {
       this.loadProfileDailyTarget();
+      this.loadMealPlanMode();
     }
   }
 
@@ -209,5 +232,45 @@ export class TargetSetterComponent implements OnInit, OnChanges {
   deselectAllFoods(category: string): void {
     // Poner una lista vacía que signifique "ninguno" - usamos un marcador especial
     this.profileConfigService.setFoodPreference(this.currentProfile, category, ['__none__']);
+  }
+
+  // Fixed meal plan methods
+  private loadMealPlanMode(): void {
+    this.mealPlanMode = this.profileConfigService.getMealPlanMode(this.currentProfile);
+    this.fixedPlan = this.profileConfigService.getFixedMealPlan(this.currentProfile);
+  }
+
+  setMode(mode: 'dynamic' | 'fixed'): void {
+    this.mealPlanMode = mode;
+    this.profileConfigService.setMealPlanMode(this.currentProfile, mode);
+  }
+
+  selectDay(day: string): void {
+    this.selectedDay = day;
+    this.expandedMeal = null;
+  }
+
+  toggleMeal(mealType: string): void {
+    this.expandedMeal = this.expandedMeal === mealType ? null : mealType;
+  }
+
+  getFixedMealEntry(day: string, mealType: string): FixedMealEntry {
+    return this.fixedPlan?.[day]?.[mealType] || { recipeName: '', description: '' };
+  }
+
+  onFixedMealChange(day: string, mealType: string, field: 'recipeName' | 'description', value: string): void {
+    const current = this.getFixedMealEntry(day, mealType);
+    const updated = { ...current, [field]: value };
+    this.profileConfigService.updateFixedMealEntry(this.currentProfile, day, mealType, updated);
+    // Actualizar referencia local
+    if (!this.fixedPlan[day]) {
+      this.fixedPlan[day] = {};
+    }
+    this.fixedPlan[day][mealType] = updated;
+  }
+
+  hasMealContent(day: string, mealType: string): boolean {
+    const entry = this.getFixedMealEntry(day, mealType);
+    return !!(entry.recipeName || entry.description);
   }
 }

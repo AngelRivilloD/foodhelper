@@ -4,8 +4,24 @@
     <p>Preferencias de {{ currentProfile }}</p>
   </header>
 
-  <!-- Food Preferences Section -->
-  <div class="food-preferences-section">
+  <!-- Mode Toggle -->
+  <div class="mode-toggle">
+    <button
+      class="mode-btn"
+      [class.active]="mealPlanMode === 'dynamic'"
+      (click)="setMode('dynamic')">
+      Plan dinámico
+    </button>
+    <button
+      class="mode-btn"
+      [class.active]="mealPlanMode === 'fixed'"
+      (click)="setMode('fixed')">
+      Plan fijo semanal
+    </button>
+  </div>
+
+  <!-- Dynamic Mode: Food Preferences -->
+  <div class="food-preferences-section" *ngIf="mealPlanMode === 'dynamic'">
     <div class="food-preferences-content">
       <div class="pref-category" *ngFor="let category of macroCategories">
         <button class="pref-category-header" (click)="toggleCategory(category.key)">
@@ -36,6 +52,56 @@
             <span class="pref-food-emoji">{{ getFoodEmoji(food.alimento) }}</span>
             <span class="pref-food-name">{{ food.alimento }}</span>
           </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Mode: Weekly Plan Editor -->
+  <div class="fixed-plan-editor" *ngIf="mealPlanMode === 'fixed'">
+    <!-- Day Selector -->
+    <div class="day-selector">
+      <button
+        *ngFor="let day of weekDays"
+        class="day-btn"
+        [class.active]="selectedDay === day.key"
+        [class.has-content]="selectedDay !== day.key && (hasMealContent(day.key, 'DESAYUNO') || hasMealContent(day.key, 'COMIDA') || hasMealContent(day.key, 'MERIENDA') || hasMealContent(day.key, 'CENA'))"
+        (click)="selectDay(day.key)">
+        {{ day.key }}
+      </button>
+    </div>
+
+    <h3 class="day-title">{{ selectedDay }}</h3>
+
+    <!-- Meals for selected day -->
+    <div class="fixed-meals">
+      <div class="fixed-meal" *ngFor="let meal of fixedMealTypes">
+        <button class="fixed-meal-header" (click)="toggleMeal(meal.key)">
+          <span class="fixed-meal-info">
+            <span class="fixed-meal-icon">{{ meal.icon }}</span>
+            <span class="fixed-meal-label">{{ meal.label }}</span>
+          </span>
+          <span class="fixed-meal-preview" *ngIf="expandedMeal !== meal.key && hasMealContent(selectedDay, meal.key)">
+            {{ getFixedMealEntry(selectedDay, meal.key).recipeName }}
+          </span>
+          <svg [class.rotated]="expandedMeal === meal.key" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+
+        <div class="fixed-meal-form" *ngIf="expandedMeal === meal.key">
+          <input
+            type="text"
+            class="fixed-meal-input"
+            placeholder="Nombre de la receta"
+            [value]="getFixedMealEntry(selectedDay, meal.key).recipeName"
+            (blur)="onFixedMealChange(selectedDay, meal.key, 'recipeName', $any($event.target).value)">
+          <textarea
+            class="fixed-meal-textarea"
+            placeholder="Ingredientes o descripción"
+            rows="3"
+            [value]="getFixedMealEntry(selectedDay, meal.key).description"
+            (blur)="onFixedMealChange(selectedDay, meal.key, 'description', $any($event.target).value)"></textarea>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { DatePipe } from '@angular/common';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { TargetSetterComponent } from './components/target-setter/target-setter.component';
 import { MealCalculatorComponent } from './components/meal-calculator/meal-calculator.component';
@@ -17,7 +18,8 @@ import { ProfileSelectorComponent } from './components/profile-selector/profile-
     ProfileSelectorComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    AppRoutingModule
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent]

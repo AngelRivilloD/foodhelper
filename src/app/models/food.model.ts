@@ -58,3 +58,16 @@ export interface DailyMacros {
   Frutas: number;
   Vegetales: number;
 }
+
+export interface FixedMealEntry {
+  recipeName: string;
+  description: string;
+}
+
+export interface FixedDayPlan {
+  [mealType: string]: FixedMealEntry; // DESAYUNO, COMIDA, MERIENDA, CENA
+}
+
+export interface FixedWeeklyPlan {
+  [day: string]: FixedDayPlan; // Lunes..Domingo
+}

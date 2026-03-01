@@ -54,9 +54,9 @@ export class FoodCalculatorService {
         {"alimento": "Boniato", "gramos": "75g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Plátano macho", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Yuca (cocido)", "gramos": "50g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
-        {"alimento": "Quinoa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
-        {"alimento": "Pasta", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
-        {"alimento": "Arroz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Quinoa", "gramos": "1/2 taza cocido", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Pasta", "gramos": "1/2 taza cocido", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Arroz", "gramos": "1/2 taza cocido", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Avena/harina de avena", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Harina de maíz (pan)", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
         {"alimento": "Cornflakes", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno"]},
@@ -66,7 +66,7 @@ export class FoodCalculatorService {
         {"alimento": "Pan thins", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Miel", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Maíz dulce", "gramos": "140g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
-        {"alimento": "Cous-cous", "gramos": "20g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Cous-cous", "gramos": "1/3 taza cocido", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Tortitas de arroz/maíz", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Fajitas medianas", "gramos": "1 unidad", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Azúcar blanco/moreno", "gramos": "15g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
@@ -74,14 +74,14 @@ export class FoodCalculatorService {
         {"alimento": "Palomitas de maíz", "gramos": "20g", "category": "Carbohidratos", "tipo": ["merienda"]},
         {"alimento": "Granola baja en grasa", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
        // {"alimento": "Casabe", "gramos": "20g", "category": "Carbohidratos", "tipo": ["desayuno", "cena"]},
-        {"alimento": "Pan Árabe", "gramos": "30gr", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
+        {"alimento": "Pan Árabe", "gramos": "30g", "category": "Carbohidratos", "tipo": ["comida", "cena"]},
         {"alimento": "Pan Wasa", "gramos": "2 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]},
         {"alimento": "Galleta María", "gramos": "3 unidades", "category": "Carbohidratos", "tipo": ["desayuno", "merienda"]}
       ],
       "Legumbres": [
-        {"alimento": "Lentejas", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]},
-        {"alimento": "Garbanzos", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]},
-        {"alimento": "Frijoles/caraotas/alubias", "gramos": "30g crudo", "category": "Legumbres", "tipo": ["comida", "cena"]}
+        {"alimento": "Lentejas", "gramos": "1/2 taza cocido", "category": "Legumbres", "tipo": ["comida", "cena"]},
+        {"alimento": "Garbanzos", "gramos": "1/2 taza cocido", "category": "Legumbres", "tipo": ["comida", "cena"]},
+        {"alimento": "Frijoles/caraotas/alubias", "gramos": "1/2 taza cocido", "category": "Legumbres", "tipo": ["comida", "cena"]}
       ],
       "Proteina Magra": [
         {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
@@ -272,13 +272,16 @@ export class FoodCalculatorService {
     const mealPlan: { [category: string]: any[] } = {};
     const currentMealType = mealType || this.currentMealType;
 
+    // Seleccionar un template de comida coherente
+    const template = this.selectMealTemplate(currentMealType, randomize);
+
     Object.keys(target).forEach(category => {
       const targetPortions = target[category as keyof DailyTarget];
       const availableFoods = this.getFoodsByCategory(category);
 
       if (availableFoods.length > 0 && targetPortions > 0) {
-        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions, currentMealType, randomize);
-        
+        const suggestedFoods = this.selectSuggestedFoods(availableFoods, targetPortions, currentMealType, randomize, template);
+
         mealPlan[category] = suggestedFoods.map(item => ({
           food: item.food,
           portions: item.portions,
@@ -316,16 +319,176 @@ export class FoodCalculatorService {
   private mealTypeDefaults: { [mealType: string]: { [category: string]: string } } = {
     'DESAYUNO': { 'Carbohidratos': 'Pan blanco o integral de barra' },
     'MERIENDA': { 'Proteina Magra': 'Proteína en polvo' },
-    'CENA': { 'Carbohidratos': 'Harina de maíz (pan)' }
+    'CENA': { 'Carbohidratos': 'Fajitas medianas', 'Proteina Magra': 'Pechuga de pollo/pavo' }
   };
 
+  // Índice del último template usado por tipo de comida (para no repetir)
+  private lastUsedTemplateIndex: { [mealType: string]: number } = {};
+
+  // Templates de comidas coherentes: cada template define alimentos compatibles por categoría
+  private mealTemplates: { [mealType: string]: { [category: string]: string[] }[] } = {
+    'DESAYUNO': [
+      { // Bowl de avena con frutas y proteína
+        'Proteina Magra': ['Proteína en polvo', 'Yogur proteico natural', 'Yogur proteico sabores'],
+        'Carbohidratos': ['Avena/harina de avena', 'Granola baja en grasa'],
+        'Grasas': ['Mantequilla de maní', 'Crema de frutos secos', 'Coco rallado', 'Semillas de girasol, ajonjolí, chía'],
+        'Frutas': ['Banana', 'Fresas', 'Arándanos', 'Frambuesas', 'Moras'],
+        'Lácteos': ['Leche descremada/desnatada', 'Leche semidesnatada', 'Leche entera']
+      },
+      { // Tostadas/pan con jamón o queso
+        'Proteina Magra': ['Jamón de pollo/pavo', 'Queso havarti light', 'Queso mozzarella light', 'Queso burgos light/desnatado'],
+        'Proteina Semi-Magra': ['Huevo', 'Jamón serrano/ibérico'],
+        'Carbohidratos': ['Pan blanco o integral de barra', 'Pan tostado', 'Pan de molde', 'Pan thins'],
+        'Grasas': ['Mantequilla', 'Aguacate', 'Queso Crema normal', 'Queso feta'],
+        'Frutas': ['Naranja', 'Manzana', 'Kiwi', 'Mandarina'],
+        'Lácteos': ['Leche descremada/desnatada', 'Leche semidesnatada']
+      },
+      { // Yogur con cereal y frutas
+        'Proteina Magra': ['Yogur proteico natural', 'Yogur proteico sabores', 'Yogur straciatella', 'Queso cottage', 'Queso fresco batido 0%'],
+        'Carbohidratos': ['Cornflakes', 'Granola baja en grasa', 'Galleta María'],
+        'Grasas': ['Mantequilla de maní', 'Crema de frutos secos', 'Coco rallado', 'Semillas de girasol, ajonjolí, chía'],
+        'Frutas': ['Fresas', 'Banana', 'Arándanos', 'Frambuesas', 'Moras', 'Kiwi']
+      },
+      { // Arepa/pan con huevo
+        'Proteina Magra': ['Clara de huevo', 'Jamón de pollo/pavo', 'Queso mozzarella light'],
+        'Proteina Semi-Magra': ['Huevo'],
+        'Carbohidratos': ['Harina de maíz (pan)', 'Pan blanco o integral de barra'],
+        'Grasas': ['Mantequilla', 'Aguacate', 'Queso Crema normal'],
+        'Frutas': ['Naranja', 'Manzana', 'Mandarina'],
+        'Lácteos': ['Leche descremada/desnatada', 'Leche semidesnatada']
+      }
+    ],
+    'COMIDA': [
+      { // Carne con arroz/pasta y ensalada
+        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Lomo de cerdo'],
+        'Proteina Semi-Magra': ['Huevo'],
+        'Carbohidratos': ['Arroz', 'Pasta', 'Quinoa', 'Patata', 'Cous-cous'],
+        'Grasas': ['Aceite de oliva', 'Aguacate', 'Aceituna verde (deshuesadas)', 'Aceitunas negras'],
+        'Vegetales': ['Lechuga', 'Tomate', 'Pimiento', 'Cebolla', 'Brócoli', 'Espinaca', 'Calabacín', 'Espárragos', 'Zanahoria']
+      },
+      { // Pescado con patata/arroz y verduras
+        'Proteina Magra': ['Pescado blanco', 'Salmón', 'Atún al natural en lata'],
+        'Carbohidratos': ['Patata', 'Arroz', 'Quinoa', 'Boniato'],
+        'Grasas': ['Aceite de oliva', 'Aguacate', 'Aceituna verde (deshuesadas)'],
+        'Vegetales': ['Brócoli', 'Espárragos', 'Calabacín', 'Espinaca', 'Pimiento', 'Tomate', 'Vainitas', 'Zanahoria']
+      },
+      { // Legumbres con arroz y verduras
+        'Proteina Magra': ['Pechuga de pollo/pavo', 'Lomo de cerdo'],
+        'Legumbres': ['Lentejas', 'Garbanzos', 'Frijoles/caraotas/alubias'],
+        'Carbohidratos': ['Arroz', 'Pan blanco o integral de barra', 'Pan Árabe'],
+        'Grasas': ['Aceite de oliva'],
+        'Vegetales': ['Tomate', 'Cebolla', 'Pimiento', 'Zanahoria', 'Espinaca']
+      },
+      { // Wrap/fajita con carne
+        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Atún al natural en lata'],
+        'Carbohidratos': ['Fajitas medianas', 'Pan Árabe'],
+        'Grasas': ['Aguacate', 'Aceite de oliva', 'Mayonesa', 'Hummus'],
+        'Vegetales': ['Lechuga', 'Tomate', 'Pimiento', 'Cebolla', 'Pepino']
+      }
+    ],
+    'CENA': [
+      { // Fajitas con pollo y crema de verduras
+        'Proteina Magra': ['Pechuga de pollo/pavo'],
+        'Proteina Semi-Magra': ['Huevo'],
+        'Carbohidratos': ['Fajitas medianas'],
+        'Grasas': ['Aceite de oliva', 'Aguacate', 'Queso Crema normal'],
+        'Vegetales': ['Calabacín', 'Brócoli', 'Espinaca', 'Calabaza', 'Zanahoria', 'Coliflor', 'Pimiento']
+      },
+      { // Carne con acompañamiento y ensalada
+        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Lomo de cerdo'],
+        'Proteina Semi-Magra': ['Huevo'],
+        'Carbohidratos': ['Arroz', 'Pasta', 'Quinoa', 'Patata', 'Boniato'],
+        'Grasas': ['Aceite de oliva', 'Aguacate', 'Aceituna verde (deshuesadas)'],
+        'Vegetales': ['Lechuga', 'Tomate', 'Pimiento', 'Cebolla', 'Brócoli', 'Espinaca', 'Calabacín', 'Espárragos']
+      },
+      { // Pescado con verduras
+        'Proteina Magra': ['Pescado blanco', 'Salmón', 'Atún al natural en lata'],
+        'Carbohidratos': ['Patata', 'Arroz', 'Quinoa', 'Boniato'],
+        'Grasas': ['Aceite de oliva', 'Aguacate'],
+        'Vegetales': ['Brócoli', 'Espárragos', 'Calabacín', 'Espinaca', 'Vainitas', 'Pimiento', 'Tomate']
+      },
+      { // Arepa/pan con queso y proteína
+        'Proteina Magra': ['Queso mozzarella light', 'Queso havarti light', 'Jamón de pollo/pavo', 'Queso burgos light/desnatado'],
+        'Proteina Semi-Magra': ['Huevo', 'Jamón serrano/ibérico', 'Queso mozzarella normal'],
+        'Carbohidratos': ['Harina de maíz (pan)', 'Pan blanco o integral de barra', 'Pan de molde', 'Pan thins'],
+        'Grasas': ['Mantequilla', 'Aguacate', 'Queso Crema normal'],
+        'Vegetales': ['Tomate', 'Lechuga', 'Pimiento']
+      },
+      { // Tortilla/revuelto con vegetales
+        'Proteina Magra': ['Clara de huevo', 'Queso mozzarella light'],
+        'Proteina Semi-Magra': ['Huevo'],
+        'Carbohidratos': ['Pan blanco o integral de barra', 'Patata', 'Pan Árabe', 'Harina de maíz (pan)'],
+        'Grasas': ['Aceite de oliva', 'Queso Crema normal', 'Aguacate'],
+        'Vegetales': ['Tomate', 'Pimiento', 'Cebolla', 'Espinaca', 'Hongos', 'Calabacín']
+      },
+      { // Wrap/fajita nocturna
+        'Proteina Magra': ['Pechuga de pollo/pavo', 'Atún al natural en lata', 'Jamón de pollo/pavo'],
+        'Carbohidratos': ['Fajitas medianas', 'Pan Árabe', 'Pan de molde'],
+        'Grasas': ['Aguacate', 'Aceite de oliva', 'Hummus', 'Mayonesa'],
+        'Vegetales': ['Lechuga', 'Tomate', 'Pepino', 'Cebolla', 'Pimiento']
+      }
+    ],
+    'MERIENDA': [
+      { // Batido proteico con fruta
+        'Proteina Magra': ['Proteína en polvo', 'Yogur proteico bebible'],
+        'Carbohidratos': ['Avena/harina de avena', 'Tortitas de arroz/maíz'],
+        'Grasas': ['Mantequilla de maní', 'Crema de frutos secos', 'Cacahuetes/maní'],
+        'Frutas': ['Banana', 'Fresas', 'Arándanos', 'Mango'],
+        'Lácteos': ['Leche descremada/desnatada', 'Leche semidesnatada']
+      },
+      { // Yogur con granola y frutos
+        'Proteina Magra': ['Yogur proteico natural', 'Yogur proteico sabores', 'Yogur straciatella', 'Queso fresco batido 0%'],
+        'Carbohidratos': ['Granola baja en grasa', 'Galleta María', 'Miel'],
+        'Grasas': ['Crema de frutos secos', 'Coco rallado', 'Chocolate negro (70-75%)', 'Semillas de girasol, ajonjolí, chía'],
+        'Frutas': ['Fresas', 'Frambuesas', 'Arándanos', 'Moras', 'Kiwi']
+      },
+      { // Pan/tostada con fiambre
+        'Proteina Magra': ['Jamón de pollo/pavo', 'Lomo embuchado', 'Queso havarti light', 'Queso cottage'],
+        'Proteina Semi-Magra': ['Jamón serrano/ibérico'],
+        'Carbohidratos': ['Pan tostado', 'Pan thins', 'Tortitas de arroz/maíz', 'Pan Wasa'],
+        'Grasas': ['Mantequilla de maní', 'Crema de frutos secos', 'Aguacate'],
+        'Frutas': ['Manzana', 'Pera', 'Naranja', 'Mandarina']
+      },
+      { // Snack dulce
+        'Proteina Magra': ['Helado proteico', 'Gelatina proteica', 'Yogur proteico sabores'],
+        'Carbohidratos': ['Palomitas de maíz', 'Galleta María', 'Tortitas de arroz/maíz'],
+        'Grasas': ['Chocolate negro (70-75%)', 'Pistachos', 'Avellanas', 'Almendras', 'Nueces'],
+        'Frutas': ['Fresas', 'Uvas', 'Cerezas', 'Manzana']
+      }
+    ]
+  };
+
+  // Seleccionar un template de comida coherente
+  private selectMealTemplate(mealType: string, randomize: boolean): { [category: string]: string[] } | null {
+    const normalizedType = mealType.toUpperCase();
+    const templates = this.mealTemplates[normalizedType];
+    if (!templates || templates.length === 0) return null;
+
+    if (randomize) {
+      // Elegir un template diferente al último usado
+      const lastIndex = this.lastUsedTemplateIndex[normalizedType] ?? -1;
+      let newIndex: number;
+      if (templates.length === 1) {
+        newIndex = 0;
+      } else {
+        do {
+          newIndex = Math.floor(Math.random() * templates.length);
+        } while (newIndex === lastIndex);
+      }
+      this.lastUsedTemplateIndex[normalizedType] = newIndex;
+      return templates[newIndex];
+    }
+
+    this.lastUsedTemplateIndex[normalizedType] = 0;
+    return templates[0];
+  }
+
   // Seleccionar alimentos sugeridos de manera inteligente
-  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string, randomize: boolean = false): { food: FoodItem, portions: number }[] {
-    // Algoritmo de selección inteligente - SOLO UNA SUGERENCIA POR DEFECTO
+  private selectSuggestedFoods(foods: FoodItem[], targetPortions: number, mealType?: string, randomize: boolean = false, template?: { [category: string]: string[] } | null): { food: FoodItem, portions: number }[] {
     const suggestions: { food: FoodItem, portions: number }[] = [];
+    const category = foods[0]?.category || '';
 
     // Filtrar por preferencias del perfil
-    const category = foods[0]?.category || '';
     let filteredFoods = this.filterByPreferences(foods, category);
 
     // Filtrar por tipo de comida si se especifica
@@ -350,6 +513,15 @@ export class FoodCalculatorService {
       }
     }
 
+    // Filtrar por template de comida coherente (si hay uno activo)
+    if (template && template[category]) {
+      const compatibleNames = template[category];
+      const templateFiltered = filteredFoods.filter(f => compatibleNames.includes(f.alimento));
+      if (templateFiltered.length > 0) {
+        filteredFoods = templateFiltered;
+      }
+    }
+
     let selectedFood: FoodItem | undefined;
 
     if (randomize) {
@@ -364,7 +536,6 @@ export class FoodCalculatorService {
       // Comprobar si hay un default específico para este meal type + categoría
       if (mealType) {
         const defaults = this.mealTypeDefaults[mealType.toUpperCase()];
-        const category = foods[0]?.category || '';
         if (defaults && defaults[category]) {
           selectedFood = filteredFoods.find(f => f.alimento === defaults[category]);
         }
@@ -445,29 +616,42 @@ export class FoodCalculatorService {
       const simplifiedNum = totalNumerator / gcd;
       const simplifiedDen = denominator / gcd;
       
-      if (simplifiedDen === 1) {
-        // Determinar la unidad correcta
-        if (food.gramos.toLowerCase().includes('scoop')) {
-          return `${simplifiedNum} scoop${simplifiedNum > 1 ? 's' : ''}`;
-        } else if (food.gramos.toLowerCase().includes('lata')) {
-          return `${simplifiedNum} lata${simplifiedNum > 1 ? 's' : ''}`;
-        } else {
-          return `${simplifiedNum} ${food.gramos.replace(/\d+\/\d+\s*/, '').trim()}`;
-        }
+      // Convertir fracción impropia a número mixto
+      const wholepart = Math.floor(simplifiedNum / simplifiedDen);
+      const remainder = simplifiedNum % simplifiedDen;
+
+      // Determinar la unidad
+      let unit = '';
+      let unitPlural = '';
+      let suffix = '';
+      if (food.gramos.toLowerCase().includes('scoop')) {
+        unit = 'scoop'; unitPlural = 'scoops';
+      } else if (food.gramos.toLowerCase().includes('lata')) {
+        unit = 'lata'; unitPlural = 'latas';
+      } else if (food.gramos.toLowerCase().includes('taza')) {
+        unit = 'taza'; unitPlural = 'tazas';
+        suffix = food.gramos.replace(/\d+\/\d+\s*/, '').replace(/taza/, '').trim();
       } else {
-        // Determinar la unidad correcta para fracciones
-        if (food.gramos.toLowerCase().includes('scoop')) {
-          return `${simplifiedNum}/${simplifiedDen} scoop`;
-        } else if (food.gramos.toLowerCase().includes('lata')) {
-          return `${simplifiedNum}/${simplifiedDen} lata`;
-        } else {
-          return `${simplifiedNum}/${simplifiedDen} ${food.gramos.replace(/\d+\/\d+\s*/, '').trim()}`;
-        }
+        unit = food.gramos.replace(/\d+\/\d+\s*/, '').trim();
+        unitPlural = unit;
+      }
+
+      if (remainder === 0) {
+        // Entero exacto
+        const u = wholepart > 1 ? unitPlural : unit;
+        return `${wholepart} ${u} ${suffix}`.trim();
+      } else if (wholepart === 0) {
+        // Solo fracción
+        return `${remainder}/${simplifiedDen} ${unit} ${suffix}`.trim();
+      } else {
+        // Número mixto: "3 y 1/2 latas"
+        const u = unitPlural || unit;
+        return `${wholepart} y ${remainder}/${simplifiedDen} ${u} ${suffix}`.trim();
       }
     }
     
     // Alimentos que se muestran en unidades en vez de gramos
-    const unitFoods = ['Pan blanco o integral de barra', 'Pan Árabe', 'Harina de maíz (pan)'];
+    const unitFoods = ['Pan blanco o integral de barra', 'Pan Árabe'];
     if (unitFoods.includes(food.alimento)) {
       return `${portions} und`;
     }
@@ -480,11 +664,17 @@ export class FoodCalculatorService {
 
       // Si el texto original contiene "g" o "gramos", usar "g"
       if (food.gramos.toLowerCase().includes('g')) {
-        // No mostrar "crudo" para frutas, grasas y helado proteico
-        if (category === 'Frutas' || category === 'Grasas' || food.alimento === 'Helado proteico') {
-          return `${totalAmount}g`;
+        // Solo mostrar "crudo" para alimentos que se miden crudos y se cocinan
+        const rawToCookedFoods = [
+          'Pescado blanco', 'Pechuga de pollo/pavo', 'Clara de huevo',
+          'Carne roja magra', 'Lomo de cerdo', 'Salmón',
+          'Carne de cerdo (graso)', 'Carne roja grasa',
+          'Patata', 'Gnocchis', 'Boniato', 'Plátano macho'
+        ];
+        if (rawToCookedFoods.includes(food.alimento)) {
+          return `${totalAmount}g crudo`;
         }
-        return `${totalAmount}g crudo`;
+        return `${totalAmount}g`;
       }
       // Si contiene "unidad", usar "unidades"
       else if (food.gramos.toLowerCase().includes('unidad')) {
