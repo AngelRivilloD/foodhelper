@@ -553,35 +553,33 @@
   display: none !important;
 }
 
-/* Action buttons row */
+/* Action buttons — below ingredients summary */
 .menu-action-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .menu-action-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  flex: 1;
-  padding: 10px 14px;
-  background: #f5f2ee;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #F5F0E8;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   color: #8B7355;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .menu-action-btn:hover {
-  background: #ede8e1;
+  background: #EBE4D6;
 }
 
 .menu-action-btn:active {
@@ -1193,8 +1191,6 @@
   animation: voiceHighlight 1.5s ease;
 }
 
-/* Extra padding so FAB doesn't overlap last content */
 app-voice-input {
   display: block;
-  padding-bottom: 80px;
 }

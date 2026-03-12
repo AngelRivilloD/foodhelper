@@ -32,7 +32,7 @@ export class SpeechRecognitionService {
     this.recognition = new SpeechRecognition();
     this.recognition.lang = 'es-ES';
     this.recognition.interimResults = true;
-    this.recognition.continuous = false;
+    this.recognition.continuous = true;
     this.recognition.maxAlternatives = 1;
 
     this.recognition.onstart = () => {
@@ -40,17 +40,26 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onresult = (event: any) => {
-      const last = event.results[event.results.length - 1];
-      const transcript = last[0].transcript;
-      const confidence = last[0].confidence;
-      const isFinal = last.isFinal;
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = 0; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        } else {
+          interimTranscript += result[0].transcript;
+        }
+      }
+
+      const fullTranscript = (finalTranscript + ' ' + interimTranscript).trim();
 
       this.ngZone.run(() => {
-        this.events$.next({
-          type: isFinal ? 'result' : 'interim',
-          transcript,
-          confidence: isFinal ? confidence : undefined
-        });
+        if (interimTranscript) {
+          this.events$.next({ type: 'interim', transcript: fullTranscript });
+        } else {
+          this.events$.next({ type: 'result', transcript: finalTranscript.trim(), confidence: event.results[event.results.length - 1][0].confidence });
+        }
       });
     };
 

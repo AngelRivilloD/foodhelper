@@ -47,6 +47,10 @@ export class VoiceInputComponent implements OnDestroy {
   }
 
   startListening(): void {
+    this.speechService.stopListening();
+    this.subscription?.unsubscribe();
+    this.subscription = null;
+
     this.state = 'listening';
     this.interimTranscript = '';
     this.result = null;
@@ -81,7 +85,11 @@ export class VoiceInputComponent implements OnDestroy {
       }
       this.apply.emit(this.result.matches);
     }
+    this.speechService.stopListening();
+    this.subscription?.unsubscribe();
+    this.subscription = null;
     this.state = 'idle';
+    this.volume = 0;
   }
 
   retry(): void {
