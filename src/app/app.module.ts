@@ -8,6 +8,7 @@ import { TargetSetterComponent } from './components/target-setter/target-setter.
 import { MealCalculatorComponent } from './components/meal-calculator/meal-calculator.component';
 import { HamburgerMenuComponent } from './components/hamburger-menu/hamburger-menu.component';
 import { ProfileSelectorComponent } from './components/profile-selector/profile-selector.component';
+import { VoiceInputComponent } from './components/voice-input/voice-input.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { ProfileSelectorComponent } from './components/profile-selector/profile-
     TargetSetterComponent,
     MealCalculatorComponent,
     HamburgerMenuComponent,
-    ProfileSelectorComponent
+    ProfileSelectorComponent,
+    VoiceInputComponent
   ],
   imports: [
     BrowserModule,

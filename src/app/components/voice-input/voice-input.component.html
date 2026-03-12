@@ -1,0 +1,103 @@
+<!-- FAB Button — only in dynamic mode, hidden if browser doesn't support Speech API -->
+<button
+  *ngIf="isSupported && mealPlanMode === 'dynamic' && state === 'idle'"
+  class="voice-fab"
+  [class.pulse]="showPulse"
+  (click)="startListening()">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+    <line x1="12" x2="12" y1="19" y2="22"/>
+  </svg>
+  <span class="tooltip" *ngIf="showTooltip">Dime qué quieres comer</span>
+</button>
+
+<!-- Overlay + Bottom Sheet -->
+<div class="voice-overlay" *ngIf="state !== 'idle'" (click)="cancel()">
+  <div class="voice-sheet" (click)="$event.stopPropagation()">
+
+    <!-- Listening State -->
+    <div class="sheet-content" *ngIf="state === 'listening'">
+      <div class="wave-container">
+        <div class="wave-circle wave-1" [style.transform]="'scale(' + (1 + volume * 0.6) + ')'"></div>
+        <div class="wave-circle wave-2" [style.transform]="'scale(' + (1 + volume * 0.4) + ')'"></div>
+        <div class="wave-circle wave-3" [style.transform]="'scale(' + (1 + volume * 0.2) + ')'"></div>
+        <div class="wave-core">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </div>
+      </div>
+      <p class="sheet-label">Te escucho...</p>
+      <p class="interim-text" *ngIf="interimTranscript">{{ interimTranscript }}</p>
+      <button class="cancel-btn" (click)="cancel()">Cancelar</button>
+    </div>
+
+    <!-- Processing State -->
+    <div class="sheet-content" *ngIf="state === 'processing'">
+      <div class="wave-container processing">
+        <div class="wave-core">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+        </div>
+      </div>
+      <p class="sheet-label">Entendido, buscando...</p>
+      <p class="interim-text" *ngIf="interimTranscript">{{ interimTranscript }}</p>
+    </div>
+
+    <!-- Results State -->
+    <div class="sheet-content" *ngIf="state === 'results' && result">
+      <div class="results-list">
+        <div
+          class="result-item matched"
+          *ngFor="let match of result.matches; let i = index"
+          [style.animation-delay]="(i * 100) + 'ms'">
+          <div class="result-check">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="result-info">
+            <span class="result-name">{{ match.food?.alimento }}</span>
+            <span class="result-category">{{ match.category }} · {{ match.portions || '?' }} {{ match.portions === 1 ? 'porción' : 'porciones' }}</span>
+          </div>
+        </div>
+
+        <div
+          class="result-item unmatched"
+          *ngFor="let token of result.unmatched; let i = index"
+          [style.animation-delay]="((result.matches.length + i) * 100) + 'ms'">
+          <div class="result-x">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>
+            </svg>
+          </div>
+          <div class="result-info">
+            <span class="result-name unmatched-name">"{{ token }}" no encontrado</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="apply-btn" (click)="applyResults()">Aplicar cambios</button>
+      <button class="cancel-link" (click)="cancel()">Cancelar</button>
+    </div>
+
+    <!-- Error State -->
+    <div class="sheet-content" *ngIf="state === 'error'">
+      <div class="error-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+        </svg>
+      </div>
+      <p class="sheet-label error-label">{{ errorMessage }}</p>
+      <button class="retry-btn" (click)="retry()">Intentar de nuevo</button>
+      <button class="cancel-link" (click)="cancel()">Cancelar</button>
+    </div>
+
+  </div>
+</div>
