@@ -1209,3 +1209,9 @@
 .voice-replaced {
   animation: voiceHighlight 1.5s ease;
 }
+
+/* Extra padding so FAB doesn't overlap last content */
+app-voice-input {
+  display: block;
+  padding-bottom: 80px;
+}
