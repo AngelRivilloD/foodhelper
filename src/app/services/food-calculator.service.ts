@@ -258,7 +258,7 @@ export class FoodCalculatorService {
   }
 
   // Filtrar alimentos por preferencias del perfil
-  private filterByPreferences(foods: FoodItem[], category: string): FoodItem[] {
+  public filterByPreferences(foods: FoodItem[], category: string): FoodItem[] {
     const prefs = this.currentFoodPreferences[category];
     if (!prefs || prefs.length === 0) {
       return foods; // Sin preferencias = mostrar todos
