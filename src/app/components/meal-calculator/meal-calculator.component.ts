@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild, ElementR
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { ProfileConfigService } from '../../services/profile-config.service';
 import { FoodItem, FixedWeeklyPlan, FixedMealEntry } from '../../models/food.model';
+import { MatchResult } from '../../models/voice.model';
 
 @Component({
   selector: 'app-meal-calculator',
@@ -162,6 +163,42 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     };
 
     return originalObjectives[category as keyof typeof originalObjectives] || 0;
+  }
+
+  // Property for template binding (Angular templates don't support .map())
+  get voiceCategories(): string[] {
+    return this.macroCategories.map(c => c.key);
+  }
+
+  // Map category → target portions for the current meal type (used by voice result preview)
+  get voicePortionsMap(): { [category: string]: number } {
+    const map: { [category: string]: number } = {};
+    for (const cat of this.macroCategories) {
+      map[cat.key] = this.getTargetValue(cat.key);
+    }
+    return map;
+  }
+
+  // Track which categories were just replaced by voice for highlight animation
+  voiceReplacedCategories = new Set<string>();
+
+  /** Handle voice input results — replace first food in each matched category */
+  onVoiceApply(matches: MatchResult[]): void {
+    this.voiceReplacedCategories.clear();
+
+    for (const match of matches) {
+      if (!match.food || !match.category) continue;
+
+      const categoryItems = this.mealPlan[match.category];
+      if (categoryItems && categoryItems.length > 0) {
+        const currentFood = categoryItems[0].food;
+        this.replaceFood(match.category, currentFood, match.food);
+        this.voiceReplacedCategories.add(match.category);
+      }
+    }
+
+    // Clear highlights after animation completes
+    setTimeout(() => { this.voiceReplacedCategories.clear(); }, 1500);
   }
 
   // Cambiar un alimento por otro
