@@ -9,11 +9,11 @@ import { MatchResult, VoiceResult } from '../models/voice.model';
 export class FoodMatcherService {
 
   private readonly STOP_WORDS = new Set([
-    'quiero', 'dame', 'ponme', 'pon', 'añade', 'agrega',
+    'quiero', 'dame', 'ponme', 'pon', 'anade', 'agrega',
     'me', 'un', 'una', 'unos', 'unas', 'algo', 'de',
     'por', 'favor', 'poner', 'el', 'la', 'los', 'las',
     'con', 'para', 'hoy', 'comer', 'cenar', 'desayunar',
-    'quería', 'quisiera', 'podrias', 'podrías', 'meter',
+    'queria', 'quisiera', 'podrias', 'meter',
     'tomar', 'cena', 'comida', 'desayuno', 'merienda'
   ]);
 

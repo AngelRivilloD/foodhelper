@@ -131,6 +131,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
   generateMealPlan(randomize: boolean = false): void {
     this.mealPlan = this.foodCalculatorService.generateMealPlan(this.selectedMealType, randomize);
+    this.updateVoiceBindings();
   }
 
   getFoodsByCategory(category: string): FoodItem[] {
@@ -165,18 +166,17 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     return originalObjectives[category as keyof typeof originalObjectives] || 0;
   }
 
-  // Property for template binding (Angular templates don't support .map())
-  get voiceCategories(): string[] {
-    return this.macroCategories.map(c => c.key);
-  }
+  // Cached properties for voice-input template bindings (avoid recomputing every CD cycle)
+  voiceCategories: string[] = [];
+  voicePortionsMapCache: { [category: string]: number } = {};
 
-  // Map category → target portions for the current meal type (used by voice result preview)
-  get voicePortionsMap(): { [category: string]: number } {
+  private updateVoiceBindings(): void {
+    this.voiceCategories = this.macroCategories.map(c => c.key);
     const map: { [category: string]: number } = {};
     for (const cat of this.macroCategories) {
       map[cat.key] = this.getTargetValue(cat.key);
     }
-    return map;
+    this.voicePortionsMapCache = map;
   }
 
   // Track which categories were just replaced by voice for highlight animation
@@ -208,6 +208,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.mealPlan = this.foodCalculatorService.replaceFood(category, currentFood, newFood, portions);
     // Forzar actualización de la vista para reflejar cambios en objetivos
     this.mealPlan = { ...this.mealPlan };
+    this.updateVoiceBindings();
   }
 
 

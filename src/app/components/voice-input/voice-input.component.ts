@@ -29,6 +29,7 @@ export class VoiceInputComponent implements OnDestroy {
   showTooltip: boolean = false;
 
   private subscription: Subscription | null = null;
+  private processTimeoutId: any = null;
   private readonly PULSE_KEY = 'foodhelper_voice_pulse_count';
   private readonly MAX_PULSES = 3;
 
@@ -62,6 +63,10 @@ export class VoiceInputComponent implements OnDestroy {
   }
 
   cancel(): void {
+    if (this.processTimeoutId) {
+      clearTimeout(this.processTimeoutId);
+      this.processTimeoutId = null;
+    }
     this.speechService.stopListening();
     this.subscription?.unsubscribe();
     this.subscription = null;
@@ -101,7 +106,8 @@ export class VoiceInputComponent implements OnDestroy {
       case 'result':
         this.state = 'processing';
         this.interimTranscript = event.transcript ?? '';
-        setTimeout(() => {
+        this.processTimeoutId = setTimeout(() => {
+          this.processTimeoutId = null;
           this.processTranscript(event.transcript ?? '');
         }, 400);
         break;
