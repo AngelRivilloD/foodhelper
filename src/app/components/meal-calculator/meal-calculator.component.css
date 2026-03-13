@@ -726,49 +726,6 @@
   gap: 6px;
 }
 
-.ingredient-item.swap-out-left {
-  animation: slideOutLeft 0.15s ease-out forwards;
-}
-
-.ingredient-item.swap-out-right {
-  animation: slideOutRight 0.15s ease-out forwards;
-}
-
-.ingredient-item.swap-in {
-  animation: slideIn 0.2s ease-out;
-}
-
-@keyframes slideOutLeft {
-  to { opacity: 0; transform: translateX(-30px); }
-}
-
-@keyframes slideOutRight {
-  to { opacity: 0; transform: translateX(30px); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(0); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.swap-arrow {
-  background: none;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  padding: 8px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0;
-}
-
-.swap-arrow:hover {
-  color: #8B7355;
-}
-
 .ingredient-icon {
   font-size: 1.2rem;
   min-width: 24px;
@@ -1193,4 +1150,168 @@
 
 app-voice-input {
   display: block;
+}
+
+/* Summary portion controls (replacing swap arrows) */
+.summary-portion-btn {
+  background: #FFFFFF;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #666;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.summary-portion-btn:hover:not(:disabled) {
+  background: #F5F0E8;
+  border-color: #999;
+  transform: scale(1.15);
+}
+
+.summary-portion-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  transition: transform 0.08s ease;
+}
+
+.summary-portion-btn:disabled {
+  cursor: not-allowed;
+  background-color: #fafafa;
+  color: #ddd;
+  border-color: #EDE8E0;
+}
+
+.ingredient-portions {
+  color: #b68f5e;
+  font-weight: 500;
+}
+
+/* Food name clickable underline in summary */
+.ingredient-name-wrapper .ingredient-name {
+  text-decoration: underline;
+  text-decoration-color: #d4c4a8;
+  text-underline-offset: 2px;
+}
+
+/* Confirm meal button */
+.confirm-meal-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(131deg, #34c759 0%, #2da44e 100%);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
+  margin-top: 14px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.confirm-meal-btn:hover {
+  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.35);
+  transform: translateY(-1px);
+}
+
+.confirm-meal-btn:active {
+  transform: scale(0.98);
+}
+
+/* Confirmed state */
+.confirmed-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: #f0faf3;
+  border-radius: 14px;
+}
+
+.confirmed-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #34c759;
+}
+
+.ellipsis-menu-container {
+  position: relative;
+}
+
+.ellipsis-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ellipsis-btn:hover {
+  background: #e8f5e9;
+  color: #666;
+}
+
+.ellipsis-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid #EDE8E0;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  margin-top: 4px;
+  min-width: 140px;
+  overflow: hidden;
+}
+
+.ellipsis-option {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  color: #222;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+}
+
+.ellipsis-option:hover {
+  background: #F5F0E8;
+}
+
+.ellipsis-option.delete {
+  color: #e74c3c;
+  border-top: 1px solid #F5F0E8;
+}
+
+.ellipsis-option.delete:hover {
+  background: #fdf0ef;
 }

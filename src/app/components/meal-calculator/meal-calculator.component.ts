@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { ProfileConfigService } from '../../services/profile-config.service';
+import { DailyProgressService } from '../../services/daily-progress.service';
 import { FoodItem, FixedWeeklyPlan, FixedMealEntry } from '../../models/food.model';
 import { MatchResult } from '../../models/voice.model';
 
@@ -18,13 +19,15 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   showAddFood: string | null = null;
   selectedMealType: string = this.getDefaultMealType();
   rawItems: Set<string> = new Set(); // Rastrear qué items el usuario cambió a modo crudo
-  swappingItem: string | null = null; // ID del item animándose
-  swapDirection: 'left' | 'right' = 'right';
   isLoading: boolean = false;
   isSummaryLoading: boolean = false;
   skeletonItemCount: number = 4;
   showCategories: boolean = false;
   showSummaryAlternatives: string | null = null;
+  showCelebration = false;
+  celebrationMealType = '';
+  celebrationMealLabel = '';
+  showConfirmedMenu: string | null = null;
 
   // Fixed meal plan
   mealPlanMode: 'dynamic' | 'fixed' = 'dynamic';
@@ -74,7 +77,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
   constructor(
     private foodCalculatorService: FoodCalculatorService,
-    private profileConfigService: ProfileConfigService
+    private profileConfigService: ProfileConfigService,
+    public dailyProgressService: DailyProgressService
   ) {}
 
   ngOnInit(): void {
@@ -90,6 +94,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.profileConfigService.mealPlanMode$.subscribe(() => {
       this.loadMealPlanMode();
     });
+
+    this.dailyProgressService.initialize(this.currentProfile);
   }
 
   ngAfterViewInit(): void {
@@ -109,6 +115,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['currentProfile'] && !changes['currentProfile'].firstChange) {
+      this.dailyProgressService.initialize(this.currentProfile);
       this.loadMealPlanMode();
 
       if (this.mealPlanMode === 'dynamic') {
@@ -224,26 +231,6 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     );
   }
 
-  // Cambiar al siguiente o anterior alimento alternativo desde el resumen
-  swapFoodInSummary(category: string, currentFood: FoodItem, direction: 'left' | 'right'): void {
-    const alternatives = this.getAlternatives(category, currentFood, this.selectedMealType);
-    if (alternatives.length > 0) {
-      const itemId = this.getItemId(category, currentFood);
-      this.swapDirection = direction;
-      this.swappingItem = itemId;
-
-      setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * alternatives.length);
-        this.replaceFood(category, currentFood, alternatives[randomIndex]);
-        this.swappingItem = null;
-      }, 150);
-    }
-  }
-
-  isSwapping(category: string, food: FoodItem): boolean {
-    return this.swappingItem === this.getItemId(category, food);
-  }
-
   incrementPortions(category: string, food: FoodItem): void {
     const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
     if (currentItem) {
@@ -348,6 +335,12 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     setTimeout(() => {
       this.generateMealPlanForMeal();
       this.isLoading = false;
+      if (this.dailyProgressService.isMealConfirmed(this.selectedMealType)) {
+        const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
+        if (confirmedPlan) {
+          this.mealPlan = JSON.parse(JSON.stringify(confirmedPlan));
+        }
+      }
     }, 500);
   }
 
@@ -540,6 +533,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.showAlternatives = null;
     this.showAddFood = null;
     this.showSummaryAlternatives = null;
+    this.showConfirmedMenu = null;
   }
 
   // Obtener el icono del alimento actual en la categoría
@@ -773,6 +767,38 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     return activeCategories.reduce((total, category) => {
       return total + this.getTargetValue(category.key);
     }, 0);
+  }
+
+  confirmMeal(): void {
+    if (!this.mealPlan) return;
+    this.dailyProgressService.confirmMeal(this.selectedMealType, this.mealPlan);
+    this.celebrationMealType = this.selectedMealType;
+    this.celebrationMealLabel = this.getMealTypeLabel();
+    this.showCelebration = true;
+  }
+
+  onCelebrationDismiss(): void {
+    this.showCelebration = false;
+  }
+
+  editConfirmedMeal(): void {
+    this.showConfirmedMenu = null;
+    this.dailyProgressService.unconfirmMeal(this.selectedMealType);
+  }
+
+  deleteConfirmedMeal(): void {
+    this.showConfirmedMenu = null;
+    this.dailyProgressService.unconfirmMeal(this.selectedMealType);
+    this.mealPlan = {};
+    this.generateMealPlanForMeal();
+  }
+
+  isMealConfirmed(): boolean {
+    return this.dailyProgressService.isMealConfirmed(this.selectedMealType);
+  }
+
+  getDailyTargetForProgress(): { [category: string]: number } {
+    return this.profileConfigService.getDailyTarget(this.currentProfile);
   }
 
   // Fixed meal plan methods

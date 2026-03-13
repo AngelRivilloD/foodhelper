@@ -31,6 +31,11 @@
     </div>
   </header>
 
+  <app-daily-progress
+    *ngIf="mealPlanMode === 'dynamic'"
+    [dailyTarget]="getDailyTargetForProgress()">
+  </app-daily-progress>
+
   <!-- ============ DYNAMIC MODE ============ -->
   <ng-container *ngIf="mealPlanMode === 'dynamic'">
     <div class="meal-categories" *ngIf="showCategories">
@@ -207,12 +212,13 @@
       </div>
       <div class="simple-list ingredients-card">
         <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
-          <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]"
-               [class.swap-out-left]="isSwapping(category.key, item.food) && swapDirection === 'left'"
-               [class.swap-out-right]="isSwapping(category.key, item.food) && swapDirection === 'right'"
-               [class.swap-in]="!isSwapping(category.key, item.food)">
-            <button class="swap-arrow" (click)="swapFoodInSummary(category.key, item.food, 'left'); $event.stopPropagation()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
+            <button class="summary-portion-btn decrement"
+                    (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
+                    [disabled]="item.portions <= 0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
             </button>
             <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
             <div class="ingredient-text clickable"
@@ -237,10 +243,16 @@
               </div>
               <span class="ingredient-amount">
                 {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
+                <span class="ingredient-portions">· {{ item.portions }} porc</span>
               </span>
             </div>
-            <button class="swap-arrow" (click)="swapFoodInSummary(category.key, item.food, 'right'); $event.stopPropagation()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <button class="summary-portion-btn increment"
+                    (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
+                    [disabled]="!canAddMorePortions(category.key)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
             </button>
           </div>
         </div>
@@ -255,7 +267,46 @@
           Menú aleatorio
         </button>
       </div>
+
+      <!-- Confirm button (only if not confirmed) -->
+      <button class="confirm-meal-btn"
+              *ngIf="!isMealConfirmed()"
+              (click)="confirmMeal(); $event.stopPropagation()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmar {{ getMealTypeLabel() }}
+      </button>
+
+      <!-- Confirmed state with ellipsis menu -->
+      <div class="confirmed-state" *ngIf="isMealConfirmed()">
+        <div class="confirmed-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>{{ getMealTypeLabel() }} confirmado{{ selectedMealType === 'MERIENDA' || selectedMealType === 'CENA' ? 'a' : '' }}</span>
+        </div>
+        <div class="ellipsis-menu-container">
+          <button class="ellipsis-btn" (click)="showConfirmedMenu = showConfirmedMenu === selectedMealType ? null : selectedMealType; $event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+          <div class="ellipsis-dropdown" *ngIf="showConfirmedMenu === selectedMealType" (click)="$event.stopPropagation()">
+            <button class="ellipsis-option" (click)="editConfirmedMeal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              Editar
+            </button>
+            <button class="ellipsis-option delete" (click)="deleteConfirmedMeal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <app-celebration
+      *ngIf="showCelebration"
+      [mealType]="celebrationMealType"
+      [mealLabel]="celebrationMealLabel"
+      [streakCount]="(dailyProgressService.streak$ | async)?.count || 1"
+      (dismiss)="onCelebrationDismiss()">
+    </app-celebration>
 
     <app-voice-input
       [mealType]="selectedMealType"
