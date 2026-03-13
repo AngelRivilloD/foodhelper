@@ -12,8 +12,8 @@ Componente compacto siempre visible arriba del meal calculator (solo en modo din
 
 **Estado colapsado:**
 - Título "Mi día" a la izquierda
-- Streak counter (🔥 N) y chevron a la derecha
-- 4 pills horizontales, una por comida (Desayuno, Comida, Merienda, Cena):
+- Streak counter (🔥 N) y chevron a la derecha. Valor mínimo: 1 (nunca muestra 0)
+- 4 pills horizontales, una por comida (Desayuno, Almuerzo, Merienda, Cena):
   - Confirmada: fondo `#f0faf3`, icono Lucide `circle-check` verde (`#34c759`), texto verde bold
   - Pendiente: fondo `#F5F0E8`, icono Lucide `circle` gris (`#bbb`), texto gris, opacity 0.6
 - Barra de progreso global: porcentaje de porciones totales consumidas vs objetivo diario
@@ -24,11 +24,13 @@ Componente compacto siempre visible arriba del meal calculator (solo en modo din
 **Estado expandido (al tocar):**
 - Todo lo del colapsado + chevron rotado 180°
 - Sección "Porciones totales del día" con total de kcal estimadas a la derecha
-- Lista de categorías, cada una con:
+- Lista de categorías (excluyendo Legumbres), cada una con:
   - Emoji + nombre de categoría a la izquierda
   - Porciones consumidas/objetivo a la derecha (ej. "2/4 porc")
   - Barra de progreso con color de la categoría
   - Calorías aproximadas debajo de la barra (sin gramos — no tiene sentido sumar gramos de alimentos distintos)
+
+**Objetivo diario:** Se calcula sumando los objetivos de las 4 comidas desde `ProfileConfigService.getMealObjectives()`. Si una categoría tiene ajuste dinámico (ej. Salmón elimina Grasas), se usa el valor ajustado de la comida confirmada.
 
 **Colores por categoría (existentes):**
 - Proteína Magra: `#4ECDC4`
@@ -37,9 +39,22 @@ Componente compacto siempre visible arriba del meal calculator (solo en modo din
 - Lácteos: `#3498DB`
 - Grasas: `#45B7D1`
 - Frutas: `#FECA57`
-- Vegetales: `#34c759`
+- Vegetales: `#2ECC71`
 
-**Cálculo de calorías:** Aproximadas, basadas en un valor calórico fijo por porción de cada categoría. No es un tracking calórico exacto — es una referencia motivacional.
+**Nota:** Vegetales y Proteína SM comparten color `#2ECC71` (existente en el código). Se mantiene así por ahora.
+
+**Categoría Legumbres:** Excluida del progreso diario. Está comentada en `macroCategories` y no se usa activamente.
+
+**Calorías aproximadas por porción de categoría:**
+- Proteína Magra: ~55 kcal/porción
+- Proteína Semi-Magra: ~75 kcal/porción
+- Carbohidratos: ~140 kcal/porción
+- Lácteos: ~100 kcal/porción
+- Grasas: ~45 kcal/porción
+- Frutas: ~60 kcal/porción
+- Vegetales: ~25 kcal/porción
+
+Estos valores son orientativos. Se almacenan como constante en el servicio.
 
 ### 2. Flechas de swap → Controles de porciones
 
@@ -52,7 +67,7 @@ Componente compacto siempre visible arriba del meal calculator (solo en modo din
 - Controlan la cantidad de porciones del alimento
 - Se muestra número de porciones junto al peso: "90g · 3 porc" (color `#b68f5e`)
 - El botón `−` tiene `disabled` cuando porciones <= 0
-- El botón `+` tiene `disabled` cuando no se pueden agregar más porciones en esa categoría
+- El botón `+` tiene `disabled` cuando no se pueden agregar más porciones en esa categoría (usa `canAddMorePortions()` existente, que evalúa a nivel de categoría sumando todas las porciones de todos los alimentos)
 
 **Cambio de alimento:** Click/tap en el nombre del alimento (estilizado como clickeable con subrayado `text-decoration-color: #d4c4a8`) abre el dropdown de alternativas — funcionalidad ya existente (`showSummaryAlternatives`).
 
@@ -68,21 +83,31 @@ Componente compacto siempre visible arriba del meal calculator (solo en modo din
 - Al confirmar:
   - Las porciones de esa comida se suman al progreso diario global
   - La pill de esa comida cambia a confirmada (circle-check verde)
-  - La barra de progreso global se actualiza con animación
+  - La barra de progreso global se actualiza con animación (CSS transition 0.5s ease)
   - Se dispara el efecto de celebración
-- El botón desaparece después de confirmar (esa comida ya está registrada)
-- Si el usuario cambia a una comida ya confirmada, se muestra un estado "ya confirmada" en vez del botón
+
+**Comida ya confirmada:**
+- Si el usuario navega a una comida ya confirmada, se muestra el resumen de lo que confirmó
+- En lugar del botón "Confirmar", se muestra un **menú de elipsis** (icono Lucide `ellipsis`) que ofrece:
+  - **Editar:** Desconfirma la comida, resta sus porciones del progreso diario, y permite modificarla. Luego debe volver a confirmar.
+  - **Eliminar:** Desconfirma la comida y borra el plan de esa comida. Resta sus porciones del progreso diario.
+
+**Concordancia de género en el mensaje:**
+- "Desayuno" → "¡Desayuno confirmado!" (masculino)
+- "Almuerzo" → "¡Almuerzo confirmado!" (masculino)
+- "Merienda" → "¡Merienda confirmada!" (femenino)
+- "Cena" → "¡Cena confirmada!" (femenino)
 
 ### 4. Efecto de celebración
 
 Se dispara al presionar "Confirmar comida":
 
-1. **Confetti:** Partículas de colores (rojo, amarillo, cyan, azul, dorado) que caen desde arriba con animación CSS. Duración ~2 segundos.
+1. **Confetti:** ~30 partículas de colores (rojo, amarillo, cyan, azul, dorado) que caen desde arriba con animación CSS. Contenidas en un div `position: fixed` con `pointer-events: none` y `z-index: 9999` que se destruye después de la animación. Duración ~2 segundos.
 2. **Haptic feedback:** `navigator.vibrate(200)` si el navegador lo soporta (check con `'vibrate' in navigator`).
-3. **Sonido:** Un sonido corto de éxito. Se puede usar un beep generado con Web Audio API para evitar archivos de audio.
+3. **Sonido:** Un beep corto generado con Web Audio API (sin archivos de audio). Se puede añadir una preferencia de mute en localStorage en el futuro.
 4. **Overlay temporal:** Card centrada con:
    - Icono Lucide `circle-check` grande (56px) verde
-   - Texto "¡[Comida] confirmado/a!"
+   - Texto "¡[Comida] confirmado/a!" (con género correcto)
    - Mensaje motivacional aleatorio
    - Streak counter actualizado
    - Se cierra automáticamente después de ~2.5 segundos o al tocar
@@ -98,22 +123,42 @@ Se dispara al presionar "Confirmar comida":
 ### 5. Streak (racha)
 
 - Cuenta días consecutivos en que el usuario confirmó las 4 comidas
-- Se muestra como "🔥 N" en el header "Mi día"
+- Se muestra como "🔥 N" en el header "Mi día". Mínimo visible: 1
 - Se incrementa cuando se confirma la 4ta comida del día
 - Se resetea si al inicio de un nuevo día el día anterior no tenía las 4 comidas confirmadas
 - Persistido en localStorage
+- Comparación de fechas usa fecha local (YYYY-MM-DD desde `new Date().toLocaleDateString('en-CA')`)
 
 ### 6. Persistencia (localStorage)
 
 Nuevas keys:
-- `foodhelper_daily_meals_{profile}`: objeto con fecha del día y estado de cada comida (confirmada/pendiente + porciones guardadas)
-- `foodhelper_streak_{profile}`: objeto con contador de racha y fecha del último día completo
+- `foodhelper_daily_meals_{profile}`: estado diario de comidas
+- `foodhelper_streak_{profile}`: racha
+
+**Modelo de datos:**
+
+```typescript
+interface DailyMealState {
+  date: string; // YYYY-MM-DD local
+  meals: {
+    [mealType: string]: {
+      confirmed: boolean;
+      mealPlan: { [category: string]: { food: FoodItem; portions: number; totalAmount: string }[] };
+    };
+  };
+}
+
+interface StreakState {
+  count: number; // mínimo 1 para display
+  lastCompletedDate: string | null; // YYYY-MM-DD del último día con 4 comidas
+}
+```
 
 Lógica de reseteo diario:
-- Al cargar la app, comparar fecha guardada con fecha actual
+- Al cargar la app, comparar `date` guardado con fecha local actual
 - Si es un nuevo día:
-  - Verificar si el día anterior tenía las 4 comidas → actualizar streak
-  - Resetear estado de comidas del día
+  - Verificar si el día anterior tenía las 4 comidas confirmadas → si sí, incrementar streak; si no, resetear a 1
+  - Limpiar `meals` para el nuevo día
 
 ### 7. Scope exclusions
 
@@ -121,3 +166,5 @@ Lógica de reseteo diario:
 - No se cambia el modo fijo (fixed) — solo aplica al modo dinámico
 - No se añade backend — todo sigue siendo localStorage
 - Las calorías son aproximadas, no exactas
+- Legumbres excluida del progreso diario
+- No se implementa preferencia de mute para sonidos (futuro)
