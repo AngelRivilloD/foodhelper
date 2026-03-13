@@ -87,7 +87,8 @@ export class FoodCalculatorService {
         {"alimento": "Pescado blanco", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         //{"alimento": "Camarones/gambas", "gramos": "40g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Atún al natural en lata", "gramos": "1/2 lata", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
-        {"alimento": "Pechuga de pollo/pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Pechuga de pollo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
+        {"alimento": "Pechuga de pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["comida", "cena"]},
         {"alimento": "Clara de huevo", "gramos": "60g", "category": "Proteina Magra", "tipo": ["desayuno", "comida", "cena"]},
         {"alimento": "Jamón de pollo/pavo", "gramos": "30g", "category": "Proteina Magra", "tipo": ["desayuno", "merienda", "cena"]},
         {"alimento": "Lomo embuchado", "gramos": "20g", "category": "Proteina Magra", "tipo": ["merienda", "cena"]},
@@ -319,7 +320,7 @@ export class FoodCalculatorService {
   private mealTypeDefaults: { [mealType: string]: { [category: string]: string } } = {
     'DESAYUNO': { 'Carbohidratos': 'Pan blanco o integral de barra' },
     'MERIENDA': { 'Proteina Magra': 'Proteína en polvo' },
-    'CENA': { 'Carbohidratos': 'Fajitas medianas', 'Proteina Magra': 'Pechuga de pollo/pavo' }
+    'CENA': { 'Carbohidratos': 'Fajitas medianas', 'Proteina Magra': 'Pechuga de pollo' }
   };
 
   // Índice del último template usado por tipo de comida (para no repetir)
@@ -360,7 +361,7 @@ export class FoodCalculatorService {
     ],
     'COMIDA': [
       { // Carne con arroz/pasta y ensalada
-        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Lomo de cerdo'],
+        'Proteina Magra': ['Pechuga de pollo', 'Carne roja magra', 'Lomo de cerdo'],
         'Proteina Semi-Magra': ['Huevo'],
         'Carbohidratos': ['Arroz', 'Pasta', 'Quinoa', 'Patata', 'Cous-cous'],
         'Grasas': ['Aceite de oliva', 'Aguacate', 'Aceituna verde (deshuesadas)', 'Aceitunas negras'],
@@ -373,14 +374,14 @@ export class FoodCalculatorService {
         'Vegetales': ['Brócoli', 'Espárragos', 'Calabacín', 'Espinaca', 'Pimiento', 'Tomate', 'Vainitas', 'Zanahoria']
       },
       { // Legumbres con arroz y verduras
-        'Proteina Magra': ['Pechuga de pollo/pavo', 'Lomo de cerdo'],
+        'Proteina Magra': ['Pechuga de pollo', 'Lomo de cerdo'],
         'Legumbres': ['Lentejas', 'Garbanzos', 'Frijoles/caraotas/alubias'],
         'Carbohidratos': ['Arroz', 'Pan blanco o integral de barra', 'Pan Árabe'],
         'Grasas': ['Aceite de oliva'],
         'Vegetales': ['Tomate', 'Cebolla', 'Pimiento', 'Zanahoria', 'Espinaca']
       },
       { // Wrap/fajita con carne
-        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Atún al natural en lata'],
+        'Proteina Magra': ['Pechuga de pollo', 'Carne roja magra', 'Atún al natural en lata'],
         'Carbohidratos': ['Fajitas medianas', 'Pan Árabe'],
         'Grasas': ['Aguacate', 'Aceite de oliva', 'Mayonesa', 'Hummus'],
         'Vegetales': ['Lechuga', 'Tomate', 'Pimiento', 'Cebolla', 'Pepino']
@@ -388,14 +389,14 @@ export class FoodCalculatorService {
     ],
     'CENA': [
       { // Fajitas con pollo y crema de verduras
-        'Proteina Magra': ['Pechuga de pollo/pavo'],
+        'Proteina Magra': ['Pechuga de pollo'],
         'Proteina Semi-Magra': ['Huevo'],
         'Carbohidratos': ['Fajitas medianas'],
         'Grasas': ['Aceite de oliva', 'Aguacate', 'Queso Crema normal'],
         'Vegetales': ['Calabacín', 'Brócoli', 'Espinaca', 'Calabaza', 'Zanahoria', 'Coliflor', 'Pimiento']
       },
       { // Carne con acompañamiento y ensalada
-        'Proteina Magra': ['Pechuga de pollo/pavo', 'Carne roja magra', 'Lomo de cerdo'],
+        'Proteina Magra': ['Pechuga de pollo', 'Carne roja magra', 'Lomo de cerdo'],
         'Proteina Semi-Magra': ['Huevo'],
         'Carbohidratos': ['Arroz', 'Pasta', 'Quinoa', 'Patata', 'Boniato'],
         'Grasas': ['Aceite de oliva', 'Aguacate', 'Aceituna verde (deshuesadas)'],
@@ -422,7 +423,7 @@ export class FoodCalculatorService {
         'Vegetales': ['Tomate', 'Pimiento', 'Cebolla', 'Espinaca', 'Hongos', 'Calabacín']
       },
       { // Wrap/fajita nocturna
-        'Proteina Magra': ['Pechuga de pollo/pavo', 'Atún al natural en lata', 'Jamón de pollo/pavo'],
+        'Proteina Magra': ['Pechuga de pollo', 'Atún al natural en lata', 'Jamón de pollo/pavo'],
         'Carbohidratos': ['Fajitas medianas', 'Pan Árabe', 'Pan de molde'],
         'Grasas': ['Aguacate', 'Aceite de oliva', 'Hummus', 'Mayonesa'],
         'Vegetales': ['Lechuga', 'Tomate', 'Pepino', 'Cebolla', 'Pimiento']
@@ -666,7 +667,7 @@ export class FoodCalculatorService {
       if (food.gramos.toLowerCase().includes('g')) {
         // Solo mostrar "crudo" para alimentos que se miden crudos y se cocinan
         const rawToCookedFoods = [
-          'Pescado blanco', 'Pechuga de pollo/pavo', 'Clara de huevo',
+          'Pescado blanco', 'Pechuga de pollo', 'Pechuga de pavo', 'Clara de huevo',
           'Carne roja magra', 'Lomo de cerdo', 'Salmón',
           'Carne de cerdo (graso)', 'Carne roja grasa',
           'Patata', 'Gnocchis', 'Boniato', 'Plátano macho'

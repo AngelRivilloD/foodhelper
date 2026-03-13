@@ -30,6 +30,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   celebrationProgress = 0;
   celebrationCalories = 0;
   showConfirmedMenu: string | null = null;
+  showIngredientMenu: string | null = null;
+  animatingPortions = new Set<string>();
 
   // Fixed meal plan
   mealPlanMode: 'dynamic' | 'fixed' = 'dynamic';
@@ -245,6 +247,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
     if (currentItem) {
       this.adjustPortions(category, food, currentItem.portions + 1);
+      this.triggerPortionAnimation(category, food);
     }
   }
 
@@ -253,12 +256,22 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     if (currentItem && currentItem.portions > 0) {
       const newPortions = currentItem.portions - 1;
       if (newPortions === 0) {
-        // Si llega a 0, remover el alimento
         this.removeFoodFromPlan(category, food);
       } else {
         this.adjustPortions(category, food, newPortions);
+        this.triggerPortionAnimation(category, food);
       }
     }
+  }
+
+  private triggerPortionAnimation(category: string, food: FoodItem): void {
+    const id = this.getItemId(category, food);
+    this.animatingPortions.delete(id);
+    // Force reflow so re-adding the class restarts the animation
+    requestAnimationFrame(() => {
+      this.animatingPortions.add(id);
+      setTimeout(() => this.animatingPortions.delete(id), 350);
+    });
   }
 
   // Obtener total de porciones usadas en una categoría
@@ -466,7 +479,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   // Obtener el peso a mostrar (siempre cocinado cuando aplica)
   // Alimentos que se miden crudos y se cocinan (carnes, pescados, tubérculos)
   private readonly rawToCookedFoods = [
-    'Pescado blanco', 'Pechuga de pollo/pavo', 'Clara de huevo',
+    'Pescado blanco', 'Pechuga de pollo', 'Pechuga de pavo', 'Clara de huevo',
     'Carne roja magra', 'Lomo de cerdo', 'Salmón',
     'Carne de cerdo (graso)', 'Carne roja grasa',
     'Patata', 'Gnocchis', 'Boniato', 'Plátano macho'
@@ -540,6 +553,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.showAddFood = null;
     this.showSummaryAlternatives = null;
     this.showConfirmedMenu = null;
+    this.showIngredientMenu = null;
   }
 
   // Obtener el icono del alimento actual en la categoría
@@ -595,7 +609,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
       'Frijoles/caraotas/alubias': '🫘',
 
       // Proteína Magra
-      'Pechuga de pollo/pavo': '🍗',
+      'Pechuga de pollo': '🍗',
+      'Pechuga de pavo': '🍗',
       'Pescado blanco': '🐟',
       'Camarones/gambas': '🦐',
       'Atún al natural en lata': '🐟',

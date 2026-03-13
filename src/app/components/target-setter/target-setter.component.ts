@@ -150,7 +150,7 @@ export class TargetSetterComponent implements OnInit, OnChanges {
       'Granola baja en grasa': '🥣', 'Pan Árabe': '🫓', 'Pan Wasa': '🍞', 'Galleta María': '🍪',
       'Casabe': '🍞', 'Tortilla para fajitas': '🌮',
       'Lentejas': '🫘', 'Garbanzos': '🫘', 'Frijoles/caraotas/alubias': '🫘',
-      'Pescado blanco': '🐟', 'Atún al natural en lata': '🐟', 'Pechuga de pollo/pavo': '🍗',
+      'Pescado blanco': '🐟', 'Atún al natural en lata': '🐟', 'Pechuga de pollo': '🍗', 'Pechuga de pavo': '🍗',
       'Camarones/gambas': '🦐', 'Clara de huevo': '🥚', 'Jamón de pollo/pavo': '🥩',
       'Lomo embuchado': '🥩', 'Carne roja magra': '🥩', 'Proteína en polvo': '🥤',
       'Proteína en polvo (whey y vegana)': '🥤', 'Lomo de cerdo': '🍖', 'Soja': '🫘', 'Seitán': '🌾',
