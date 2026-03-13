@@ -7,13 +7,13 @@
   padding: 0 20px 0 16px;
   border-radius: 22px;
   border: none;
-  background: linear-gradient(135deg, #6de089 0%, #34c759 100%);
+  background: linear-gradient(135deg, #c9a66b 0%, #8B7355 100%);
   color: #fff;
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(52, 199, 89, 0.35);
+  box-shadow: 0 4px 20px rgba(139, 115, 85, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   z-index: 999;
   -webkit-tap-highlight-color: transparent;
@@ -35,7 +35,7 @@
 
 .voice-fab:hover {
   transform: scale(1.03);
-  box-shadow: 0 6px 25px rgba(52, 199, 89, 0.45);
+  box-shadow: 0 6px 25px rgba(139, 115, 85, 0.45);
 }
 
 .voice-fab:active {
@@ -48,7 +48,7 @@
   position: absolute;
   inset: 0;
   border-radius: 22px;
-  background: linear-gradient(135deg, #6de089 0%, #34c759 100%);
+  background: linear-gradient(135deg, #c9a66b 0%, #8B7355 100%);
   animation: breathing 2s ease-in-out infinite;
   z-index: -1;
 }

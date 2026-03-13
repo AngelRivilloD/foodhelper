@@ -18,6 +18,15 @@
       <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
     </div>
     <div class="celebration-title">{{ confirmText }}</div>
+    <div class="celebration-progress">
+      <div class="celebration-progress-track">
+        <div class="celebration-progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <div class="celebration-progress-label">
+        <span class="progress-percent">{{ progressPercent }}% del día</span>
+        <span class="progress-kcal">~{{ totalCalories }} kcal</span>
+      </div>
+    </div>
     <div class="celebration-message">{{ message }}</div>
     <div class="celebration-streak">
       <span class="streak-emoji">🔥</span>

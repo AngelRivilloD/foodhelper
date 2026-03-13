@@ -110,7 +110,6 @@
                     <button
                       class="portion-btn increment"
                       (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
-                      [disabled]="!canAddMorePortions(category.key)"
                       aria-label="Incrementar porciones">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -247,8 +246,7 @@
               </span>
             </div>
             <button class="summary-portion-btn increment"
-                    (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
-                    [disabled]="!canAddMorePortions(category.key)">
+                    (click)="incrementPortions(category.key, item.food); $event.stopPropagation()">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -257,16 +255,7 @@
           </div>
         </div>
       </div>
-      <div class="menu-action-buttons">
-        <button class="menu-action-btn" [class.active]="showCategories" (click)="showCategories = !showCategories; $event.stopPropagation()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Editar porciones
-        </button>
-        <button class="menu-action-btn" *ngIf="!showCategories" (click)="regenerateMeal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" x2="21" y1="20" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" x2="21" y1="15" y2="21"/><line x1="4" x2="9" y1="4" y2="9"/></svg>
-          Menú aleatorio
-        </button>
-      </div>
+      <!-- menu-action-buttons removed -->
 
       <!-- Confirm button (only if not confirmed) -->
       <button class="confirm-meal-btn"
@@ -305,6 +294,8 @@
       [mealType]="celebrationMealType"
       [mealLabel]="celebrationMealLabel"
       [streakCount]="(dailyProgressService.streak$ | async)?.count || 1"
+      [progressPercent]="celebrationProgress"
+      [totalCalories]="celebrationCalories"
       (dismiss)="onCelebrationDismiss()">
     </app-celebration>
 

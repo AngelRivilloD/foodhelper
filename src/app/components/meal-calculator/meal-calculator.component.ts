@@ -27,6 +27,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   showCelebration = false;
   celebrationMealType = '';
   celebrationMealLabel = '';
+  celebrationProgress = 0;
+  celebrationCalories = 0;
   showConfirmedMenu: string | null = null;
 
   // Fixed meal plan
@@ -242,12 +244,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   incrementPortions(category: string, food: FoodItem): void {
     const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
     if (currentItem) {
-      const totalUsed = this.getTotalPortionsUsed(category);
-      const targetPortions = this.getTargetValue(category);
-      // Solo permitir incrementar si no se excede el objetivo
-      if (totalUsed < targetPortions) {
-        this.adjustPortions(category, food, currentItem.portions + 1);
-      }
+      this.adjustPortions(category, food, currentItem.portions + 1);
     }
   }
 
@@ -783,6 +780,10 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.dailyProgressService.confirmMeal(this.selectedMealType, this.mealPlan);
     this.celebrationMealType = this.selectedMealType;
     this.celebrationMealLabel = this.getMealTypeLabel();
+
+    this.celebrationProgress = this.dailyProgressService.getDailyProgressPercentage(this.getDailyTargetForProgress());
+    this.celebrationCalories = this.dailyProgressService.getEstimatedCalories();
+
     this.showCelebration = true;
   }
 

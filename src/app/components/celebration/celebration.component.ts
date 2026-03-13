@@ -10,6 +10,8 @@ export class CelebrationComponent implements OnInit {
   @Input() mealType: string = '';
   @Input() mealLabel: string = '';
   @Input() streakCount: number = 1;
+  @Input() progressPercent: number = 0;
+  @Input() totalCalories: number = 0;
   @Output() dismiss = new EventEmitter<void>();
 
   message = '';
@@ -30,7 +32,7 @@ export class CelebrationComponent implements OnInit {
     this.playSound();
     this.vibrate();
 
-    setTimeout(() => this.dismiss.emit(), 2500);
+    setTimeout(() => this.dismiss.emit(), 4000);
   }
 
   private generateConfetti(): void {
