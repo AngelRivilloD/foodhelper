@@ -96,6 +96,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     });
 
     this.dailyProgressService.initialize(this.currentProfile);
+
+    // Restore confirmed meal plan if default meal type was already confirmed
+    if (this.dailyProgressService.isMealConfirmed(this.selectedMealType)) {
+      const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
+      if (confirmedPlan) {
+        this.mealPlan = JSON.parse(JSON.stringify(confirmedPlan));
+      }
+    }
   }
 
   ngAfterViewInit(): void {
@@ -333,14 +341,15 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     
     // Simular un pequeño delay para mostrar el skeleton
     setTimeout(() => {
-      this.generateMealPlanForMeal();
-      this.isLoading = false;
       if (this.dailyProgressService.isMealConfirmed(this.selectedMealType)) {
         const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
         if (confirmedPlan) {
           this.mealPlan = JSON.parse(JSON.stringify(confirmedPlan));
         }
+      } else {
+        this.generateMealPlanForMeal();
       }
+      this.isLoading = false;
     }, 500);
   }
 
