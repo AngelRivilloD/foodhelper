@@ -1,0 +1,58 @@
+<div class="daily-progress-card" [class.all-confirmed]="isAllConfirmed()" (click)="toggleExpanded()">
+  <!-- Header row -->
+  <div class="dp-header">
+    <span class="dp-title">Mi día</span>
+    <div class="dp-header-right">
+      <span class="dp-streak">🔥 {{ streak.count }}</span>
+      <svg class="dp-chevron" [class.rotated]="expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
+  <!-- Meal pills -->
+  <div class="dp-pills">
+    <div *ngFor="let meal of mealTypes"
+         class="dp-pill"
+         [class.confirmed]="isMealConfirmed(meal.key)"
+         [class.pending]="!isMealConfirmed(meal.key)">
+      <!-- Confirmed: circle-check -->
+      <svg *ngIf="isMealConfirmed(meal.key)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+      <!-- Pending: circle -->
+      <svg *ngIf="!isMealConfirmed(meal.key)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+      <span class="dp-pill-label">{{ meal.label }}</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="dp-progress-row">
+    <div class="dp-progress-track">
+      <div class="dp-progress-fill" [style.width.%]="getProgressPercentage()" [style.background]="getProgressGradient()"></div>
+    </div>
+    <span class="dp-progress-text" [style.color]="getProgressColor()">{{ getProgressPercentage() }}%</span>
+  </div>
+
+  <!-- Expanded section -->
+  <div class="dp-expanded" *ngIf="expanded" (click)="$event.stopPropagation()">
+    <div class="dp-expanded-header">
+      <span class="dp-expanded-title">Porciones totales del día</span>
+      <span class="dp-expanded-kcal">~{{ getTotalCalories() }} kcal</span>
+    </div>
+
+    <div class="dp-category-list">
+      <div class="dp-category-row" *ngFor="let cat of getActiveCategories()">
+        <div class="dp-cat-info">
+          <span class="dp-cat-icon">{{ cat.icon }}</span>
+          <span class="dp-cat-name">{{ cat.label }}</span>
+        </div>
+        <div class="dp-cat-right">
+          <span class="dp-cat-portions" [class.complete]="isCategoryComplete(cat.key)">{{ getConsumedPortions(cat.key) }}/{{ getTargetPortions(cat.key) }} porc</span>
+        </div>
+        <div class="dp-cat-bar-container">
+          <div class="dp-cat-bar-track">
+            <div class="dp-cat-bar-fill" [style.width.%]="getCategoryBarWidth(cat.key)" [style.background]="cat.color"></div>
+          </div>
+          <span class="dp-cat-kcal">~{{ getCategoryCalories(cat.key) }} kcal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

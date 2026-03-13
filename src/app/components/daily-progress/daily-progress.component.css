@@ -1,0 +1,240 @@
+.daily-progress-card {
+  background: #fff;
+  padding: 16px 20px;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  border: 1.5px solid transparent;
+}
+
+.daily-progress-card.all-confirmed {
+  border-color: #34c75933;
+}
+
+.dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.dp-title {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+.dp-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dp-streak {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  color: #b68f5e;
+  font-weight: 600;
+}
+
+.dp-chevron {
+  transition: transform 0.3s ease;
+}
+
+.dp-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.dp-pills {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.dp-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.dp-pill.confirmed {
+  background: #f0faf3;
+}
+
+.dp-pill.pending {
+  background: #F5F0E8;
+  opacity: 0.6;
+}
+
+.dp-pill-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dp-pill.confirmed .dp-pill-label {
+  color: #34c759;
+}
+
+.dp-pill.pending .dp-pill-label {
+  color: #999;
+  font-weight: 500;
+}
+
+.dp-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dp-progress-track {
+  flex: 1;
+  height: 8px;
+  background: #EDE8E0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.dp-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease, background 0.5s ease;
+}
+
+.dp-progress-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Expanded section */
+.dp-expanded {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #F5F0E8;
+  cursor: default;
+}
+
+.dp-expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.dp-expanded-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.dp-expanded-kcal {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #999;
+}
+
+.dp-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dp-category-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.dp-cat-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 100px;
+}
+
+.dp-cat-icon {
+  font-size: 0.9rem;
+}
+
+.dp-cat-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.dp-cat-right {
+  text-align: right;
+}
+
+.dp-cat-portions {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #999;
+}
+
+.dp-cat-portions.complete {
+  color: #34c759;
+}
+
+.dp-cat-bar-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dp-cat-bar-track {
+  flex: 1;
+  height: 5px;
+  background: #EDE8E0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dp-cat-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.dp-cat-kcal {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem;
+  color: #bbb;
+  min-width: 55px;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .daily-progress-card {
+    margin: 0 0 16px 0;
+    order: 1;
+  }
+
+  .dp-pill-label {
+    font-size: 0.65rem;
+  }
+
+  .dp-pill {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+}
