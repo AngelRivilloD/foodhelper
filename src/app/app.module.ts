@@ -9,6 +9,8 @@ import { MealCalculatorComponent } from './components/meal-calculator/meal-calcu
 import { HamburgerMenuComponent } from './components/hamburger-menu/hamburger-menu.component';
 import { ProfileSelectorComponent } from './components/profile-selector/profile-selector.component';
 import { VoiceInputComponent } from './components/voice-input/voice-input.component';
+import { DailyProgressComponent } from './components/daily-progress/daily-progress.component';
+import { CelebrationComponent } from './components/celebration/celebration.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { VoiceInputComponent } from './components/voice-input/voice-input.compon
     MealCalculatorComponent,
     HamburgerMenuComponent,
     ProfileSelectorComponent,
-    VoiceInputComponent
+    VoiceInputComponent,
+    DailyProgressComponent,
+    CelebrationComponent
   ],
   imports: [
     BrowserModule,
