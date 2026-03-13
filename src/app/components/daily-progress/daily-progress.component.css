@@ -1,29 +1,19 @@
-.daily-progress-card {
-  background: #fff;
-  padding: 16px 20px;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+.daily-progress {
   margin-bottom: 20px;
   cursor: pointer;
-  transition: border-color 0.3s ease;
-  border: 1.5px solid transparent;
-}
-
-.daily-progress-card.all-confirmed {
-  border-color: #34c75933;
 }
 
 .dp-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .dp-title {
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
   color: #222;
 }
 
@@ -35,7 +25,7 @@
 
 .dp-streak {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #b68f5e;
   font-weight: 600;
 }
@@ -46,49 +36,6 @@
 
 .dp-chevron.rotated {
   transform: rotate(180deg);
-}
-
-.dp-pills {
-  display: flex;
-  justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
-.dp-pill {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 4px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.dp-pill.confirmed {
-  background: #f0faf3;
-}
-
-.dp-pill.pending {
-  background: #F5F0E8;
-  opacity: 0.6;
-}
-
-.dp-pill-label {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.dp-pill.confirmed .dp-pill-label {
-  color: #34c759;
-}
-
-.dp-pill.pending .dp-pill-label {
-  color: #999;
-  font-weight: 500;
 }
 
 .dp-progress-row {
@@ -122,8 +69,10 @@
 /* Expanded section */
 .dp-expanded {
   margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid #F5F0E8;
+  padding: 16px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   cursor: default;
 }
 
@@ -225,17 +174,7 @@
 }
 
 @media (max-width: 768px) {
-  .daily-progress-card {
+  .daily-progress {
     margin: 0 0 16px 0;
-    order: 1;
-  }
-
-  .dp-pill-label {
-    font-size: 0.65rem;
-  }
-
-  .dp-pill {
-    padding: 6px 4px;
-    gap: 3px;
   }
 }

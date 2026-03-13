@@ -803,8 +803,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.generateMealPlanForMeal();
   }
 
-  isMealConfirmed(): boolean {
-    return this.dailyProgressService.isMealConfirmed(this.selectedMealType);
+  isMealConfirmed(mealKey?: string): boolean {
+    return this.dailyProgressService.isMealConfirmed(mealKey || this.selectedMealType);
   }
 
   getDailyTargetForProgress(): { [category: string]: number } {

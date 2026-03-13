@@ -15,26 +15,26 @@
     </div>
   </header>
 
-  <!-- Dynamic mode: Título + Selector de tipo de comida -->
-  <header class="header" *ngIf="mealPlanMode === 'dynamic'">
-    <h2>Plan <span class="hide-mobile">de comidas </span>de {{ currentProfile }}</h2>
-    <div class="meal-type-selector">
-      <div class="meal-type-buttons">
-        <button
-          *ngFor="let mealType of mealTypes"
-          class="meal-type-btn"
-          [class.active]="selectedMealType === mealType.key"
-          (click)="selectMealType(mealType.key)">
-          {{ mealType.label }}
-        </button>
-      </div>
-    </div>
-  </header>
-
+  <!-- Dynamic mode: Daily progress first, then meal type selector -->
   <app-daily-progress
     *ngIf="mealPlanMode === 'dynamic'"
-    [dailyTarget]="getDailyTargetForProgress()">
+    [dailyTarget]="getDailyTargetForProgress()"
+    [profileName]="currentProfile">
   </app-daily-progress>
+
+  <div class="meal-type-selector" *ngIf="mealPlanMode === 'dynamic'">
+    <div class="meal-type-buttons">
+      <button
+        *ngFor="let mealType of mealTypes"
+        class="meal-type-btn"
+        [class.active]="selectedMealType === mealType.key"
+        [class.confirmed]="isMealConfirmed(mealType.key)"
+        (click)="selectMealType(mealType.key)">
+        <svg *ngIf="isMealConfirmed(mealType.key)" class="meal-check-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        {{ mealType.label }}
+      </button>
+    </div>
+  </div>
 
   <!-- ============ DYNAMIC MODE ============ -->
   <ng-container *ngIf="mealPlanMode === 'dynamic'">
@@ -212,13 +212,6 @@
       <div class="simple-list ingredients-card">
         <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
           <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
-            <button class="summary-portion-btn decrement"
-                    (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
-                    [disabled]="item.portions <= 0">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
             <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
             <div class="ingredient-text clickable"
                  (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
@@ -245,25 +238,42 @@
                 <span class="ingredient-portions">· {{ item.portions }} porc</span>
               </span>
             </div>
-            <button class="summary-portion-btn increment"
-                    (click)="incrementPortions(category.key, item.food); $event.stopPropagation()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
+            <div class="summary-portion-controls">
+              <button class="summary-portion-btn decrement"
+                      (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
+                      [disabled]="item.portions <= 0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <button class="summary-portion-btn increment"
+                      (click)="incrementPortions(category.key, item.food); $event.stopPropagation()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
       <!-- menu-action-buttons removed -->
 
-      <!-- Confirm button (only if not confirmed) -->
-      <button class="confirm-meal-btn"
-              *ngIf="!isMealConfirmed()"
-              (click)="confirmMeal(); $event.stopPropagation()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Confirmar {{ getMealTypeLabel() }}
-      </button>
+      <!-- Action row: voice + confirm -->
+      <div class="action-row" *ngIf="!isMealConfirmed()">
+        <app-voice-input
+          [mealType]="selectedMealType"
+          [mealPlanMode]="mealPlanMode"
+          [categories]="voiceCategories"
+          [portionsMap]="voicePortionsMapCache"
+          (apply)="onVoiceApply($event)">
+        </app-voice-input>
+        <button class="confirm-meal-btn"
+                (click)="confirmMeal(); $event.stopPropagation()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirmar {{ getMealTypeLabel() }}
+        </button>
+      </div>
 
       <!-- Confirmed state with ellipsis menu -->
       <div class="confirmed-state" *ngIf="isMealConfirmed()">
@@ -299,13 +309,6 @@
       (dismiss)="onCelebrationDismiss()">
     </app-celebration>
 
-    <app-voice-input
-      [mealType]="selectedMealType"
-      [mealPlanMode]="mealPlanMode"
-      [categories]="voiceCategories"
-      [portionsMap]="voicePortionsMapCache"
-      (apply)="onVoiceApply($event)">
-    </app-voice-input>
   </ng-container>
 
   <!-- ============ FIXED MODE ============ -->

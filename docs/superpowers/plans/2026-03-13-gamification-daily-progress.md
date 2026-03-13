@@ -864,7 +864,7 @@ git commit -m "feat: add confirm button, ellipsis menu, and portion controls in 
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1.5px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;

@@ -10,6 +10,7 @@ import { DailyMealState, StreakState, CALORIES_PER_PORTION } from '../../models/
 })
 export class DailyProgressComponent implements OnInit, OnDestroy {
   @Input() dailyTarget: { [category: string]: number } = {};
+  @Input() profileName: string = '';
 
   expanded = false;
   dailyState: DailyMealState = { date: '', meals: {} };

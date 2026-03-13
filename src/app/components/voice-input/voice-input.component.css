@@ -1,41 +1,58 @@
 /* ===== Voice Button ===== */
 .voice-fab {
-  position: fixed;
-  bottom: 100px;
-  right: 20px;
-  height: 44px;
-  padding: 0 20px 0 16px;
-  border-radius: 22px;
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #c9a66b 0%, #8B7355 100%);
-  color: #fff;
+  background: #fff;
+  color: #8B7355;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-shrink: 0;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(139, 115, 85, 0.35);
+  box-shadow: 0 2px 8px rgba(139, 115, 85, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: 999;
   -webkit-tap-highlight-color: transparent;
 }
 
-.voice-fab-label {
+.voice-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 500;
   white-space: nowrap;
-  letter-spacing: 0.01em;
+  padding: 6px 12px;
+  border-radius: 8px;
+  animation: tooltipFade 3s ease forwards;
+  pointer-events: none;
 }
 
-@media (min-width: 769px) {
-  .voice-fab {
-    bottom: 28px;
-  }
+.voice-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #222;
+}
+
+@keyframes tooltipFade {
+  0%, 70% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 .voice-fab:hover {
   transform: scale(1.03);
-  box-shadow: 0 6px 25px rgba(139, 115, 85, 0.45);
+  background: #f9f7f4;
+  box-shadow: 0 6px 20px rgba(139, 115, 85, 0.2);
 }
 
 .voice-fab:active {
@@ -47,8 +64,8 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #c9a66b 0%, #8B7355 100%);
+  border-radius: 50%;
+  background: #fff;
   animation: breathing 2s ease-in-out infinite;
   z-index: -1;
 }

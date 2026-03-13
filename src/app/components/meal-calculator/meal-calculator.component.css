@@ -24,8 +24,7 @@
 }
 
 .meal-type-selector {
-  margin-top: 14px;
-  text-align: center;
+  margin-bottom: 16px;
 }
 
 .summary-hint {
@@ -42,21 +41,38 @@
 
 .meal-type-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -20px;
+  padding: 6px 20px;
+}
+
+.meal-type-buttons::-webkit-scrollbar {
+  display: none;
+}
+
+.meal-type-buttons::after {
+  content: '';
+  min-width: 1px;
+  flex-shrink: 0;
 }
 
 .meal-type-btn {
-  background: #F5F0E8;
+  background: #fff;
   border: none;
   color: #666;
   padding: 8px 16px;
   border-radius: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .meal-type-btn:hover {
@@ -65,10 +81,31 @@
 }
 
 .meal-type-btn.active {
-  background: linear-gradient(131deg, #b68f5e 0%, #8d6e47 100%);
-  color: #FFFFFF;
+  background: #F5F0E8;
+  color: #8B7355;
+  font-weight: 600;
+  box-shadow: none;
 }
 
+.meal-type-btn.confirmed:not(.active) {
+  color: #666;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.meal-type-btn.confirmed:not(.active) .meal-check-icon {
+  color: #34c759;
+}
+
+.meal-check-icon {
+  flex-shrink: 0;
+}
+
+.meal-type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 
 .meal-categories {
   display: flex;
@@ -606,9 +643,6 @@
 
 .ingredient-text.clickable:hover .ingredient-name {
   color: #8B7355;
-  text-decoration: underline;
-  text-decoration-color: #C4B8A8;
-  text-underline-offset: 2px;
 }
 
 /* Dropdown en el resumen de ingredientes */
@@ -701,7 +735,7 @@
 .simple-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 32px;
   padding: 8px 0;
 }
 
@@ -716,7 +750,7 @@
 .ingredient-line {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
   position: relative;
 }
 
@@ -755,7 +789,7 @@
 
 .ingredient-amount {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: #bbb;
 }
@@ -1019,12 +1053,16 @@
   }
 
   .header {
-    order: 1;
+    order: 2;
   }
 
   app-daily-progress {
-    order: 2;
+    order: 1;
     display: block;
+  }
+
+  .meal-type-selector {
+    order: 2;
   }
 
   .ingredients-summary {
@@ -1052,6 +1090,8 @@
 
   .meal-type-buttons {
     gap: 8px;
+    margin: 0 -32px;
+    padding: 6px 32px;
   }
 
   .meal-type-btn {
@@ -1155,14 +1195,20 @@
 
 app-voice-input {
   display: block;
-  order: 5;
 }
 
-/* Summary portion controls (replacing swap arrows) */
+/* Summary portion controls */
+.summary-portion-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
 .summary-portion-btn {
   background: #FFFFFF;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1.5px solid #e0e0e0;
   cursor: pointer;
@@ -1199,20 +1245,27 @@ app-voice-input {
   font-weight: 500;
 }
 
-/* Food name clickable underline in summary */
+/* Food name clickable in summary */
 .ingredient-name-wrapper .ingredient-name {
-  text-decoration: underline;
-  text-decoration-color: #d4c4a8;
-  text-underline-offset: 2px;
+  text-decoration: none;
+}
+
+/* Action row: voice + confirm */
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 /* Confirm meal button */
 .confirm-meal-btn {
-  width: 100%;
+  flex: 1;
   padding: 14px;
-  background: linear-gradient(131deg, #34c759 0%, #2da44e 100%);
+  white-space: nowrap;
+  background: linear-gradient(131deg, #b68f5e 0%, #8d6e47 100%);
   border: none;
-  border-radius: 14px;
+  border-radius: 24px;
   color: #fff;
   font-family: 'DM Sans', sans-serif;
   font-size: 0.95rem;
@@ -1222,14 +1275,13 @@ app-voice-input {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.25);
-  margin-top: 14px;
+  box-shadow: 0 4px 16px rgba(139, 115, 85, 0.25);
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .confirm-meal-btn:hover {
-  box-shadow: 0 6px 20px rgba(52, 199, 89, 0.35);
+  box-shadow: 0 6px 20px rgba(139, 115, 85, 0.35);
   transform: translateY(-1px);
 }
 

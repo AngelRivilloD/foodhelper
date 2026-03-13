@@ -1,24 +1,10 @@
-<div class="daily-progress-card" [class.all-confirmed]="isAllConfirmed()" (click)="toggleExpanded()">
+<div class="daily-progress" (click)="toggleExpanded()">
   <!-- Header row -->
   <div class="dp-header">
-    <span class="dp-title">Mi día</span>
+    <span class="dp-title">{{ profileName }}, así vas hoy</span>
     <div class="dp-header-right">
       <span class="dp-streak">🔥 {{ streak.count }}</span>
       <svg class="dp-chevron" [class.rotated]="expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-  </div>
-
-  <!-- Meal pills -->
-  <div class="dp-pills">
-    <div *ngFor="let meal of mealTypes"
-         class="dp-pill"
-         [class.confirmed]="isMealConfirmed(meal.key)"
-         [class.pending]="!isMealConfirmed(meal.key)">
-      <!-- Confirmed: circle-check -->
-      <svg *ngIf="isMealConfirmed(meal.key)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-      <!-- Pending: circle -->
-      <svg *ngIf="!isMealConfirmed(meal.key)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
-      <span class="dp-pill-label">{{ meal.label }}</span>
     </div>
   </div>
 
