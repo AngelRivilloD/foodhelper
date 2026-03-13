@@ -1022,8 +1022,13 @@
     order: 1;
   }
 
-  .ingredients-summary {
+  app-daily-progress {
     order: 2;
+    display: block;
+  }
+
+  .ingredients-summary {
+    order: 3;
     margin-top: 0;
     margin-bottom: 0;
   }
@@ -1042,7 +1047,7 @@
   }
 
   .meal-categories {
-    order: 3;
+    order: 4;
   }
 
   .meal-type-buttons {
@@ -1103,7 +1108,7 @@
   }
 
   .fixed-plan-view {
-    order: 2;
+    order: 3;
   }
 
 }
@@ -1150,6 +1155,7 @@
 
 app-voice-input {
   display: block;
+  order: 5;
 }
 
 /* Summary portion controls (replacing swap arrows) */
