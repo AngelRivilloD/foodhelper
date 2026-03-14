@@ -218,14 +218,11 @@
       </div>
       <div class="simple-list ingredients-card">
         <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
-          <div class="ingredient-item" [class.ingredient-empty]="item.portions === 0" *ngFor="let item of mealPlan[category.key]"
+          <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]"
                (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
-            <span class="ingredient-icon">{{ item.portions > 0 ? getFoodIcon(item.food.alimento) : category.icon }}</span>
-            <div class="ingredient-text" *ngIf="item.portions === 0">
-              <span class="ingredient-name ingredient-name-empty">Escoge {{ getCategoryArticle(category.label) }}</span>
-              <span class="ingredient-meta">{{ category.label }}</span>
-            </div>
-            <div class="ingredient-text clickable" *ngIf="item.portions > 0">
+            <ng-container *ngIf="item.portions > 0">
+            <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
+            <div class="ingredient-text clickable">
               <span class="ingredient-name">{{ item.food.alimento }}</span>
               <span class="ingredient-weight">
                 <span class="ingredient-portions" [class.portion-bumping]="animatingPortions.has(getItemId(category.key, item.food))">{{ item.portions }} porc</span>
@@ -262,6 +259,7 @@
                 <span class="daily-limit-tooltip" *ngIf="dailyLimitTooltip === category.key">Límite diario alcanzado</span>
               </div>
             </div>
+            </ng-container>
           </div>
         </div>
       </div>
