@@ -267,7 +267,7 @@
       </div>
       <!-- menu-action-buttons removed -->
 
-      <!-- Action row: voice + confirm -->
+      <!-- Action row: voice + add food + confirm -->
       <div class="action-row">
         <app-voice-input *ngIf="!isMealConfirmed()"
           [mealType]="selectedMealType"
@@ -276,6 +276,9 @@
           [portionsMap]="voicePortionsMapCache"
           (apply)="onVoiceApply($event)">
         </app-voice-input>
+        <button class="add-food-circle-btn" (click)="openAddFoodModal(); $event.stopPropagation()" title="Añadir alimento">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
         <button class="confirm-meal-btn"
                 [class.confirmed]="isMealConfirmed() && !mealModified"
                 (click)="onConfirmClick(); $event.stopPropagation()">
@@ -294,6 +297,14 @@
       [totalCalories]="celebrationCalories"
       (dismiss)="onCelebrationDismiss()">
     </app-celebration>
+
+    <app-add-food-modal
+      *ngIf="showAddFoodModal"
+      [mealType]="selectedMealType"
+      [blockedCategories]="getBlockedCategories()"
+      (addFood)="onAddFoodFromModal($event)"
+      (close)="closeAddFoodModal()">
+    </app-add-food-modal>
 
   </ng-container>
 

@@ -34,6 +34,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   showIngredientMenu: string | null = null;
   animatingPortions = new Set<string>();
   mealModified = false;
+  showAddFoodModal = false;
   dailyLimitTooltip: string | null = null;
   private dailyLimitTooltipTimeout: any = null;
 
@@ -927,6 +928,39 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
       return entry;
     }
     return null;
+  }
+
+  openAddFoodModal(): void {
+    this.showAddFoodModal = true;
+  }
+
+  closeAddFoodModal(): void {
+    this.showAddFoodModal = false;
+  }
+
+  onAddFoodFromModal(event: { food: FoodItem, portions: number }): void {
+    // Check if food already exists — if so, add portions on top
+    const existing = this.mealPlan[event.food.category]?.find(
+      item => item.food.alimento === event.food.alimento
+    );
+    if (existing) {
+      this.adjustPortions(event.food.category, event.food, existing.portions + event.portions);
+    } else {
+      this.addFoodToPlan(event.food.category, event.food);
+      if (event.portions > 1) {
+        this.adjustPortions(event.food.category, event.food, event.portions);
+      }
+    }
+  }
+
+  getBlockedCategories(): Set<string> {
+    const blocked = new Set<string>();
+    for (const cat of this.macroCategories) {
+      if (this.isCategoryAtDailyLimit(cat.key)) {
+        blocked.add(cat.key);
+      }
+    }
+    return blocked;
   }
 
   getFixedMealsForDay(day: string): { key: string, label: string, icon: string, time: string, entry: FixedMealEntry }[] {
