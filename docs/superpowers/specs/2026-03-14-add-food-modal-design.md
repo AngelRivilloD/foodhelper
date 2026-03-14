@@ -11,12 +11,10 @@ A bottom sheet modal triggered by a new circular button (next to the microphone)
 ## 1. Add Food Button
 
 - Circular button, same size and style as the existing microphone button
-- Positioned next to the mic button
-- Icon: `+` (Lucide `plus`)
+- Positioned in the `.action-row` next to the mic button (this row is already inside the `*ngIf="mealPlanMode === 'dynamic'"` block, so no separate `*ngIf` needed for fixed mode)
+- Icon: `+` inline SVG (matching existing codebase pattern)
 - Color: accent `#b68f5e`, consistent with the app theme
-- Visible whenever a meal type is selected (note: `selectedMealType` always has a value based on time of day)
-- Hidden when profile mode is `fixed` (weekly plan mode — the user follows a set plan, manual adding doesn't apply)
-- Positioned in the `.action-row` next to the mic button. When the meal is confirmed (mic is hidden via `*ngIf`), the add-food button remains visible — it's an independent element, not tied to the mic's visibility. This allows users to add food to an already-confirmed meal (triggering re-confirm flow)
+- When the meal is confirmed (mic is hidden via its own `*ngIf`), the add-food button remains visible — it's an independent element. This allows users to add food to an already-confirmed meal (triggering re-confirm flow)
 
 ## 2. Bottom Sheet Modal
 
@@ -25,9 +23,10 @@ A bottom sheet modal triggered by a new circular button (next to the microphone)
 1. **Handle bar** — small gray centered bar at top indicating swipe-to-close
 2. **Header** — title "Añadir alimento" with X close button
 3. **Search input** — text input with magnifying glass icon, placeholder "Buscar alimento..."
-4. **Category chips** — horizontally scrollable row with the 7 active categories (excluding Legumbres, which is hidden throughout the app) plus "Todos" (selected by default)
+4. **Category chips** — horizontally scrollable row with the 7 active categories from `macroCategories` (excluding Legumbres, which is commented out) plus "Todos" (selected by default). Chip labels use the display names from `macroCategories` (e.g., "Proteina Semigrasa") and map to the corresponding `FoodItem.category` database keys (e.g., "Proteina Semi-Magra")
 5. **Food list** — scrollable list showing: food name, category, amount per portion (displayed as the raw `gramos` string, e.g., "90g", "1/2 taza cocido", "2 unidades"). Tapping an item navigates to the quantity view
-6. **Meal type filter** — the food list is pre-filtered by the active meal's `tipo` (e.g., only showing breakfast-appropriate foods when the active meal is DESAYUNO). Unlike `getAvailableFoods()`, profile food preferences are NOT applied — the modal shows all foods in the database for that meal type, since the purpose is to log what the user actually ate, which may be outside their usual preferences
+6. **Meal type filter** — the food list is pre-filtered by the active meal's `tipo` using lowercase normalization (`selectedMealType.toLowerCase()`), matching how the existing code works. Unlike `getAvailableFoods()`, profile food preferences are NOT applied — the modal shows all foods in the database for that meal type, since the purpose is to log what the user actually ate
+7. **Empty state** — when no foods match the search + category + meal type filters, show a message: "No se encontraron alimentos"
 
 ### Behavior
 
@@ -39,7 +38,7 @@ A bottom sheet modal triggered by a new circular button (next to the microphone)
 
 ## 3. Quantity View
 
-When a food item is tapped, the bottom sheet content transitions to:
+When a food item is tapped, the bottom sheet content transitions (simple content swap, no animation needed):
 
 1. **Back arrow** — top left, returns to the search/list view
 2. **Food name** — prominently displayed (e.g., "Banana")
@@ -52,31 +51,31 @@ Note: Grams mode removed. The `gramos` field contains heterogeneous units ("90g"
 
 ### Behavior
 
-- Food is added to the currently active meal
 - After adding, returns to the search/list view (user may want to add more items)
 - User closes the modal when done
 
 ## 4. Integration with Existing System
 
 - **Data source:** Uses the existing food database in `FoodCalculatorService` — no new data needed
-- **State:** Manually added foods are added to the current `mealPlan` in `MealCalculatorComponent`, same as auto-generated foods. They are NOT auto-confirmed — the user must press the existing "Confirmar" button to confirm the meal (preserving the existing confirm flow)
+- **Adding food:** The parent (`MealCalculatorComponent`) receives the emitted food + portion count. It calls `FoodCalculatorService.addFoodToPlan()` to add the food with 1 portion, then calls `adjustPortions()` to set the desired count if portions > 1
+- **State:** Manually added foods are added to the current `mealPlan`, same as auto-generated foods. They are NOT auto-confirmed — the user must press the existing "Confirmar" button (preserving the existing confirm flow)
 - **Already confirmed meals:** If the meal was already confirmed and the user adds food via the modal, the `mealModified` flag is set to `true`, which triggers the re-confirm button ("Reconfirmar") in the existing UI
 - **Daily Progress:** Portions only count toward daily progress once the meal is confirmed (existing behavior)
 - **Limits:** If a category has reached its daily limit (across all confirmed meals + current meal), show the existing "Límite diario alcanzado" tooltip and block adding more from that category
 
 ## 5. New Component
 
-- `AddFoodModalComponent` — standalone component
+- `AddFoodModalComponent` — declared in `AppModule` (following the existing NgModule pattern, not Angular standalone)
 - **Inputs:** active meal type, set of blocked categories (categories that have reached their daily limit — computed by the parent using existing `isCategoryAtDailyLimit()` logic)
-- **Outputs:** emits the selected food item with portion count
+- **Outputs:** emits the selected food item with portion count; emits close event
 - The parent (`MealCalculatorComponent`) handles all limit-checking logic and passes blocked categories as a simple `Set<string>`. The modal disables the "Añadir" button and shows "Límite diario alcanzado" when the selected food's category is blocked
-- Icons use inline SVGs (matching the existing codebase pattern — no Lucide library import needed)
+- Icons use inline SVGs (matching the existing codebase pattern)
 - Scoped CSS following the app's earth-tone design system (DM Sans body, Urbanist headers, `#b68f5e` accent, `#F5F0E8` subtle backgrounds)
 
 ## 6. Out of Scope
 
 - Creating custom food items not in the database
-- Editing or removing already-added foods from the modal
+- Editing or removing already-added foods from the modal (user can remove via the main meal plan UI)
 - Barcode scanning
 - Grams-based input (portion units are too heterogeneous)
 - Meal plan modification (this is purely additive logging)
