@@ -217,10 +217,10 @@
         </span>
       </div>
       <div class="simple-list ingredients-card">
-        <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
-          <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]"
+        <ng-container *ngFor="let category of getActiveCategories()">
+          <ng-container *ngFor="let item of mealPlan[category.key]">
+          <div class="ingredient-item" *ngIf="item.portions > 0"
                (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
-            <ng-container *ngIf="item.portions > 0">
             <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
             <div class="ingredient-text clickable">
               <span class="ingredient-name">{{ item.food.alimento }}</span>
@@ -259,9 +259,9 @@
                 <span class="daily-limit-tooltip" *ngIf="dailyLimitTooltip === category.key">Límite diario alcanzado</span>
               </div>
             </div>
-            </ng-container>
           </div>
-        </div>
+          </ng-container>
+        </ng-container>
       </div>
       <!-- menu-action-buttons removed -->
 
@@ -299,7 +299,6 @@
     <app-add-food-modal
       *ngIf="showAddFoodModal"
       [mealType]="selectedMealType"
-      [blockedCategories]="blockedCategoriesCache"
       [foodIconFn]="getFoodIcon"
       (addFood)="onAddFoodFromModal($event)"
       (close)="closeAddFoodModal()">

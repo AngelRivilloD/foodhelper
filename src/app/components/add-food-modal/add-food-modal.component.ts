@@ -9,7 +9,6 @@ import { FoodItem } from '../../models/food.model';
 })
 export class AddFoodModalComponent implements OnInit {
   @Input() mealType: string = 'DESAYUNO';
-  @Input() blockedCategories: Set<string> = new Set();
   @Input() foodIconFn: (name: string) => string = () => '🍽️';
   @Output() addFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() close = new EventEmitter<void>();
@@ -102,15 +101,10 @@ export class AddFoodModalComponent implements OnInit {
     }
   }
 
-  isCategoryBlocked(food: FoodItem): boolean {
-    return this.blockedCategories.has(food.category);
-  }
-
   onAdd(): void {
-    if (this.selectedFood && !this.isCategoryBlocked(this.selectedFood)) {
+    if (this.selectedFood) {
       this.addFood.emit({ food: this.selectedFood, portions: this.portions });
-      this.selectedFood = null;
-      this.portions = 1;
+      this.close.emit();
     }
   }
 

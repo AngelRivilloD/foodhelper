@@ -931,10 +931,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     return null;
   }
 
-  blockedCategoriesCache: Set<string> = new Set();
+
 
   openAddFoodModal(): void {
-    this.updateBlockedCategories();
     this.showAddFoodModal = true;
   }
 
@@ -954,17 +953,6 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
         this.adjustPortions(event.food.category, event.food, event.portions);
       }
     }
-    this.updateBlockedCategories();
-  }
-
-  private updateBlockedCategories(): void {
-    const blocked = new Set<string>();
-    for (const cat of this.macroCategories) {
-      if (this.isCategoryAtDailyLimit(cat.key)) {
-        blocked.add(cat.key);
-      }
-    }
-    this.blockedCategoriesCache = blocked;
   }
 
   getFixedMealsForDay(day: string): { key: string, label: string, icon: string, time: string, entry: FixedMealEntry }[] {
