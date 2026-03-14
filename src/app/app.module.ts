@@ -13,6 +13,7 @@ import { VoiceInputComponent } from './components/voice-input/voice-input.compon
 import { DailyProgressComponent } from './components/daily-progress/daily-progress.component';
 import { CelebrationComponent } from './components/celebration/celebration.component';
 import { AddFoodModalComponent } from './components/add-food-modal/add-food-modal.component';
+import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { AddFoodModalComponent } from './components/add-food-modal/add-food-moda
     VoiceInputComponent,
     DailyProgressComponent,
     CelebrationComponent,
-    AddFoodModalComponent
+    AddFoodModalComponent,
+    SplashScreenComponent
   ],
   imports: [
     BrowserModule,

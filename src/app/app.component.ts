@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
   currentSection = 'plan'; // 'plan' o 'config'
   profiles = ['Angel', 'Ferchu', 'Jose Daniel'];
   showProfileMenu = false;
+  showSplash = true;
 
   private profileSlugMap: { [slug: string]: string } = {
     'angel': 'Angel',
@@ -56,5 +57,9 @@ export class AppComponent implements OnInit {
 
   toggleProfileMenu() {
     this.showProfileMenu = !this.showProfileMenu;
+  }
+
+  onSplashComplete(): void {
+    this.showSplash = false;
   }
 }
