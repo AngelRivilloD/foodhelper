@@ -24,6 +24,7 @@
           class="search-input"
           placeholder="Buscar alimento..."
           [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchChange()"
           autocomplete="off">
       </div>
 
@@ -32,15 +33,15 @@
           *ngFor="let cat of categories"
           class="chip"
           [class.active]="selectedCategory === cat.key"
-          (click)="selectedCategory = cat.key">
+          (click)="onCategoryChange(cat.key)">
           {{ cat.label }}
         </button>
       </div>
 
-      <div class="food-list" *ngIf="filteredFoods.length > 0">
+      <div class="food-list" #foodListEl *ngIf="cachedFilteredFoods.length > 0">
         <button
           class="food-list-item"
-          *ngFor="let food of filteredFoods"
+          *ngFor="let food of cachedFilteredFoods"
           (click)="selectFood(food)">
           <div class="food-list-info">
             <span class="food-list-name">{{ food.alimento }}</span>
@@ -50,7 +51,7 @@
         </button>
       </div>
 
-      <div class="empty-state" *ngIf="filteredFoods.length === 0">
+      <div class="empty-state" *ngIf="cachedFilteredFoods.length === 0">
         <p>No se encontraron alimentos</p>
       </div>
     </ng-container>

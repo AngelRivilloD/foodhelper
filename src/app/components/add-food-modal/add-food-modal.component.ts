@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { FoodItem } from '../../models/food.model';
 
@@ -12,11 +12,13 @@ export class AddFoodModalComponent implements OnInit {
   @Input() blockedCategories: Set<string> = new Set();
   @Output() addFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() close = new EventEmitter<void>();
+  @ViewChild('foodListEl') foodListEl?: ElementRef<HTMLElement>;
 
   searchQuery = '';
   selectedCategory = 'Todos';
   selectedFood: FoodItem | null = null;
   portions = 1;
+  cachedFilteredFoods: FoodItem[] = [];
 
   categories = [
     { key: 'Todos', label: 'Todos' },
@@ -35,6 +37,7 @@ export class AddFoodModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFoods();
+    this.updateFilteredFoods();
   }
 
   private loadFoods(): void {
@@ -50,9 +53,12 @@ export class AddFoodModalComponent implements OnInit {
       const filtered = foods.filter(f => f.tipo && f.tipo.includes(normalizedMealType));
       this.allFoods.push(...filtered);
     }
+
+    // Sort once
+    this.allFoods.sort((a, b) => a.alimento.localeCompare(b.alimento));
   }
 
-  get filteredFoods(): FoodItem[] {
+  updateFilteredFoods(): void {
     let foods = this.allFoods;
 
     if (this.selectedCategory !== 'Todos') {
@@ -64,7 +70,16 @@ export class AddFoodModalComponent implements OnInit {
       foods = foods.filter(f => f.alimento.toLowerCase().includes(query));
     }
 
-    return foods.sort((a, b) => a.alimento.localeCompare(b.alimento));
+    this.cachedFilteredFoods = foods;
+  }
+
+  onSearchChange(): void {
+    this.updateFilteredFoods();
+  }
+
+  onCategoryChange(categoryKey: string): void {
+    this.selectedCategory = categoryKey;
+    this.updateFilteredFoods();
   }
 
   selectFood(food: FoodItem): void {
@@ -113,6 +128,10 @@ export class AddFoodModalComponent implements OnInit {
   isDragging = false;
 
   onTouchStart(event: TouchEvent): void {
+    // Only allow swipe-to-close when food list is at top (not mid-scroll)
+    const listEl = this.foodListEl?.nativeElement;
+    if (listEl && listEl.scrollTop > 0) return;
+
     this.touchStartY = event.touches[0].clientY;
     this.isDragging = true;
   }
@@ -121,14 +140,12 @@ export class AddFoodModalComponent implements OnInit {
     if (!this.isDragging) return;
     this.touchCurrentY = event.touches[0].clientY;
     const delta = this.touchCurrentY - this.touchStartY;
-    // Only allow dragging down
     this.sheetTranslateY = Math.max(0, delta);
   }
 
   onTouchEnd(): void {
     if (!this.isDragging) return;
     this.isDragging = false;
-    // Close if dragged more than 100px down
     if (this.sheetTranslateY > 100) {
       this.close.emit();
     }

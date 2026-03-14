@@ -930,7 +930,10 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     return null;
   }
 
+  blockedCategoriesCache: Set<string> = new Set();
+
   openAddFoodModal(): void {
+    this.updateBlockedCategories();
     this.showAddFoodModal = true;
   }
 
@@ -939,7 +942,6 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   }
 
   onAddFoodFromModal(event: { food: FoodItem, portions: number }): void {
-    // Check if food already exists — if so, add portions on top
     const existing = this.mealPlan[event.food.category]?.find(
       item => item.food.alimento === event.food.alimento
     );
@@ -951,16 +953,17 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
         this.adjustPortions(event.food.category, event.food, event.portions);
       }
     }
+    this.updateBlockedCategories();
   }
 
-  getBlockedCategories(): Set<string> {
+  private updateBlockedCategories(): void {
     const blocked = new Set<string>();
     for (const cat of this.macroCategories) {
       if (this.isCategoryAtDailyLimit(cat.key)) {
         blocked.add(cat.key);
       }
     }
-    return blocked;
+    this.blockedCategoriesCache = blocked;
   }
 
   getFixedMealsForDay(day: string): { key: string, label: string, icon: string, time: string, entry: FixedMealEntry }[] {
