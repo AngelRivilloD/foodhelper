@@ -503,12 +503,13 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.generateMealPlan();
   }
 
-  // Obtener categorías que tienen objetivos > 0 para la comida seleccionada
+  // Obtener categorías que tienen objetivos > 0 o alimentos añadidos manualmente
   getActiveCategories(): any[] {
     const mealObjectives = this.getMealObjectives();
     return this.macroCategories.filter(category => {
       const objectiveValue = mealObjectives[category.key];
-      return objectiveValue && objectiveValue > 0;
+      const hasItems = this.mealPlan[category.key]?.some(item => item.portions > 0);
+      return (objectiveValue && objectiveValue > 0) || hasItems;
     });
   }
 
