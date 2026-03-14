@@ -1467,8 +1467,8 @@ app-voice-input {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 1.5px solid #e0e0e0;
-  background: #FFFFFF;
+  border: none;
+  background: #fff;
   color: #8B7355;
   cursor: pointer;
   display: flex;
@@ -1476,19 +1476,19 @@ app-voice-input {
   justify-content: center;
   padding: 0;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 115, 85, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .add-food-circle-btn:hover {
-  background: #F5F0E8;
-  border-color: #b68f5e;
-  transform: scale(1.08);
+  background: #f9f7f4;
+  box-shadow: 0 6px 20px rgba(139, 115, 85, 0.2);
+  transform: scale(1.03);
 }
 
 .add-food-circle-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 
 /* Action row: voice + confirm */
