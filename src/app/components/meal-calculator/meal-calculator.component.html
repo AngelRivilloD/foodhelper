@@ -19,7 +19,10 @@
   <app-daily-progress
     *ngIf="mealPlanMode === 'dynamic'"
     [dailyTarget]="getDailyTargetForProgress()"
-    [profileName]="currentProfile">
+    [profileName]="currentProfile"
+    [currentMealPortions]="getCurrentMealPortionsByCategory()"
+    [currentMealType]="selectedMealType"
+    [mealModified]="mealModified">
   </app-daily-progress>
 
   <div class="meal-type-selector" *ngIf="mealPlanMode === 'dynamic'">
@@ -41,13 +44,13 @@
     <div class="meal-categories" *ngIf="showCategories">
       <!-- Skeleton loading -->
       <div class="skeleton-container" *ngIf="isLoading">
-        <div class="skeleton-category" *ngFor="let i of [1,2,3,4]">
+        <div class="skeleton-category" *ngFor="let cat of skeletonCategories">
           <div class="skeleton-header">
             <div class="skeleton-title"></div>
             <div class="skeleton-target"></div>
           </div>
           <div class="skeleton-content">
-            <div class="skeleton-item">
+            <div class="skeleton-item" *ngFor="let j of [].constructor(cat.itemCount)">
               <div class="skeleton-food-info">
                 <div class="skeleton-icon"></div>
                 <div class="skeleton-name"></div>
@@ -74,6 +77,7 @@
             <span class="portions-total">{{ getTargetValue(category.key) }}</span>
             <span class="portions-label">porciones</span>
           </span>
+          <span class="daily-limit-badge" *ngIf="isCategoryAtDailyLimit(category.key)">Límite diario</span>
         </div>
 
         <!-- Barra de progreso -->
@@ -107,15 +111,18 @@
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                       </svg>
                     </button>
-                    <button
-                      class="portion-btn increment"
-                      (click)="incrementPortions(category.key, item.food); $event.stopPropagation()"
-                      aria-label="Incrementar porciones">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                      </svg>
-                    </button>
+                    <div class="increment-wrapper" (click)="isCategoryAtDailyLimit(category.key) ? showDailyLimitTooltip(category.key) : incrementPortions(category.key, item.food); $event.stopPropagation()">
+                      <button
+                        class="portion-btn increment"
+                        [class.at-limit]="isCategoryAtDailyLimit(category.key)"
+                        aria-label="Incrementar porciones">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </button>
+                      <span class="daily-limit-tooltip" *ngIf="dailyLimitTooltip === category.key">Límite diario alcanzado</span>
+                    </div>
                   </div>
 
                   <div class="food-details">
@@ -211,49 +218,48 @@
       </div>
       <div class="simple-list ingredients-card">
         <div class="ingredient-line" *ngFor="let category of getActiveCategories()">
-          <div class="ingredient-item" *ngFor="let item of mealPlan[category.key]">
-            <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
-            <div class="ingredient-text clickable"
-                 (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
+          <div class="ingredient-item" [class.ingredient-empty]="item.portions === 0" *ngFor="let item of mealPlan[category.key]"
+               (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
+            <span class="ingredient-icon">{{ item.portions > 0 ? getFoodIcon(item.food.alimento) : category.icon }}</span>
+            <div class="ingredient-text" *ngIf="item.portions === 0">
+              <span class="ingredient-name ingredient-name-empty">Escoge {{ getCategoryArticle(category.label) }}</span>
+              <span class="ingredient-meta">{{ category.label }}</span>
+            </div>
+            <div class="ingredient-text clickable" *ngIf="item.portions > 0">
               <span class="ingredient-name">{{ item.food.alimento }}</span>
               <span class="ingredient-weight">
+                <span class="ingredient-portions" [class.portion-bumping]="animatingPortions.has(getItemId(category.key, item.food))">{{ item.portions }} porc</span>
+                <span class="ingredient-meta-dot">·</span>
                 {{ getDisplayWeight(category.key, item.food, item.totalAmount) }}
               </span>
               <span class="ingredient-meta">
                 {{ category.label }}
-                <span class="ingredient-meta-dot">·</span>
-                <span class="ingredient-portions" [class.portion-bumping]="animatingPortions.has(getItemId(category.key, item.food))">{{ item.portions }} porc</span>
               </span>
-              <div class="summary-dropdown" *ngIf="showSummaryAlternatives === getItemId(category.key, item.food)" (click)="$event.stopPropagation()">
-                <button
-                  class="dropdown-option"
-                  *ngFor="let alt of getAlternatives(category.key, item.food, selectedMealType)"
-                  (click)="replaceFood(category.key, item.food, alt); showSummaryAlternatives = null; $event.stopPropagation()">
-                  <span class="dropdown-icon">{{ getFoodIcon(alt.alimento) }}</span>
-                  <span class="dropdown-content">
-                    <span class="dropdown-name">{{ alt.alimento }}</span>
-                    <small class="dropdown-amount">{{ alt.gramos }}</small>
-                  </span>
-                </button>
-              </div>
             </div>
-            <div class="ingredient-actions-container">
-              <button class="ingredient-ellipsis-btn"
-                      (click)="showIngredientMenu = showIngredientMenu === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            <div class="summary-dropdown" *ngIf="showSummaryAlternatives === getItemId(category.key, item.food)" (click)="$event.stopPropagation()">
+              <button
+                class="dropdown-option"
+                *ngFor="let alt of getAlternatives(category.key, item.food, selectedMealType)"
+                (click)="replaceFood(category.key, item.food, alt); showSummaryAlternatives = null; $event.stopPropagation()">
+                <span class="dropdown-icon">{{ getFoodIcon(alt.alimento) }}</span>
+                <span class="dropdown-content">
+                  <span class="dropdown-name">{{ alt.alimento }}</span>
+                  <small class="dropdown-amount">{{ alt.gramos }}</small>
+                </span>
               </button>
-              <div class="ingredient-menu" *ngIf="showIngredientMenu === getItemId(category.key, item.food)" (click)="$event.stopPropagation()">
-                <button class="ingredient-menu-item"
-                        (click)="incrementPortions(category.key, item.food); showIngredientMenu = null; $event.stopPropagation()">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Añadir porción
+            </div>
+            <div class="summary-portion-controls">
+              <button class="summary-portion-btn"
+                      (click)="decrementPortions(category.key, item.food); $event.stopPropagation()"
+                      [disabled]="item.portions <= 0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <div class="increment-wrapper" (click)="isCategoryAtDailyLimit(category.key) ? showDailyLimitTooltip(category.key) : incrementPortions(category.key, item.food); $event.stopPropagation()">
+                <button class="summary-portion-btn"
+                        [class.at-limit]="isCategoryAtDailyLimit(category.key)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
-                <button class="ingredient-menu-item"
-                        [disabled]="item.portions <= 0"
-                        (click)="decrementPortions(category.key, item.food); showIngredientMenu = null; $event.stopPropagation()">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Quitar porción
-                </button>
+                <span class="daily-limit-tooltip" *ngIf="dailyLimitTooltip === category.key">Límite diario alcanzado</span>
               </div>
             </div>
           </div>
@@ -262,8 +268,8 @@
       <!-- menu-action-buttons removed -->
 
       <!-- Action row: voice + confirm -->
-      <div class="action-row" *ngIf="!isMealConfirmed()">
-        <app-voice-input
+      <div class="action-row">
+        <app-voice-input *ngIf="!isMealConfirmed()"
           [mealType]="selectedMealType"
           [mealPlanMode]="mealPlanMode"
           [categories]="voiceCategories"
@@ -271,33 +277,11 @@
           (apply)="onVoiceApply($event)">
         </app-voice-input>
         <button class="confirm-meal-btn"
-                (click)="confirmMeal(); $event.stopPropagation()">
+                [class.confirmed]="isMealConfirmed() && !mealModified"
+                (click)="onConfirmClick(); $event.stopPropagation()">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Confirmar {{ getMealTypeLabel() }}
+          {{ isMealConfirmed() && !mealModified ? getMealTypeLabel() + (selectedMealType === 'MERIENDA' || selectedMealType === 'CENA' ? ' confirmada' : ' confirmado') : 'Confirmar ' + getMealTypeLabel() }}
         </button>
-      </div>
-
-      <!-- Confirmed state with ellipsis menu -->
-      <div class="confirmed-state" *ngIf="isMealConfirmed()">
-        <div class="confirmed-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-          <span>{{ getMealTypeLabel() }} confirmado{{ selectedMealType === 'MERIENDA' || selectedMealType === 'CENA' ? 'a' : '' }}</span>
-        </div>
-        <div class="ellipsis-menu-container">
-          <button class="ellipsis-btn" (click)="showConfirmedMenu = showConfirmedMenu === selectedMealType ? null : selectedMealType; $event.stopPropagation()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-          </button>
-          <div class="ellipsis-dropdown" *ngIf="showConfirmedMenu === selectedMealType" (click)="$event.stopPropagation()">
-            <button class="ellipsis-option" (click)="editConfirmedMeal()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              Editar
-            </button>
-            <button class="ellipsis-option delete" (click)="deleteConfirmedMeal()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-              Eliminar
-            </button>
-          </div>
-        </div>
       </div>
     </div>
 

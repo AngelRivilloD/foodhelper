@@ -22,6 +22,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   isLoading: boolean = false;
   isSummaryLoading: boolean = false;
   skeletonItemCount: number = 4;
+  skeletonCategories: { itemCount: number }[] = [];
   showCategories: boolean = false;
   showSummaryAlternatives: string | null = null;
   showCelebration = false;
@@ -32,6 +33,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   showConfirmedMenu: string | null = null;
   showIngredientMenu: string | null = null;
   animatingPortions = new Set<string>();
+  mealModified = false;
+  dailyLimitTooltip: string | null = null;
+  private dailyLimitTooltipTimeout: any = null;
 
   // Fixed meal plan
   mealPlanMode: 'dynamic' | 'fixed' = 'dynamic';
@@ -131,13 +135,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
       this.loadMealPlanMode();
 
       if (this.mealPlanMode === 'dynamic') {
-        // Activar skeleton cuando cambia el perfil
+        this.buildSkeletonForMeal(this.selectedMealType);
         this.isLoading = true;
+        this.isSummaryLoading = true;
 
-        // Simular un pequeño delay para mostrar el skeleton
         setTimeout(() => {
           this.loadProfileDailyTarget();
           this.isLoading = false;
+          this.isSummaryLoading = false;
         }, 500);
       }
     }
@@ -228,12 +233,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     // Forzar actualización de la vista para reflejar cambios en objetivos
     this.mealPlan = { ...this.mealPlan };
     this.updateVoiceBindings();
+    if (this.isMealConfirmed()) this.mealModified = true;
   }
 
 
   // MÉTODOS DE AJUSTE DE PORCIONES
   adjustPortions(category: string, food: FoodItem, newPortions: number): void {
     this.mealPlan = this.foodCalculatorService.adjustPortions(category, food, newPortions);
+    if (this.isMealConfirmed()) this.mealModified = true;
   }
 
   // Obtener alternativas para un alimento
@@ -244,6 +251,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   }
 
   incrementPortions(category: string, food: FoodItem): void {
+    if (this.isCategoryAtDailyLimit(category)) return;
     const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
     if (currentItem) {
       this.adjustPortions(category, food, currentItem.portions + 1);
@@ -251,16 +259,45 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     }
   }
 
+  showDailyLimitTooltip(category: string): void {
+    if (!this.isCategoryAtDailyLimit(category)) return;
+    this.dailyLimitTooltip = category;
+    if (this.dailyLimitTooltipTimeout) clearTimeout(this.dailyLimitTooltipTimeout);
+    this.dailyLimitTooltipTimeout = setTimeout(() => this.dailyLimitTooltip = null, 2000);
+  }
+
+  /** Check if a category has reached its daily portion limit */
+  isCategoryAtDailyLimit(category: string): boolean {
+    const dailyTarget = this.getDailyTargetForProgress();
+    const target = dailyTarget[category] || 0;
+    if (target === 0) return false;
+
+    // Portions confirmed in other meals
+    const confirmedPortions = this.dailyProgressService.getConfirmedPortionsByCategory();
+    let otherMealsPortions = confirmedPortions[category] || 0;
+
+    // If current meal is confirmed, its portions are already in confirmedPortions,
+    // so subtract them to avoid double-counting
+    if (this.dailyProgressService.isMealConfirmed(this.selectedMealType)) {
+      const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
+      if (confirmedPlan && confirmedPlan[category]) {
+        for (const item of confirmedPlan[category]) {
+          otherMealsPortions -= item.portions;
+        }
+      }
+    }
+
+    // Current meal portions
+    const currentMealPortions = this.mealPlan[category]?.reduce((sum, item) => sum + item.portions, 0) || 0;
+
+    return (otherMealsPortions + currentMealPortions) >= target;
+  }
+
   decrementPortions(category: string, food: FoodItem): void {
     const currentItem = this.mealPlan[category]?.find(item => item.food.alimento === food.alimento);
     if (currentItem && currentItem.portions > 0) {
-      const newPortions = currentItem.portions - 1;
-      if (newPortions === 0) {
-        this.removeFoodFromPlan(category, food);
-      } else {
-        this.adjustPortions(category, food, newPortions);
-        this.triggerPortionAnimation(category, food);
-      }
+      this.adjustPortions(category, food, currentItem.portions - 1);
+      this.triggerPortionAnimation(category, food);
     }
   }
 
@@ -295,6 +332,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   // Agregar un nuevo alimento al plan
   addFoodToPlan(category: string, food: FoodItem): void {
     this.mealPlan = this.foodCalculatorService.addFoodToPlan(category, food, 1);
+    if (this.isMealConfirmed()) this.mealModified = true;
   }
 
   // Remover un alimento del plan
@@ -329,8 +367,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
   // Regenerar el menú completo con selección aleatoria
   regenerateMeal(): void {
-    this.skeletonItemCount = this.getActiveCategories().reduce((total, cat) =>
-      total + (this.mealPlan[cat.key]?.length || 0), 0) || 4;
+    this.buildSkeletonForMeal(this.selectedMealType);
     this.isSummaryLoading = true;
     setTimeout(() => {
       const mealObjectives = this.getMealObjectives();
@@ -345,11 +382,29 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   }
 
   // Cambiar tipo de comida
+  private buildSkeletonForMeal(mealType: string): void {
+    const profileMealObjectives = this.profileConfigService.getMealObjectives(this.currentProfile);
+    const objectives = profileMealObjectives[mealType];
+    if (!objectives) {
+      this.skeletonCategories = [{itemCount: 1},{itemCount: 1},{itemCount: 1},{itemCount: 1}];
+      this.skeletonItemCount = 4;
+      return;
+    }
+
+    this.skeletonCategories = Object.entries(objectives)
+      .filter(([_, portions]) => (portions as number) > 0)
+      .map(() => ({ itemCount: 1 }));
+
+    this.skeletonItemCount = this.skeletonCategories.length;
+  }
+
   selectMealType(mealType: string): void {
+    this.buildSkeletonForMeal(mealType);
     this.selectedMealType = mealType;
+    this.mealModified = false;
     this.isLoading = true;
-    
-    // Simular un pequeño delay para mostrar el skeleton
+    this.isSummaryLoading = true;
+
     setTimeout(() => {
       if (this.dailyProgressService.isMealConfirmed(this.selectedMealType)) {
         const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
@@ -360,6 +415,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
         this.generateMealPlanForMeal();
       }
       this.isLoading = false;
+      this.isSummaryLoading = false;
     }, 500);
   }
 
@@ -553,7 +609,6 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.showAddFood = null;
     this.showSummaryAlternatives = null;
     this.showConfirmedMenu = null;
-    this.showIngredientMenu = null;
   }
 
   // Obtener el icono del alimento actual en la categoría
@@ -790,8 +845,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     }, 0);
   }
 
+  onConfirmClick(): void {
+    if (this.isMealConfirmed() && !this.mealModified) return;
+    this.confirmMeal();
+  }
+
   confirmMeal(): void {
     if (!this.mealPlan) return;
+    this.mealModified = false;
     this.dailyProgressService.confirmMeal(this.selectedMealType, this.mealPlan);
     this.celebrationMealType = this.selectedMealType;
     this.celebrationMealLabel = this.getMealTypeLabel();
@@ -806,24 +867,29 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.showCelebration = false;
   }
 
-  editConfirmedMeal(): void {
-    this.showConfirmedMenu = null;
-    this.dailyProgressService.unconfirmMeal(this.selectedMealType);
-  }
-
-  deleteConfirmedMeal(): void {
-    this.showConfirmedMenu = null;
-    this.dailyProgressService.unconfirmMeal(this.selectedMealType);
-    this.mealPlan = {};
-    this.generateMealPlanForMeal();
-  }
-
   isMealConfirmed(mealKey?: string): boolean {
     return this.dailyProgressService.isMealConfirmed(mealKey || this.selectedMealType);
   }
 
+  getCategoryArticle(label: string): string {
+    const feminines = ['Proteína Magra', 'Proteína Semigrasa', 'Fruta', 'Grasa'];
+    const isFeminine = feminines.some(f => label.toLowerCase().includes(f.toLowerCase()));
+    return isFeminine ? `una ${label.toLowerCase()}` : `un ${label.toLowerCase()}`;
+  }
+
   getDailyTargetForProgress(): { [category: string]: number } {
     return this.profileConfigService.getDailyTarget(this.currentProfile);
+  }
+
+  getCurrentMealPortionsByCategory(): { [category: string]: number } {
+    const result: { [category: string]: number } = {};
+    for (const category of Object.keys(this.mealPlan)) {
+      const items = this.mealPlan[category];
+      if (items) {
+        result[category] = items.reduce((sum, item) => sum + item.portions, 0);
+      }
+    }
+    return result;
   }
 
   // Fixed meal plan methods

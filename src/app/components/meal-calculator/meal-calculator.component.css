@@ -25,6 +25,7 @@
 
 .meal-type-selector {
   margin-bottom: 16px;
+  margin-top: 8px;
 }
 
 .summary-hint {
@@ -186,6 +187,17 @@
   color: #34c759;
 }
 
+.daily-limit-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #b68f5e;
+  background: rgba(182, 143, 94, 0.12);
+  padding: 2px 7px;
+  border-radius: 8px;
+  margin-left: 8px;
+  letter-spacing: 0.3px;
+}
+
 .portions-separator {
   color: #ccc;
 }
@@ -332,6 +344,49 @@
   background-color: #fafafa !important;
   color: #ddd !important;
   border-color: #EDE8E0 !important;
+}
+
+.portion-btn.at-limit,
+.summary-portion-btn.at-limit {
+  cursor: not-allowed;
+  background-color: #fafafa;
+  color: #ddd;
+  border-color: #EDE8E0;
+}
+
+.increment-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.daily-limit-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #333;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  animation: tooltipFadeIn 0.2s ease;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.daily-limit-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 12px;
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .change-btn {
@@ -752,12 +807,19 @@
   flex-direction: column;
   gap: 28px;
   position: relative;
+  z-index: 1;
+}
+
+.ingredient-line:has(.summary-dropdown) {
+  z-index: 100;
 }
 
 .ingredient-item {
   display: flex;
   align-items: center;
   gap: 6px;
+  position: relative;
+  cursor: pointer;
 }
 
 .ingredient-icon {
@@ -1384,6 +1446,17 @@ app-voice-input {
   100% { transform: scale(1); }
 }
 
+/* Empty ingredient state (0 portions) */
+.ingredient-item.ingredient-empty {
+  opacity: 0.55;
+}
+
+.ingredient-name-empty {
+  color: #999 !important;
+  font-weight: 500 !important;
+  font-style: italic;
+}
+
 /* Food name in summary */
 .ingredient-name-wrapper .ingredient-name {
   text-decoration: none;
@@ -1426,6 +1499,22 @@ app-voice-input {
 
 .confirm-meal-btn:active {
   transform: scale(0.98);
+}
+
+.confirm-meal-btn.confirmed {
+  background: #EDE8E0;
+  color: #b68f5e;
+  box-shadow: none;
+  cursor: default;
+}
+
+.confirm-meal-btn.confirmed:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.confirm-meal-btn.confirmed:active {
+  transform: none;
 }
 
 /* Confirmed state */

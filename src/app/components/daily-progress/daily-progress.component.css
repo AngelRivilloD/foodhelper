@@ -1,8 +1,4 @@
-.daily-progress {
-  margin-bottom: 20px;
-  cursor: pointer;
-}
-
+/* Header */
 .dp-header {
   display: flex;
   align-items: center;
@@ -10,17 +6,14 @@
   margin-bottom: 12px;
 }
 
-.dp-title {
-  font-family: 'Urbanist', sans-serif;
-  font-weight: 600;
-  font-size: 1.5rem;
-  color: #222;
-}
-
-.dp-header-right {
-  display: flex;
+/* Streak card */
+.dp-streak-card {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .dp-streak {
@@ -30,18 +23,19 @@
   font-weight: 600;
 }
 
-.dp-chevron {
-  transition: transform 0.3s ease;
+.dp-title {
+  font-family: 'Urbanist', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #222;
 }
 
-.dp-chevron.rotated {
-  transform: rotate(180deg);
-}
-
+/* Progress bar row */
 .dp-progress-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 }
 
 .dp-progress-track {
@@ -52,10 +46,31 @@
   overflow: hidden;
 }
 
+.dp-progress-bar-segments {
+  display: flex;
+  height: 100%;
+}
+
 .dp-progress-fill {
   height: 100%;
-  border-radius: 4px;
   transition: width 0.5s ease, background 0.5s ease;
+}
+
+.dp-progress-fill.dp-confirmed {
+  border-radius: 4px 0 0 4px;
+}
+
+.dp-progress-fill.dp-preview {
+  opacity: 0.4;
+  border-radius: 0 4px 4px 0;
+}
+
+.dp-progress-fill.dp-confirmed:last-child {
+  border-radius: 4px;
+}
+
+.dp-progress-fill.dp-preview:first-child {
+  border-radius: 4px;
 }
 
 .dp-progress-text {
@@ -64,6 +79,15 @@
   font-weight: 600;
   min-width: 32px;
   text-align: right;
+}
+
+.dp-chevron {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.dp-chevron.rotated {
+  transform: rotate(180deg);
 }
 
 /* Expanded section */
@@ -159,10 +183,31 @@
   overflow: hidden;
 }
 
+.dp-cat-bar-segments {
+  display: flex;
+  height: 100%;
+}
+
 .dp-cat-bar-fill {
   height: 100%;
-  border-radius: 3px;
   transition: width 0.4s ease;
+}
+
+.dp-cat-bar-fill.dp-confirmed {
+  border-radius: 3px 0 0 3px;
+}
+
+.dp-cat-bar-fill.dp-preview {
+  opacity: 0.4;
+  border-radius: 0 3px 3px 0;
+}
+
+.dp-cat-bar-fill.dp-confirmed:last-child {
+  border-radius: 3px;
+}
+
+.dp-cat-bar-fill.dp-preview:first-child {
+  border-radius: 3px;
 }
 
 .dp-cat-kcal {
@@ -173,8 +218,3 @@
   text-align: right;
 }
 
-@media (max-width: 768px) {
-  .daily-progress {
-    margin: 0 0 16px 0;
-  }
-}

@@ -11,6 +11,9 @@ import { DailyMealState, StreakState, CALORIES_PER_PORTION } from '../../models/
 export class DailyProgressComponent implements OnInit, OnDestroy {
   @Input() dailyTarget: { [category: string]: number } = {};
   @Input() profileName: string = '';
+  @Input() currentMealPortions: { [category: string]: number } = {};
+  @Input() currentMealType: string = '';
+  @Input() mealModified: boolean = false;
 
   expanded = false;
   dailyState: DailyMealState = { date: '', meals: {} };
@@ -56,18 +59,78 @@ export class DailyProgressComponent implements OnInit, OnDestroy {
     return this.dailyState.meals[mealKey]?.confirmed === true;
   }
 
-  getProgressPercentage(): number {
+  /**
+   * Combined portions: confirmed meals + current unconfirmed meal preview.
+   * If current meal is already confirmed, skip adding currentMealPortions
+   * (they're already counted in confirmed totals).
+   */
+  private getCombinedPortions(): { [category: string]: number } {
+    const confirmed = this.dailyProgressService.getConfirmedPortionsByCategory();
+    const isConfirmedAndUnmodified = this.dailyProgressService.isMealConfirmed(this.currentMealType) && !this.mealModified;
+    if (!this.currentMealType || isConfirmedAndUnmodified) {
+      return confirmed;
+    }
+    const combined: { [category: string]: number } = { ...confirmed };
+    for (const cat of Object.keys(this.currentMealPortions)) {
+      combined[cat] = (combined[cat] || 0) + (this.currentMealPortions[cat] || 0);
+    }
+    return combined;
+  }
+
+  /** Confirmed-only percentage (solid bar) */
+  getConfirmedPercentage(): number {
     return this.dailyProgressService.getDailyProgressPercentage(this.dailyTarget);
+  }
+
+  /** Preview percentage = combined - confirmed (transparent bar) */
+  getPreviewPercentage(): number {
+    const total = this.getProgressPercentage();
+    const confirmed = this.getConfirmedPercentage();
+    return Math.max(0, total - confirmed);
+  }
+
+  /** Combined percentage (confirmed + current meal) */
+  getProgressPercentage(): number {
+    const portions = this.getCombinedPortions();
+    let totalConsumed = 0;
+    let totalTarget = 0;
+    for (const category of Object.keys(this.dailyTarget)) {
+      if (category === 'Legumbres') continue;
+      totalTarget += this.dailyTarget[category] || 0;
+      totalConsumed += Math.min(portions[category] || 0, this.dailyTarget[category] || 0);
+    }
+    if (totalTarget === 0) return 0;
+    return Math.round((totalConsumed / totalTarget) * 100);
   }
 
   getProgressColor(): string {
     return this.dailyProgressService.getProgressColor(this.getProgressPercentage());
   }
 
-  getProgressGradient(): string {
-    const pct = this.getProgressPercentage();
-    if (pct >= 100) return 'linear-gradient(90deg, #FECA57, #34c759)';
-    return `linear-gradient(90deg, #FECA57, ${this.getProgressColor()})`;
+  getBarColor(): string {
+    return 'rgb(212, 169, 115)';
+  }
+
+  /** Confirmed-only portions for a category */
+  getConfirmedCategoryPortions(categoryKey: string): number {
+    const portions = this.dailyProgressService.getConfirmedPortionsByCategory();
+    return portions[categoryKey] || 0;
+  }
+
+  /** Confirmed bar width for a category */
+  getConfirmedCategoryBarWidth(categoryKey: string): number {
+    const target = this.getTargetPortions(categoryKey);
+    if (target === 0) return 0;
+    return Math.min(100, (this.getConfirmedCategoryPortions(categoryKey) / target) * 100);
+  }
+
+  /** Preview bar width for a category (current meal portion only) */
+  getPreviewCategoryBarWidth(categoryKey: string): number {
+    const target = this.getTargetPortions(categoryKey);
+    if (target === 0) return 0;
+    const total = this.getCategoryBarWidth(categoryKey);
+    const confirmed = this.getConfirmedCategoryBarWidth(categoryKey);
+    return Math.max(0, total - confirmed);
   }
 
   isAllConfirmed(): boolean {
@@ -75,7 +138,7 @@ export class DailyProgressComponent implements OnInit, OnDestroy {
   }
 
   getConsumedPortions(categoryKey: string): number {
-    const portions = this.dailyProgressService.getConfirmedPortionsByCategory();
+    const portions = this.getCombinedPortions();
     return portions[categoryKey] || 0;
   }
 
@@ -89,7 +152,12 @@ export class DailyProgressComponent implements OnInit, OnDestroy {
   }
 
   getTotalCalories(): number {
-    return this.dailyProgressService.getEstimatedCalories();
+    const portions = this.getCombinedPortions();
+    let total = 0;
+    for (const category of Object.keys(portions)) {
+      total += (portions[category] || 0) * (CALORIES_PER_PORTION[category] || 0);
+    }
+    return total;
   }
 
   getCategoryBarWidth(categoryKey: string): number {
