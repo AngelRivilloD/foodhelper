@@ -1,5 +1,11 @@
 <div class="modal-backdrop" (click)="onBackdropClick()">
-  <div class="bottom-sheet" (click)="onSheetClick($event)">
+  <div class="bottom-sheet"
+       [style.transform]="sheetTranslateY > 0 ? 'translateY(' + sheetTranslateY + 'px)' : ''"
+       [style.transition]="isDragging ? 'none' : ''"
+       (click)="onSheetClick($event)"
+       (touchstart)="onTouchStart($event)"
+       (touchmove)="onTouchMove($event)"
+       (touchend)="onTouchEnd()">
     <div class="handle-bar"></div>
 
     <!-- Search / List View -->

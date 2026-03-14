@@ -105,4 +105,33 @@ export class AddFoodModalComponent implements OnInit {
   onSheetClick(event: Event): void {
     event.stopPropagation();
   }
+
+  // Swipe-to-close
+  private touchStartY = 0;
+  private touchCurrentY = 0;
+  sheetTranslateY = 0;
+  isDragging = false;
+
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartY = event.touches[0].clientY;
+    this.isDragging = true;
+  }
+
+  onTouchMove(event: TouchEvent): void {
+    if (!this.isDragging) return;
+    this.touchCurrentY = event.touches[0].clientY;
+    const delta = this.touchCurrentY - this.touchStartY;
+    // Only allow dragging down
+    this.sheetTranslateY = Math.max(0, delta);
+  }
+
+  onTouchEnd(): void {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    // Close if dragged more than 100px down
+    if (this.sheetTranslateY > 100) {
+      this.close.emit();
+    }
+    this.sheetTranslateY = 0;
+  }
 }
