@@ -10,6 +10,7 @@ import { FoodItem } from '../../models/food.model';
 export class AddFoodModalComponent implements OnInit {
   @Input() mealType: string = 'DESAYUNO';
   @Input() blockedCategories: Set<string> = new Set();
+  @Input() foodIconFn: (name: string) => string = () => '🍽️';
   @Output() addFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() close = new EventEmitter<void>();
   @ViewChild('foodListEl') foodListEl?: ElementRef<HTMLElement>;

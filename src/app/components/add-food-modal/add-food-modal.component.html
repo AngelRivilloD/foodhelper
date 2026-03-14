@@ -43,6 +43,7 @@
           class="food-list-item"
           *ngFor="let food of cachedFilteredFoods"
           (click)="selectFood(food)">
+          <span class="food-list-icon">{{ foodIconFn(food.alimento) }}</span>
           <div class="food-list-info">
             <span class="food-list-name">{{ food.alimento }}</span>
             <span class="food-list-meta">{{ food.category }} · {{ food.gramos }}</span>

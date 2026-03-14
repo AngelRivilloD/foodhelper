@@ -192,6 +192,15 @@
   background: #F5F0E8;
 }
 
+.food-list-icon {
+  font-size: 1.3rem;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .food-list-info {
   display: flex;
   flex-direction: column;

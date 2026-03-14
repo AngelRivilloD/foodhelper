@@ -302,6 +302,7 @@
       *ngIf="showAddFoodModal"
       [mealType]="selectedMealType"
       [blockedCategories]="blockedCategoriesCache"
+      [foodIconFn]="getFoodIcon"
       (addFood)="onAddFoodFromModal($event)"
       (close)="closeAddFoodModal()">
     </app-add-food-modal>
