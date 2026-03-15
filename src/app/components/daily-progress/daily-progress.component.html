@@ -10,11 +10,11 @@
 <div class="dp-progress-row" (click)="toggleExpanded()">
   <div class="dp-progress-track">
     <div class="dp-progress-bar-segments">
-      <div class="dp-progress-fill dp-confirmed" [style.width.%]="getConfirmedPercentage()" [ngStyle]="{'background': 'linear-gradient(90deg, rgb(76, 217, 100), rgb(96, 229, 129))'}"></div>
-      <div class="dp-progress-fill dp-preview" [style.width.%]="getPreviewPercentage()" [style.background]="getBarColor()"></div>
+      <div class="dp-progress-fill dp-confirmed" [style.width.%]="animated ? getConfirmedPercentage() : 0" [ngStyle]="{'background': 'linear-gradient(355deg, rgb(73, 198, 95), rgb(89, 236, 126))'}"></div>
+      <div class="dp-progress-fill dp-preview" [style.width.%]="animated ? getPreviewPercentage() : 0" [style.background]="getBarColor()"></div>
     </div>
   </div>
-  <span class="dp-progress-text" [style.color]="'#b68f5e'">{{ getProgressPercentage() }}%</span>
+  <span class="dp-progress-text" [style.color]="'#b68f5e'">{{ animated ? displayedPercentage : 0 }}%</span>
   <svg class="dp-chevron" [class.rotated]="expanded" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
 </div>
 
@@ -37,7 +37,7 @@
       <div class="dp-cat-bar-container">
         <div class="dp-cat-bar-track">
           <div class="dp-cat-bar-segments">
-            <div class="dp-cat-bar-fill dp-confirmed" [style.width.%]="getConfirmedCategoryBarWidth(cat.key)" [ngStyle]="{'background': 'linear-gradient(90deg, rgb(76, 217, 100), rgb(96, 229, 129))'}"></div>
+            <div class="dp-cat-bar-fill dp-confirmed" [style.width.%]="getConfirmedCategoryBarWidth(cat.key)" [ngStyle]="{'background': 'linear-gradient(355deg, rgb(73, 198, 95), rgb(89, 236, 126))'}"></div>
             <div class="dp-cat-bar-fill dp-preview" [style.width.%]="getPreviewCategoryBarWidth(cat.key)" [style.background]="getBarColor()"></div>
           </div>
         </div>

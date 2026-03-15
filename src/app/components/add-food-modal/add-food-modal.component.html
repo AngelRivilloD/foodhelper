@@ -43,6 +43,7 @@
         <button
           class="food-list-item"
           *ngFor="let food of cachedFilteredFoods"
+          [class.current-food]="mode === 'edit' && editFood && food.alimento === editFood.alimento"
           (click)="selectFood(food)">
           <span class="food-list-icon">{{ foodIconFn(food.alimento) }}</span>
           <div class="food-list-info">
@@ -83,7 +84,26 @@
           </button>
         </div>
 
-        <span class="portion-reference" [class.portion-bumping]="portionAnimating"><span class="portion-grams">{{ selectedFood.gramos }}</span></span>
+        <span class="portion-reference" [class.portion-bumping]="portionAnimating"><span class="portion-grams">{{ getScaledGrams() }}</span><span class="portion-cooking-state" *ngIf="getCookingState()"> · {{ getCookingState() }}</span></span>
+
+        <div class="category-progress-wrapper" *ngIf="categoryLabel && categoryPortionsTarget > 0">
+          <span class="category-progress-hint">Porciones recomendadas para tu {{ getMealLabel() }}</span>
+          <div class="category-progress">
+            <span class="category-progress-label">{{ categoryLabel }}</span>
+          <div class="category-progress-bar">
+            <div class="category-progress-fill"
+                 [class.completed]="getProjectedPortions() === categoryPortionsTarget"
+                 [class.over]="getProjectedPortions() > categoryPortionsTarget"
+                 [style.width.%]="(getProjectedPortions() / categoryPortionsTarget) * 100">
+            </div>
+          </div>
+          <span class="category-progress-count"
+                [class.completed]="getProjectedPortions() === categoryPortionsTarget"
+                [class.over]="getProjectedPortions() > categoryPortionsTarget">
+            {{ getProjectedPortions() }}/{{ categoryPortionsTarget }}
+          </span>
+          </div>
+        </div>
 
         <div class="add-action">
           <button

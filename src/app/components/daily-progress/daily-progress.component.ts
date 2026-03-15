@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { DailyProgressService } from '../../services/daily-progress.service';
 import { DailyMealState, StreakState, CALORIES_PER_PORTION } from '../../models/daily-progress.model';
@@ -8,14 +8,19 @@ import { DailyMealState, StreakState, CALORIES_PER_PORTION } from '../../models/
   templateUrl: './daily-progress.component.html',
   styleUrls: ['./daily-progress.component.css']
 })
-export class DailyProgressComponent implements OnInit, OnDestroy {
+export class DailyProgressComponent implements OnInit, OnDestroy, OnChanges {
   @Input() dailyTarget: { [category: string]: number } = {};
   @Input() profileName: string = '';
   @Input() currentMealPortions: { [category: string]: number } = {};
   @Input() currentMealType: string = '';
   @Input() mealModified: boolean = false;
+  @Input() splashDone: boolean = false;
 
   expanded = false;
+  animated = false;
+  displayedPercentage = 0;
+  private percentAnimId: number | null = null;
+  private isAnimatingPercent = false;
   dailyState: DailyMealState = { date: '', meals: {} };
   streak: StreakState = { count: 1, lastCompletedDate: null };
 
@@ -37,8 +42,9 @@ export class DailyProgressComponent implements OnInit, OnDestroy {
   ];
 
   private subs: Subscription[] = [];
+  private observer: IntersectionObserver | null = null;
 
-  constructor(private dailyProgressService: DailyProgressService) {}
+  constructor(private dailyProgressService: DailyProgressService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.subs.push(
@@ -47,7 +53,41 @@ export class DailyProgressComponent implements OnInit, OnDestroy {
     );
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['splashDone'] && this.splashDone && !this.animated) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.animated = true;
+          this.animatePercentage(this.getProgressPercentage());
+        });
+      });
+    } else if (this.animated && !this.isAnimatingPercent) {
+      this.displayedPercentage = this.getProgressPercentage();
+    }
+  }
+
+  private animatePercentage(target: number): void {
+    if (this.percentAnimId !== null) cancelAnimationFrame(this.percentAnimId);
+    this.isAnimatingPercent = true;
+    const duration = 1500;
+    const start = performance.now();
+    const from = 0;
+    const step = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      this.displayedPercentage = Math.round(from + (target - from) * ease);
+      this.cdr.detectChanges();
+      if (t < 1) {
+        this.percentAnimId = requestAnimationFrame(step);
+      } else {
+        this.isAnimatingPercent = false;
+      }
+    };
+    this.percentAnimId = requestAnimationFrame(step);
+  }
+
   ngOnDestroy(): void {
+    if (this.percentAnimId !== null) cancelAnimationFrame(this.percentAnimId);
     this.subs.forEach(s => s.unsubscribe());
   }
 

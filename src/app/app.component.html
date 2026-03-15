@@ -5,7 +5,7 @@
   </header>
 
   <div class="app-content">
-    <app-meal-calculator *ngIf="currentSection === 'plan'" [currentProfile]="selectedProfile"></app-meal-calculator>
+    <app-meal-calculator *ngIf="currentSection === 'plan'" [currentProfile]="selectedProfile" [splashDone]="!showSplash"></app-meal-calculator>
     <app-target-setter *ngIf="currentSection === 'config'" [currentProfile]="selectedProfile"></app-target-setter>
     <router-outlet></router-outlet>
   </div>

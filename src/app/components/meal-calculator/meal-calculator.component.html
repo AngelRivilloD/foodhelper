@@ -22,7 +22,8 @@
     [profileName]="currentProfile"
     [currentMealPortions]="getCurrentMealPortionsByCategory()"
     [currentMealType]="selectedMealType"
-    [mealModified]="mealModified">
+    [mealModified]="mealModified"
+    [splashDone]="splashDone">
   </app-daily-progress>
 
   <div class="meal-type-selector" *ngIf="mealPlanMode === 'dynamic'">
@@ -260,7 +261,7 @@
       *ngIf="showCelebration"
       [mealType]="celebrationMealType"
       [mealLabel]="celebrationMealLabel"
-      [streakCount]="(dailyProgressService.streak$ | async)?.count || 1"
+      [confirmedMealCount]="getConfirmedMealCount()"
       [progressPercent]="celebrationProgress"
       [totalCalories]="celebrationCalories"
       (dismiss)="onCelebrationDismiss()">
@@ -273,6 +274,10 @@
       [mode]="editModalMode"
       [editCategory]="editModalCategory"
       [editFood]="editModalFood"
+      [categoryLabel]="editModalCategory ? getCategoryLabel(editModalCategory) : ''"
+      [categoryPortionsUsed]="editModalCategory ? getTotalPortionsUsed(editModalCategory) : 0"
+      [categoryPortionsTarget]="editModalCategory ? getTargetValue(editModalCategory) : 0"
+      [editFoodCurrentPortions]="editModalFoodPortions"
       (addFood)="onAddFoodFromModal($event)"
       (replaceFood)="onReplaceFoodFromModal($event)"
       (close)="closeAddFoodModal()">

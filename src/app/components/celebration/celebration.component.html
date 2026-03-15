@@ -15,7 +15,16 @@
   <!-- Celebration card -->
   <div class="celebration-card" (click)="$event.stopPropagation()">
     <div class="celebration-icon">
-      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <defs>
+          <linearGradient id="checkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#b68f5e"/>
+            <stop offset="100%" stop-color="#8d6e47"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" stroke="url(#checkGrad)"/>
+        <path d="m9 12 2 2 4-4" stroke="url(#checkGrad)"/>
+      </svg>
     </div>
     <div class="celebration-title">{{ confirmText }}</div>
     <div class="celebration-progress">
@@ -28,9 +37,12 @@
       </div>
     </div>
     <div class="celebration-message">{{ message }}</div>
-    <div class="celebration-streak">
-      <span class="streak-emoji">🔥</span>
-      <span class="streak-text">Racha: {{ streakCount }} día{{ streakCount !== 1 ? 's' : '' }}</span>
+    <div class="celebration-meal-count">
+      {{ getMealCountText() }}
     </div>
+    <button class="continue-btn" (click)="onContinueClick()">
+      <div class="continue-fill" [style.width.%]="countdownProgress"></div>
+      <span class="continue-text">Continuar{{ countdown > 0 ? ' ' + countdown : '' }}</span>
+    </button>
   </div>
 </div>

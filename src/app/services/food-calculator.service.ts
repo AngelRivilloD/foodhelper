@@ -243,6 +243,11 @@ export class FoodCalculatorService {
     this.currentMealType = mealType;
   }
 
+  // Establecer plan de comida actual (para sincronizar al cargar planes confirmados)
+  setCurrentMealPlan(plan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] }): void {
+    this.currentMealPlan = plan;
+  }
+
   // Establecer preferencias de alimentos del perfil actual
   setFoodPreferences(preferences: { [category: string]: string[] }): void {
     this.currentFoodPreferences = preferences;

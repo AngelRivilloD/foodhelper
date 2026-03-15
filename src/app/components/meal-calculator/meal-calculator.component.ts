@@ -12,6 +12,7 @@ import { MatchResult } from '../../models/voice.model';
 })
 export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() currentProfile: string = 'Angel';
+  @Input() splashDone: boolean = false;
   @ViewChild('daySelectorButtons') daySelectorButtons!: ElementRef;
   
   mealPlan: { [category: string]: { food: FoodItem, portions: number, totalAmount: string }[] } = {};
@@ -114,6 +115,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
       const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
       if (confirmedPlan) {
         this.mealPlan = JSON.parse(JSON.stringify(confirmedPlan));
+        this.foodCalculatorService.setCurrentMealPlan(this.mealPlan);
+        this.foodCalculatorService.setCurrentMealType(this.selectedMealType);
       }
     }
   }
@@ -243,6 +246,7 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
   // MÉTODOS DE AJUSTE DE PORCIONES
   adjustPortions(category: string, food: FoodItem, newPortions: number): void {
+    this.foodCalculatorService.setCurrentMealPlan(this.mealPlan);
     this.mealPlan = this.foodCalculatorService.adjustPortions(category, food, newPortions);
     if (this.isMealConfirmed()) this.mealModified = true;
   }
@@ -414,6 +418,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
         const confirmedPlan = this.dailyProgressService.getConfirmedMealPlan(this.selectedMealType);
         if (confirmedPlan) {
           this.mealPlan = JSON.parse(JSON.stringify(confirmedPlan));
+          this.foodCalculatorService.setCurrentMealPlan(this.mealPlan);
+          this.foodCalculatorService.setCurrentMealType(this.selectedMealType);
         }
       } else {
         this.generateMealPlanForMeal();
@@ -850,6 +856,10 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     }, 0);
   }
 
+  getConfirmedMealCount(): number {
+    return this.mealTypes.filter(m => this.isMealConfirmed(m.key)).length;
+  }
+
   onConfirmClick(): void {
     if (this.isMealConfirmed() && !this.mealModified) return;
     this.confirmMeal();
@@ -936,6 +946,11 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
 
 
+  getCategoryLabel(categoryKey: string): string {
+    const cat = this.macroCategories.find(c => c.key === categoryKey);
+    return cat ? cat.label : categoryKey;
+  }
+
   openAddFoodModal(): void {
     this.editModalMode = 'add';
     this.editModalCategory = '';
@@ -943,10 +958,14 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
     this.showAddFoodModal = true;
   }
 
+  editModalFoodPortions: number = 0;
+
   openEditFoodModal(category: string, food: FoodItem): void {
     this.editModalMode = 'edit';
     this.editModalCategory = category;
     this.editModalFood = food;
+    const item = this.mealPlan[category]?.find(i => i.food.alimento === food.alimento);
+    this.editModalFoodPortions = item ? item.portions : 0;
     this.showAddFoodModal = true;
   }
 
@@ -960,6 +979,8 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   onReplaceFoodFromModal(event: { food: FoodItem, portions: number }): void {
     if (this.editModalFood && this.editModalCategory) {
       this.replaceFood(this.editModalCategory, this.editModalFood, event.food);
+      // Adjust portions to match what the user selected in the modal
+      this.adjustPortions(this.editModalCategory, event.food, event.portions);
     }
   }
 

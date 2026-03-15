@@ -324,7 +324,7 @@ export class AddFoodModalComponent implements OnInit {
 /* Search */
 .search-container {
   position: relative;
-  padding: 0 20px 12px;
+  padding: 0 20px;
   flex-shrink: 0;
 }
 
@@ -363,7 +363,7 @@ export class AddFoodModalComponent implements OnInit {
 .category-chips {
   display: flex;
   gap: 8px;
-  padding: 0 20px 12px;
+  padding: 16px 20px 16px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;

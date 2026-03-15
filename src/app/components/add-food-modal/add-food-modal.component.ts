@@ -13,6 +13,10 @@ export class AddFoodModalComponent implements OnInit, AfterViewInit {
   @Input() mode: 'add' | 'edit' = 'add';
   @Input() editCategory: string = '';
   @Input() editFood: FoodItem | null = null;
+  @Input() categoryLabel: string = '';
+  @Input() categoryPortionsUsed: number = 0;
+  @Input() categoryPortionsTarget: number = 0;
+  @Input() editFoodCurrentPortions: number = 0;
   @Output() addFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() replaceFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() close = new EventEmitter<void>();
@@ -52,6 +56,9 @@ export class AddFoodModalComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     if (this.selectedCategory !== 'Todos') {
       setTimeout(() => this.scrollToActiveChip(), 50);
+    }
+    if (this.mode === 'edit' && this.editFood) {
+      setTimeout(() => this.scrollToCurrentFood(), 100);
     }
   }
 
@@ -120,6 +127,14 @@ export class AddFoodModalComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private scrollToCurrentFood(): void {
+    const listEl = this.foodListEl?.nativeElement;
+    if (!listEl || !this.editFood) return;
+    const item = listEl.querySelector('.current-food') as HTMLElement;
+    if (!item) return;
+    item.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
   selectFood(food: FoodItem): void {
     this.selectedFood = food;
     this.portions = 1;
@@ -145,6 +160,90 @@ export class AddFoodModalComponent implements OnInit, AfterViewInit {
     this.portionAnimating = false;
     setTimeout(() => { this.portionAnimating = true; }, 0);
     setTimeout(() => { this.portionAnimating = false; }, 300);
+  }
+
+  getMealLabel(): string {
+    const labels: Record<string, string> = {
+      'DESAYUNO': 'desayuno',
+      'COMIDA': 'almuerzo',
+      'ALMUERZO': 'almuerzo',
+      'MERIENDA': 'merienda',
+      'CENA': 'cena'
+    };
+    return labels[this.mealType] || 'comida';
+  }
+
+  getProjectedPortions(): number {
+    return this.categoryPortionsUsed - this.editFoodCurrentPortions + this.portions;
+  }
+
+  private readonly rawToCookedFoods = [
+    'Pescado blanco', 'Pechuga de pollo', 'Pechuga de pavo', 'Clara de huevo',
+    'Carne roja magra', 'Lomo de cerdo', 'Salmón',
+    'Carne de cerdo (graso)', 'Carne roja grasa',
+    'Patata', 'Gnocchis', 'Boniato', 'Plátano macho'
+  ];
+
+  private isRawToCooked(): boolean {
+    return !!this.selectedFood && this.rawToCookedFoods.includes(this.selectedFood.alimento);
+  }
+
+  getCookingState(): string {
+    if (!this.selectedFood) return '';
+    const raw = this.selectedFood.gramos;
+    if (/cocido/i.test(raw)) return 'cocido';
+    if (/crudo/i.test(raw)) return 'crudo';
+    if (this.isRawToCooked()) return 'cocinado';
+    return '';
+  }
+
+  private stripCookingState(text: string): string {
+    return text.replace(/\s*(cocido|crudo)\s*/gi, '').trim();
+  }
+
+  getScaledGrams(): string {
+    if (!this.selectedFood) return '';
+    const raw = this.selectedFood.gramos;
+
+    // Match patterns like "90g", "20g"
+    const gramMatch = raw.match(/^(\d+)\s*g$/i);
+    if (gramMatch) {
+      let total = parseInt(gramMatch[1], 10) * this.portions;
+      // Convert raw to cooked weight (~75%)
+      if (this.isRawToCooked()) {
+        total = Math.round(total * 0.75);
+      }
+      return total + 'g';
+    }
+
+    // Match fractions like "1/2 taza cocido", "1/3 taza cocido"
+    const fractionMatch = raw.match(/^(\d+)\/(\d+)\s+(.+)$/);
+    if (fractionMatch) {
+      const num = parseInt(fractionMatch[1], 10) * this.portions;
+      const den = parseInt(fractionMatch[2], 10);
+      const unit = this.stripCookingState(fractionMatch[3]);
+      if (num % den === 0) {
+        const whole = num / den;
+        return whole + ' ' + unit;
+      }
+      return num + '/' + den + ' ' + unit;
+    }
+
+    // Match "1 unidad", "2 unidades"
+    const unitMatch = raw.match(/^(\d+)\s+(.+)$/);
+    if (unitMatch) {
+      const count = parseInt(unitMatch[1], 10) * this.portions;
+      let unit = this.stripCookingState(unitMatch[2]);
+      // Handle singular/plural for "unidad"/"unidades"
+      if (count === 1 && unit.endsWith('es')) {
+        unit = unit.replace(/es$/, '');
+      } else if (count > 1 && unit === 'unidad') {
+        unit = 'unidades';
+      }
+      return count + ' ' + unit;
+    }
+
+    return this.portions > 1 ? this.portions + ' × ' + raw : raw;
   }
 
   onAdd(): void {
