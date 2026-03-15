@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FoodCalculatorService } from '../../services/food-calculator.service';
 import { FoodItem } from '../../models/food.model';
 
@@ -7,17 +7,23 @@ import { FoodItem } from '../../models/food.model';
   templateUrl: './add-food-modal.component.html',
   styleUrls: ['./add-food-modal.component.css']
 })
-export class AddFoodModalComponent implements OnInit {
+export class AddFoodModalComponent implements OnInit, AfterViewInit {
   @Input() mealType: string = 'DESAYUNO';
   @Input() foodIconFn: (name: string) => string = () => '🍽️';
+  @Input() mode: 'add' | 'edit' = 'add';
+  @Input() editCategory: string = '';
+  @Input() editFood: FoodItem | null = null;
   @Output() addFood = new EventEmitter<{ food: FoodItem, portions: number }>();
+  @Output() replaceFood = new EventEmitter<{ food: FoodItem, portions: number }>();
   @Output() close = new EventEmitter<void>();
   @ViewChild('foodListEl') foodListEl?: ElementRef<HTMLElement>;
+  @ViewChild('chipsContainer') chipsContainer?: ElementRef<HTMLElement>;
 
   searchQuery = '';
   selectedCategory = 'Todos';
   selectedFood: FoodItem | null = null;
   portions = 1;
+  portionAnimating = false;
   cachedFilteredFoods: FoodItem[] = [];
 
   categories = [
@@ -37,7 +43,16 @@ export class AddFoodModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFoods();
+    if (this.mode === 'edit' && this.editCategory) {
+      this.selectedCategory = this.editCategory;
+    }
     this.updateFilteredFoods();
+  }
+
+  ngAfterViewInit(): void {
+    if (this.selectedCategory !== 'Todos') {
+      setTimeout(() => this.scrollToActiveChip(), 50);
+    }
   }
 
   private loadFoods(): void {
@@ -80,6 +95,29 @@ export class AddFoodModalComponent implements OnInit {
   onCategoryChange(categoryKey: string): void {
     this.selectedCategory = categoryKey;
     this.updateFilteredFoods();
+    setTimeout(() => this.scrollToActiveChip(), 0);
+  }
+
+  private scrollToActiveChip(): void {
+    const container = this.chipsContainer?.nativeElement;
+    if (!container) return;
+    const activeChip = container.querySelector(`[data-category="${this.selectedCategory}"]`) as HTMLElement;
+    if (!activeChip) return;
+    const chipRight = activeChip.offsetLeft + activeChip.offsetWidth;
+    const containerWidth = container.offsetWidth;
+    const padding = 20;
+    // Only scroll if the chip is not fully visible
+    if (chipRight > container.scrollLeft + containerWidth) {
+      container.scrollTo({
+        left: chipRight - containerWidth + padding,
+        behavior: 'smooth'
+      });
+    } else if (activeChip.offsetLeft < container.scrollLeft) {
+      container.scrollTo({
+        left: activeChip.offsetLeft - padding,
+        behavior: 'smooth'
+      });
+    }
   }
 
   selectFood(food: FoodItem): void {
@@ -93,17 +131,29 @@ export class AddFoodModalComponent implements OnInit {
 
   incrementPortions(): void {
     this.portions++;
+    this.triggerPortionAnimation();
   }
 
   decrementPortions(): void {
     if (this.portions > 1) {
       this.portions--;
+      this.triggerPortionAnimation();
     }
+  }
+
+  private triggerPortionAnimation(): void {
+    this.portionAnimating = false;
+    setTimeout(() => { this.portionAnimating = true; }, 0);
+    setTimeout(() => { this.portionAnimating = false; }, 300);
   }
 
   onAdd(): void {
     if (this.selectedFood) {
-      this.addFood.emit({ food: this.selectedFood, portions: this.portions });
+      if (this.mode === 'edit') {
+        this.replaceFood.emit({ food: this.selectedFood, portions: this.portions });
+      } else {
+        this.addFood.emit({ food: this.selectedFood, portions: this.portions });
+      }
       this.close.emit();
     }
   }

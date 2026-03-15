@@ -15,7 +15,10 @@ export class SplashScreenComponent implements AfterViewInit, OnDestroy {
   private timeouts: ReturnType<typeof setTimeout>[] = [];
 
   ngAfterViewInit(): void {
-    document.fonts.ready.then(() => {
+    Promise.all([
+      document.fonts.load('600 40px Urbanist'),
+      document.fonts.load('700 40px Urbanist')
+    ]).then(() => {
       this.animateLogo();
     });
   }

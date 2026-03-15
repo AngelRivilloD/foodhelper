@@ -11,7 +11,7 @@
     <!-- Search / List View -->
     <ng-container *ngIf="!selectedFood">
       <div class="sheet-header">
-        <h2>Añadir alimento</h2>
+        <h2>{{ mode === 'edit' ? 'Cambiar alimento' : 'Añadir alimento' }}</h2>
         <button class="close-btn" (click)="close.emit()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -28,11 +28,12 @@
           autocomplete="off">
       </div>
 
-      <div class="category-chips">
+      <div class="category-chips" #chipsContainer>
         <button
           *ngFor="let cat of categories"
           class="chip"
           [class.active]="selectedCategory === cat.key"
+          [attr.data-category]="cat.key"
           (click)="onCategoryChange(cat.key)">
           {{ cat.label }}
         </button>
@@ -46,7 +47,7 @@
           <span class="food-list-icon">{{ foodIconFn(food.alimento) }}</span>
           <div class="food-list-info">
             <span class="food-list-name">{{ food.alimento }}</span>
-            <span class="food-list-meta">{{ food.category }} · {{ food.gramos }}</span>
+            <span class="food-list-meta">{{ selectedCategory === 'Todos' ? food.category + ' · ' : '' }}{{ food.gramos }}</span>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
@@ -63,14 +64,14 @@
         <button class="back-btn" (click)="goBack()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <h2>{{ selectedFood.alimento }}</h2>
+        <h2><span class="header-icon">{{ foodIconFn(selectedFood.alimento) }}</span> {{ selectedFood.alimento }}</h2>
         <button class="close-btn" (click)="close.emit()">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
       <div class="quantity-view">
-        <span class="quantity-category">{{ selectedFood.category }}</span>
+        <span class="quantity-category">{{ portions === 1 ? 'porción' : 'porciones' }}</span>
 
         <div class="portion-selector">
           <button class="portion-btn" (click)="decrementPortions()" [disabled]="portions <= 1">
@@ -82,13 +83,13 @@
           </button>
         </div>
 
-        <span class="portion-reference">1 porción = {{ selectedFood.gramos }}</span>
+        <span class="portion-reference" [class.portion-bumping]="portionAnimating"><span class="portion-grams">{{ selectedFood.gramos }}</span></span>
 
         <div class="add-action">
           <button
             class="add-btn"
             (click)="onAdd()">
-            Añadir
+            {{ mode === 'edit' ? 'Cambiar' : 'Añadir' }}
           </button>
         </div>
       </div>

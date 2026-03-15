@@ -134,29 +134,11 @@
               </div>
 
               <div class="food-actions">
-                <!-- Botón de cambio que actúa como desplegable -->
-                <div class="dropdown-container">
-                  <button
-                    class="change-btn dropdown-btn"
-                    [class.hidden]="showAlternatives !== null || showAddFood !== null"
-                    (click)="showAlternatives = showAlternatives === item.food.alimento ? null : item.food.alimento; $event.stopPropagation()">
-                    Cambiar
-                  </button>
-
-                  <!-- Opciones del desplegable -->
-                  <div class="dropdown-options" *ngIf="showAlternatives === item.food.alimento" (click)="$event.stopPropagation()">
-                    <button
-                      class="dropdown-option"
-                      *ngFor="let alternative of getAlternatives(category.key, item.food, selectedMealType)"
-                      (click)="replaceFood(category.key, item.food, alternative); showAlternatives = null">
-                      <span class="dropdown-icon">{{ getFoodIcon(alternative.alimento) }}</span>
-                      <span class="dropdown-content">
-                        <span class="dropdown-name">{{ alternative.alimento }}</span>
-                        <small class="dropdown-amount">{{ alternative.gramos }}</small>
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                <button
+                  class="change-btn"
+                  (click)="openEditFoodModal(category.key, item.food); $event.stopPropagation()">
+                  Cambiar
+                </button>
               </div>
             </div>
 
@@ -220,7 +202,7 @@
         <ng-container *ngFor="let category of getActiveCategories()">
           <ng-container *ngFor="let item of mealPlan[category.key]">
           <div class="ingredient-item" *ngIf="item.portions > 0"
-               (click)="showSummaryAlternatives = showSummaryAlternatives === getItemId(category.key, item.food) ? null : getItemId(category.key, item.food); $event.stopPropagation()">
+               (click)="openEditFoodModal(category.key, item.food); $event.stopPropagation()">
             <span class="ingredient-icon">{{ getFoodIcon(item.food.alimento) }}</span>
             <div class="ingredient-text clickable">
               <span class="ingredient-name">{{ item.food.alimento }}</span>
@@ -232,18 +214,6 @@
               <span class="ingredient-meta">
                 {{ category.label }}
               </span>
-            </div>
-            <div class="summary-dropdown" *ngIf="showSummaryAlternatives === getItemId(category.key, item.food)" (click)="$event.stopPropagation()">
-              <button
-                class="dropdown-option"
-                *ngFor="let alt of getAlternatives(category.key, item.food, selectedMealType)"
-                (click)="replaceFood(category.key, item.food, alt); showSummaryAlternatives = null; $event.stopPropagation()">
-                <span class="dropdown-icon">{{ getFoodIcon(alt.alimento) }}</span>
-                <span class="dropdown-content">
-                  <span class="dropdown-name">{{ alt.alimento }}</span>
-                  <small class="dropdown-amount">{{ alt.gramos }}</small>
-                </span>
-              </button>
             </div>
             <div class="summary-portion-controls">
               <button class="summary-portion-btn"
@@ -300,7 +270,11 @@
       *ngIf="showAddFoodModal"
       [mealType]="selectedMealType"
       [foodIconFn]="getFoodIcon"
+      [mode]="editModalMode"
+      [editCategory]="editModalCategory"
+      [editFood]="editModalFood"
       (addFood)="onAddFoodFromModal($event)"
+      (replaceFood)="onReplaceFoodFromModal($event)"
       (close)="closeAddFoodModal()">
     </app-add-food-modal>
 

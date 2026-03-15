@@ -59,6 +59,10 @@
   font-weight: 700;
   color: #222222;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .close-btn,
@@ -104,7 +108,7 @@
   border: 1.5px solid #EDE8E0;
   border-radius: 12px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
+  font-size: 16px;
   color: #222222;
   background: #FAFAF8;
   outline: none;
@@ -253,11 +257,11 @@
 
 .quantity-category {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #b68f5e;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #999;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .portion-selector {
@@ -310,8 +314,24 @@
 
 .portion-reference {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
-  color: #999;
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #666;
+}
+
+.portion-grams {
+  color: #b68f5e;
+  font-weight: 500;
+}
+
+.portion-reference.portion-bumping {
+  animation: portionBump 0.3s ease;
+}
+
+@keyframes portionBump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  100% { transform: scale(1); }
 }
 
 /* Add action */

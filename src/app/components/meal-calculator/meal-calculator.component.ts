@@ -35,6 +35,9 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
   animatingPortions = new Set<string>();
   mealModified = false;
   showAddFoodModal = false;
+  editModalMode: 'add' | 'edit' = 'add';
+  editModalCategory = '';
+  editModalFood: FoodItem | null = null;
   dailyLimitTooltip: string | null = null;
   private dailyLimitTooltipTimeout: any = null;
 
@@ -934,11 +937,30 @@ export class MealCalculatorComponent implements OnInit, OnChanges, AfterViewInit
 
 
   openAddFoodModal(): void {
+    this.editModalMode = 'add';
+    this.editModalCategory = '';
+    this.editModalFood = null;
+    this.showAddFoodModal = true;
+  }
+
+  openEditFoodModal(category: string, food: FoodItem): void {
+    this.editModalMode = 'edit';
+    this.editModalCategory = category;
+    this.editModalFood = food;
     this.showAddFoodModal = true;
   }
 
   closeAddFoodModal(): void {
     this.showAddFoodModal = false;
+    this.editModalMode = 'add';
+    this.editModalCategory = '';
+    this.editModalFood = null;
+  }
+
+  onReplaceFoodFromModal(event: { food: FoodItem, portions: number }): void {
+    if (this.editModalFood && this.editModalCategory) {
+      this.replaceFood(this.editModalCategory, this.editModalFood, event.food);
+    }
   }
 
   onAddFoodFromModal(event: { food: FoodItem, portions: number }): void {
